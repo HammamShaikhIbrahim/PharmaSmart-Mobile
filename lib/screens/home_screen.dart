@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -7,9 +6,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:awesome_dialog/awesome_dialog.dart'; // مكتبة التنبيهات الجميلة
 
 import '../config/api_config.dart';
-import 'medicine_details_screen.dart';
 import 'pharmacy_list_screen.dart';
 import 'search_screen.dart';
 import 'pharmacy_profile_screen.dart';
@@ -27,10 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isLoading = true;
   List _categories = [];
   List _pharmacies = [];
-  List _showcase =[];
   int _selectedCatIndex = -1;
-  int _showcaseIndex = 0;
-  Timer? _timer;
   Position? _userPos;
 
   final Color primaryColor = const Color(0xFF0A7A48);
@@ -42,22 +38,16 @@ class _HomeScreenState extends State<HomeScreen> {
     _initData();
   }
 
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
   _initData() async {
     await _getUserLocation();
     await _fetchData();
-    _startShowcaseTimer();
   }
 
   _getUserLocation() async {
     try {
       _userPos = await Geolocator.getCurrentPosition();
     } catch (e) {
+      // إحداثيات افتراضية في حال رفض المستخدم أو أوقف الـ GPS
       _userPos = Position(longitude: 34.4475, latitude: 31.5126, timestamp: DateTime.now(), accuracy: 0, altitude: 0, heading: 0, speed: 0, speedAccuracy: 0, altitudeAccuracy: 0, headingAccuracy: 0);
     }
   }
@@ -67,33 +57,38 @@ class _HomeScreenState extends State<HomeScreen> {
       final res = await http.get(Uri.parse("${ApiConfig.baseUrl}home_data.php"));
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-        setState(() {
-          _categories = data['categories'];
-          _pharmacies = data['pharmacies'];
-          _showcase = data['showcase_medicines'];
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _categories = data['categories'];
+            _pharmacies = data['pharmacies'];
+            _isLoading = false;
+          });
+        }
       }
     } catch (e) {
-      setState(() { _isLoading = false; });
+      if (mounted) setState(() { _isLoading = false; });
     }
   }
 
-  _startShowcaseTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      if (_showcase.isNotEmpty && mounted) {
-        setState(() {
-          _showcaseIndex = (_showcaseIndex + 1) % _showcase.length;
-        });
-      }
-    });
+  // 💡 دالة إظهار رسالة "قريباً" (Coming Soon) الموحدة
+  void _showComingSoonMsg(String featureName) {
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.info,
+      animType: AnimType.bottomSlide,
+      title: 'قريباً جداً!',
+      desc: 'ميزة ($featureName) قيد التطوير حالياً، وسيتم إضافتها في التحديث القادم للتطبيق.',
+      btnOkOnPress: () {},
+      btnOkColor: primaryColor,
+      btnOkText: 'حسناً',
+    ).show();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: bgColor,
-      body: _isLoading 
+      body: _isLoading
         ? Center(child: CircularProgressIndicator(color: primaryColor))
         : SafeArea(
             child: Directionality(
@@ -108,15 +103,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 10),
                       _buildTopBar(),
                       const SizedBox(height: 30),
-                      
-                      _buildAutoShowcase(),
+                      _buildQuickServices(),
                       const SizedBox(height: 30),
-                      
                       _buildCategoriesSection(),
                       const SizedBox(height: 30),
-                      
                       _buildMapSection(),
-                      const SizedBox(height: 20), // مسافة سفلية قبل نهاية الشاشة
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
@@ -142,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children:[
                 const Text("مرحباً بك،", style: TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.bold)),
-                Text(widget.isGuest ? "زائرنا العزيز" : "${widget.userName}", 
+                Text(widget.isGuest ? "زائرنا العزيز" : "${widget.userName}",
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.black87)),
               ],
             ),
@@ -165,88 +157,56 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildAutoShowcase() {
-    if (_showcase.isEmpty) return const SizedBox();
-    final item = _showcase[_showcaseIndex];
-    final String imgUrl = "${ApiConfig.baseUrl.replaceAll('api/', '')}uploads/medicines/${item['Image']}";
-
+  // 💡 تحديث كروت الخدمات السريعة وإضافة رسالة "قريباً" لها
+  Widget _buildQuickServices() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children:[
-        const Text("اكتشف الأدوية", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.black87)),
+      children: [
+        const Text("خدمات سريعة", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.black87)),
         const SizedBox(height: 15),
-        GestureDetector(
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (c) => MedicineDetailsScreen(medicineId: int.parse(item['SystemMedID'].toString()), medicineName: item['Name']))),
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 600),
-            transitionBuilder: (Widget child, Animation<double> animation) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-            child: Container(
-              key: ValueKey(_showcaseIndex),
-              width: double.infinity,
-              height: 160,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                gradient: LinearGradient(
-                  colors: [primaryColor, primaryColor.withOpacity(0.7)],
-                  begin: Alignment.centerRight,
-                  end: Alignment.centerLeft,
-                ),
-                boxShadow:[
-                  BoxShadow(color: primaryColor.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10))
-                ]
-              ),
-              child: Stack(
-                children:[
-                  Positioned(left: -20, top: -20, child: CircleAvatar(radius: 60, backgroundColor: Colors.white.withOpacity(0.1))),
-                  Positioned(right: -30, bottom: -30, child: CircleAvatar(radius: 50, backgroundColor: Colors.white.withOpacity(0.1))),
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Row(
-                      children:[
-                        Expanded(
-                          flex: 3,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children:[
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
-                                child: Text(item['CategoryName'], style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(item['Name'], style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: Colors.white), maxLines: 1, overflow: TextOverflow.ellipsis),
-                              const SizedBox(height: 10),
-                              Row(
-                                children:[
-                                  const Text("يبدأ من ", style: TextStyle(color: Colors.white70, fontSize: 12)),
-                                  Text("${item['Price']} ₪", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 18)),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Container(
-                            decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                            padding: const EdgeInsets.all(10),
-                            child: ClipOval(
-                              child: Image.network(imgUrl, fit: BoxFit.cover, errorBuilder: (c, e, s) => Icon(LucideIcons.pill, size: 40, color: primaryColor)),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+        Row(
+          children: [
+            Expanded(child: _buildServiceCard("صرف وصفة", LucideIcons.fileSignature, Colors.orange, () {
+              // سنبرمج رفع الوصفة لاحقاً ضمن السلة
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('سيتم تفعيل رفع الوصفة من خلال السلة')));
+            })),
+            const SizedBox(width: 10),
+            Expanded(child: _buildServiceCard("منبه الأدوية", LucideIcons.alarmClock, Colors.blue, () {
+              _showComingSoonMsg("منبه الأدوية الذكي");
+            })),
+            const SizedBox(width: 10),
+            Expanded(child: _buildServiceCard("استشارة", LucideIcons.messageCircle, primaryColor, () {
+              _showComingSoonMsg("المحادثة المباشرة مع الصيدلي");
+            })),
+          ],
         ),
       ],
+    );
+  }
+
+  Widget _buildServiceCard(String title, IconData icon, Color color, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 15),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.grey.shade100),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))],
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+              child: Icon(icon, color: color, size: 24),
+            ),
+            const SizedBox(height: 10),
+            Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87)),
+          ],
+        ),
+      ),
     );
   }
 
@@ -258,7 +218,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children:[
             const Text("التصنيفات الطبية", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.black87)),
             TextButton(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (c) => SearchScreen(userPos: _userPos))), 
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (c) => SearchScreen(userPos: _userPos))),
               child: Text("عرض الكل", style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold))
             ),
           ],
@@ -306,19 +266,16 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // 💡 التعديل هنا: الخريطة منفصلة تماماً عن الزر
   Widget _buildMapSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children:[
         const Text("أقرب الصيدليات إليك", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.black87)),
         const SizedBox(height: 15),
-        
-        // مربع الخريطة
         Container(
-          height: 250, // زيادة الارتفاع قليلاً لتعويض المساحة
+          height: 250,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24), 
+            borderRadius: BorderRadius.circular(24),
             boxShadow:[BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 15, offset: const Offset(0, 5))],
             border: Border.all(color: Colors.grey.shade200)
           ),
@@ -329,41 +286,45 @@ class _HomeScreenState extends State<HomeScreen> {
               children:[
                 TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'),
                 MarkerLayer(
-                  markers: _pharmacies.map((p) => Marker(
-                    point: LatLng(double.parse(p['Latitude'].toString()), double.parse(p['Longitude'].toString())),
-                    width: 45, height: 45,
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => PharmacyProfileScreen(pharmacyData: p)));
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: primaryColor, width: 2),
-                          boxShadow:[BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))]
-                        ),
-                        child: Center(
-                          child: FaIcon(FontAwesomeIcons.hospital, color: primaryColor, size: 18),
+                  markers: _pharmacies.map((p) {
+                    double lat = double.tryParse(p['Latitude']?.toString() ?? '0') ?? 0;
+                    double lng = double.tryParse(p['Longitude']?.toString() ?? '0') ?? 0;
+                    return Marker(
+                      point: LatLng(lat, lng),
+                      width: 45, height: 45,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => PharmacyProfileScreen(pharmacyData: p, userPos: _userPos)));
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: primaryColor, width: 2),
+                            boxShadow:[BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))]
+                          ),
+                          child: Center(
+                            // 💡 تغيير الأيقونة على الخريطة لأيقونة صيدلية احترافية
+                            child: FaIcon(FontAwesomeIcons.houseMedical, color: primaryColor, size: 18),
+                          ),
                         ),
                       ),
-                    ),
-                  )).toList(),
+                    );
+                  }).toList(),
                 ),
               ],
             ),
           ),
         ),
+        const SizedBox(height: 20),
         
-        const SizedBox(height: 20), // مسافة بين الخريطة والزر
-        
-        // 💡 زر الاستكشاف مفصول بالكامل أسفل الخريطة
+        // 💡 التعديل الجذري لزر الاستكشاف ليكون أيقونة صيدلية بدل السوبرماركت!
         ElevatedButton(
           onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (c) => PharmacyListScreen(userPos: _userPos!))),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.white,
             foregroundColor: primaryColor,
-            elevation: 3, // إضافة ظل خفيف
+            elevation: 3,
             shadowColor: Colors.black26,
             minimumSize: const Size(double.infinity, 55),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15), side: BorderSide(color: primaryColor.withOpacity(0.3))),
@@ -371,9 +332,9 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children:[
-              FaIcon(FontAwesomeIcons.hospital, color: primaryColor, size: 18),
+              FaIcon(FontAwesomeIcons.kitMedical, color: primaryColor, size: 20), // الأيقونة الجديدة
               const SizedBox(width: 10),
-              const Text("استكشاف قائمة الصيدليات", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+              const Text("استكشاف الصيدليات والمتاجر", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
             ],
           ),
         ),
