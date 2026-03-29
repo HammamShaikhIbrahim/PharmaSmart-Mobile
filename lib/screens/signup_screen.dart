@@ -9,7 +9,7 @@ import 'package:latlong2/latlong.dart';
 import 'map_picker_screen.dart';
 
 class SignupScreen extends StatefulWidget {
-  const SignupScreen({Key? key}) : super(key: key);
+  const SignupScreen({super.key});
 
   @override
   State<SignupScreen> createState() => _SignupScreenState();

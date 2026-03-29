@@ -11,7 +11,7 @@ import 'package:geolocator/geolocator.dart';
 // 2. إنشاء كلاس الشاشة 
 // ==========================================
 class MapPickerScreen extends StatefulWidget {
-  const MapPickerScreen({Key? key}) : super(key: key);
+  const MapPickerScreen({super.key});
 
   @override
   State<MapPickerScreen> createState() => _MapPickerScreenState();
