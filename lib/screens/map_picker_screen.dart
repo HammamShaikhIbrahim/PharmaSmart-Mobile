@@ -106,8 +106,8 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
             ),
             children:[
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.pharmasmart.app', 
+                urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+                userAgentPackageName: 'com.pharmasmart.app',
               ),
               
               // ------------------------------------------

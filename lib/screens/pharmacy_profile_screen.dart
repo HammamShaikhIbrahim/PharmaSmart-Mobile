@@ -39,7 +39,7 @@ class PharmacyProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // تجهيز البيانات
     final String name = pharmacyData['PharmacyName'] ?? 'صيدلية غير معروفة';
-    final String doctor = "د. ${pharmacyData['Fname'] ?? ''} ${pharmacyData['Lname'] ?? ''}".trim();
+    final String doctor = "${pharmacyData['Fname'] ?? ''} ${pharmacyData['Lname'] ?? ''}".trim();
     final String phone = pharmacyData['Phone'] ?? '';
     final String location = pharmacyData['Location'] ?? 'العنوان غير متوفر';
     final String hours = (pharmacyData['WorkingHours'] != null && pharmacyData['WorkingHours'].toString().trim().isNotEmpty) ? pharmacyData['WorkingHours'] : 'ساعات العمل غير محددة';
@@ -54,9 +54,9 @@ class PharmacyProfileScreen extends StatelessWidget {
     } else if (pharmacyData['dist'] != null) {
       dist = pharmacyData['dist'];
     }
-    
+
     final String logoName = pharmacyData['Logo']?.toString() ?? '';
-    final bool hasLogo = logoName.isNotEmpty && logoName != 'default.png';
+    final bool hasLogo = logoName.isNotEmpty;
     final String logoUrl = "${ApiConfig.baseUrl.replaceAll('api/', '')}uploads/logos/$logoName";
     
     final Color primaryColor = const Color(0xFF0A7A48);
@@ -78,7 +78,7 @@ class PharmacyProfileScreen extends StatelessWidget {
               )));
             },
             icon: const Icon(LucideIcons.store, color: Colors.white),
-            label: const Text("تصفح أدوية الصيدلية والمتاجر", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            label: const Text("تصفح أدوية الصيدلية", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
               backgroundColor: primaryColor,
               minimumSize: const Size(double.infinity, 60),

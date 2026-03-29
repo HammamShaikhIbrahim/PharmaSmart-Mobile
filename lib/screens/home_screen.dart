@@ -71,16 +71,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // 💡 دالة إظهار رسالة "قريباً" (Coming Soon) الموحدة
+  // 💡 دالة إظهار رسالة "قريباً" (تم إصلاح مشكلة الدائرة البيضاء)
   void _showComingSoonMsg(String featureName) {
     AwesomeDialog(
       context: context,
-      dialogType: DialogType.info,
-      animType: AnimType.bottomSlide,
+      dialogType: DialogType.noHeader, // نوع الأيقونة التي ستظهر في الدائرة
       title: 'قريباً جداً!',
       desc: 'ميزة ($featureName) قيد التطوير حالياً، وسيتم إضافتها في التحديث القادم للتطبيق.',
       btnOkOnPress: () {},
       btnOkColor: primaryColor,
       btnOkText: 'حسناً',
+      // لتصحيح اتجاه النص ليصبح عربياً 100%
+      descTextStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
     ).show();
   }
 
@@ -284,7 +286,11 @@ class _HomeScreenState extends State<HomeScreen> {
             child: FlutterMap(
               options: MapOptions(initialCenter: LatLng(_userPos!.latitude, _userPos!.longitude), initialZoom: 13),
               children:[
-                TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'),
+                TileLayer(
+                  // استخدمنا سيرفرات CartoDB القوية والجميلة (نفس المستخدمة في موقع الويب الخاص بك)
+                  urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+                  userAgentPackageName: 'com.pharmasmart.app',
+                ),
                 MarkerLayer(
                   markers: _pharmacies.map((p) {
                     double lat = double.tryParse(p['Latitude']?.toString() ?? '0') ?? 0;
@@ -296,18 +302,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: () {
                           Navigator.push(context, MaterialPageRoute(builder: (context) => PharmacyProfileScreen(pharmacyData: p, userPos: _userPos)));
                         },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: primaryColor, width: 2),
-                            boxShadow:[BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))]
-                          ),
                           child: Center(
                             // 💡 تغيير الأيقونة على الخريطة لأيقونة صيدلية احترافية
-                            child: FaIcon(FontAwesomeIcons.houseMedical, color: primaryColor, size: 18),
+                            child: Icon(LucideIcons.mapPin, color: primaryColor, size: 28),
                           ),
-                        ),
                       ),
                     );
                   }).toList(),

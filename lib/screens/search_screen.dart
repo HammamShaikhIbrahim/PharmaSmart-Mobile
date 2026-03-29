@@ -66,7 +66,7 @@ class _SearchScreenState extends State<SearchScreen> {
           backgroundColor: Colors.white,
           elevation: 0,
           title: Text(
-            widget.categoryName != null ? "أدوية ${widget.categoryName}" : "جميع الأدوية",
+            widget.categoryName != null ? "${widget.categoryName}" : "جميع الأدوية",
             style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w900)
           ),
           centerTitle: true,

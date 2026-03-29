@@ -81,13 +81,14 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
     final String name = p['PharmacyName'] ?? 'صيدلية غير معروفة';
     final String location = p['Location'] ?? 'العنوان غير متوفر';
     final String hours = (p['WorkingHours'] != null && p['WorkingHours'].toString().trim().isNotEmpty) ? p['WorkingHours'] : 'ساعات العمل غير محددة';
-    final String owner = "د. ${p['Fname'] ?? ''} ${p['Lname'] ?? ''}".trim();
+    final String owner = "${p['Fname'] ?? ''} ${p['Lname'] ?? ''}".trim();
     final String phone = p['Phone'] ?? 'لا يوجد هاتف';
     final double dist = p['dist'] ?? 0.0;
     
     final String logoName = p['Logo']?.toString() ?? '';
-    final bool hasLogo = logoName.isNotEmpty && logoName != 'default.png';
+    final bool hasLogo = logoName.isNotEmpty;
     final String logoUrl = "${ApiConfig.baseUrl.replaceAll('api/', '')}uploads/logos/$logoName";
+    
 
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
