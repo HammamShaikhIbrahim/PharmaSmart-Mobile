@@ -8,7 +8,6 @@ import 'screens/login_screen.dart';
 void main() {
   runApp(const PharmaSmartApp());
 }
-
 // 4. الكلاس الرئيسي لتهيئة التطبيق بالكامل
 class PharmaSmartApp extends StatelessWidget {
   const PharmaSmartApp({super.key});
