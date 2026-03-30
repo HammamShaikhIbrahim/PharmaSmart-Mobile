@@ -10,7 +10,7 @@ class PharmacyProfileScreen extends StatelessWidget {
   final dynamic pharmacyData;
   final Position? userPos; // 💡 أضفنا موقع المستخدم لنحسب المسافة بدقة
 
-  const PharmacyProfileScreen({Key? key, required this.pharmacyData, this.userPos}) : super(key: key);
+  const PharmacyProfileScreen({super.key, required this.pharmacyData, this.userPos});
 
   // ==========================================
   // 💡 دوال تفعيل الأزرار (الاتصال + الخريطة)

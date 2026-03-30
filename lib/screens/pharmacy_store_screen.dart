@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:lucide_icons/lucide_icons.dart';
 import '../config/api_config.dart';
+import '../services/cart_helper.dart';
 
 class PharmacyStoreScreen extends StatefulWidget {
   final int pharmacyId;
@@ -53,7 +53,35 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
                           children: [
                             Text(item['Name'], style: const TextStyle(fontWeight: FontWeight.bold)),
                             Text("${item['Price']} ₪", style: const TextStyle(color: Color(0xFF0A7A48), fontWeight: FontWeight.bold)),
-                            ElevatedButton(onPressed: () {}, child: const Text("إضافة للسلة"))
+                            ElevatedButton(
+                              onPressed: () {
+                                try {
+                                  debugPrint("🛒 محاولة إضافة: StockID=${item['StockID']}, SystemMedID=${item['SystemMedID']}");
+                                  CartHelper.addToCart(
+                                    context: context,
+                                    stockId: int.parse(item['StockID'].toString()),
+                                    systemMedId: int.parse(item['SystemMedID'].toString()),
+                                    medicineName: item['Name'],
+                                    image: item['Image'] ?? 'default_med.png',
+                                    price: double.parse(item['Price'].toString()),
+                                    pharmacistId: widget.pharmacyId,
+                                    pharmacyName: widget.pharmacyName,
+                                    isControlled: item['IsControlled'].toString() == "1",
+                                  );
+                                } catch (e) {
+                                  debugPrint("❌ خطأ في الإضافة: $e");
+                                  debugPrint("📦 بيانات العنصر: $item");
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('خطأ: $e'), backgroundColor: Colors.redAccent),
+                                  );
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF0A7A48),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              ),
+                              child: const Text("إضافة للسلة", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                            )
                           ],
                         ),
                       )

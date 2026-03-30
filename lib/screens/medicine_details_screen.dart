@@ -3,6 +3,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
+import '../services/cart_helper.dart';
 
 class MedicineDetailsScreen extends StatefulWidget {
   final int medicineId;
@@ -210,8 +211,26 @@ class _MedicineDetailsScreenState extends State<MedicineDetailsScreen> {
               const SizedBox(height: 5),
               ElevatedButton(
                 onPressed: () {
-                  // سنبرمج سلة المشتريات في الخطوة القادمة
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("سيتم إضافة نظام السلة قريباً!")));
+                  try {
+                    debugPrint("🛒 محاولة إضافة للسلة: StockID=${ph['StockID']}, PharmacistID=${ph['PharmacistID']}, Price=${ph['Price']}");
+                    CartHelper.addToCart(
+                      context: context,
+                      stockId: int.parse(ph['StockID'].toString()),
+                      systemMedId: widget.medicineId,
+                      medicineName: _details['Name'],
+                      image: _details['Image'] ?? 'default_med.png',
+                      price: double.parse(ph['Price'].toString()),
+                      pharmacistId: int.parse(ph['PharmacistID'].toString()),
+                      pharmacyName: ph['PharmacyName'],
+                      isControlled: _details['IsControlled'].toString() == "1",
+                    );
+                  } catch (e) {
+                    debugPrint("❌ خطأ في الإضافة للسلة: $e");
+                    debugPrint("📦 بيانات الصيدلية المستلمة: $ph");
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('خطأ في الإضافة: $e'), backgroundColor: Colors.redAccent),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF0A7A48),

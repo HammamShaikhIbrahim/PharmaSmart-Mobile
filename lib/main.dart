@@ -18,7 +18,7 @@ class PharmaSmartApp extends StatelessWidget {
       // إخفاء شريط الديباج الأحمر
       debugShowCheckedModeBanner: false,
       title: 'PharmaSmart',
-      
+
       // إعدادات الثيم والألوان
       theme: ThemeData(
         primarySwatch: Colors.green,
@@ -26,7 +26,7 @@ class PharmaSmartApp extends StatelessWidget {
         // جعل التطبيق يدعم اللغة العربية من اليمين لليسار كإعداد افتراضي للنصوص
         fontFamily: 'Tahoma', // خط افتراضي مؤقت
       ),
-      
+
       // أول شاشة ستفتح في التطبيق هي شاشة البداية
       home: const SplashScreen(),
     );
@@ -42,12 +42,12 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  
+
   // دالة initState تعمل تلقائياً فور فتح هذه الشاشة وقبل رسم أي شيء
   @override
   void initState() {
     super.initState();
-    
+
     // أمر تأخير (مؤقت) لمدة 3 ثوانٍ
     Future.delayed(const Duration(seconds: 3), () {
       // بعد 3 ثوانٍ، انتقل لشاشة الدخول وقم بإغلاق شاشة البداية تماماً

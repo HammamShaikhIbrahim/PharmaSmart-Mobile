@@ -16,7 +16,7 @@ import 'pharmacy_profile_screen.dart';
 class HomeScreen extends StatefulWidget {
   final bool isGuest;
   final String? userName;
-  const HomeScreen({Key? key, required this.isGuest, this.userName}) : super(key: key);
+  const HomeScreen({super.key, required this.isGuest, this.userName});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -38,12 +38,12 @@ class _HomeScreenState extends State<HomeScreen> {
     _initData();
   }
 
-  _initData() async {
+  Future<void> _initData() async {
     await _getUserLocation();
     await _fetchData();
   }
 
-  _getUserLocation() async {
+  Future<void> _getUserLocation() async {
     try {
       _userPos = await Geolocator.getCurrentPosition();
     } catch (e) {
@@ -52,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  _fetchData() async {
+  Future<void> _fetchData() async {
     try {
       final res = await http.get(Uri.parse("${ApiConfig.baseUrl}home_data.php"));
       if (res.statusCode == 200) {

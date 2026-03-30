@@ -11,7 +11,7 @@ class SearchScreen extends StatefulWidget {
   final String? categoryName;
   final Position? userPos; // نحتاج الموقع للفلترة
 
-  const SearchScreen({Key? key, this.initialCategoryId, this.categoryName, this.userPos}) : super(key: key);
+  const SearchScreen({super.key, this.initialCategoryId, this.categoryName, this.userPos});
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();

@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+
+// استدعاء الشاشات الموجودة في نفس المجلد (screens)
 import 'home_screen.dart';
 import 'search_screen.dart';
+import 'cart_screen.dart';
+import 'profile_screen.dart';
+import '../services/cart_service.dart';
 
 class MainScreen extends StatefulWidget {
   final bool isGuest;
@@ -22,30 +27,54 @@ class _MainScreenState extends State<MainScreen> {
     _screens = [
       HomeScreen(isGuest: widget.isGuest, userName: widget.userName),
       const SearchScreen(),
-      const Center(child: Text("سلة المشتريات (قريباً)", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF0A7A48)))),
-      const Center(child: Text("الملف الشخصي (قريباً)", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF0A7A48)))),
+      // شاشة السلة — ستُعاد بنائها كل مرة يتم فتحها (بـ UniqueKey)
+      CartScreen(key: UniqueKey()),
+      // شاشة الملف الشخصي التي قمنا بتصميمها
+      const ProfileScreen(),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
+    final int cartCount = CartService().itemCount;
+
     return Scaffold(
       body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)]),
+        decoration: const BoxDecoration(
+          boxShadow: [
+            BoxShadow(color: Colors.black12, blurRadius: 10)
+          ],
+        ),
         child: ClipRRect(
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           child: BottomNavigationBar(
             currentIndex: _currentIndex,
-            onTap: (i) => setState(() => _currentIndex = i),
+            onTap: (i) {
+              setState(() {
+                _currentIndex = i;
+                // 💡 كل مرة يضغط على تبويب السلة، نعيد بناءها لتقرأ البيانات المحدثة
+                if (i == 2) {
+                  _screens[2] = CartScreen(key: UniqueKey());
+                }
+              });
+            },
             selectedItemColor: const Color(0xFF0A7A48),
             unselectedItemColor: Colors.grey,
             type: BottomNavigationBarType.fixed,
-            items: const [
-              BottomNavigationBarItem(icon: Icon(LucideIcons.home), label: 'الرئيسية'),
-              BottomNavigationBarItem(icon: Icon(LucideIcons.search), label: 'البحث'),
-              BottomNavigationBarItem(icon: Icon(LucideIcons.shoppingCart), label: 'السلة'), // تم التعديل
-              BottomNavigationBarItem(icon: Icon(LucideIcons.userCircle), label: 'حسابي'),
+            items: [
+              const BottomNavigationBarItem(icon: Icon(LucideIcons.home), label: 'الرئيسية'),
+              const BottomNavigationBarItem(icon: Icon(LucideIcons.search), label: 'البحث'),
+              BottomNavigationBarItem(
+                icon: Badge(
+                  isLabelVisible: cartCount > 0,
+                  label: Text('$cartCount', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                  backgroundColor: Colors.redAccent,
+                  child: const Icon(LucideIcons.shoppingCart),
+                ),
+                label: 'السلة',
+              ),
+              const BottomNavigationBarItem(icon: Icon(LucideIcons.userCircle), label: 'حسابي'),
             ],
           ),
         ),

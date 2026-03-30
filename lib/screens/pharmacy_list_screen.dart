@@ -9,7 +9,7 @@ import 'pharmacy_store_screen.dart';
 
 class PharmacyListScreen extends StatefulWidget {
   final Position userPos;
-  const PharmacyListScreen({Key? key, required this.userPos}) : super(key: key);
+  const PharmacyListScreen({super.key, required this.userPos});
 
   @override
   State<PharmacyListScreen> createState() => _PharmacyListScreenState();
@@ -26,7 +26,7 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
     _fetchAndSortPharmacies();
   }
 
-  _fetchAndSortPharmacies() async {
+  Future<void> _fetchAndSortPharmacies() async {
     try {
       final res = await http.get(Uri.parse("${ApiConfig.baseUrl}home_data.php"));
       if (res.statusCode == 200) {
