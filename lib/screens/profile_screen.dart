@@ -11,6 +11,7 @@ import 'login_screen.dart';
 import 'edit_profile_screen.dart';
 import 'security_screen.dart';
 import 'my_orders_screen.dart';
+import 'notifications_sheet.dart'; // 💡 استدعاء ملف الإشعارات الجديد
 
 const Color kPrimary = Color(0xFF0A7A48);
 
@@ -299,10 +300,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               icon: LucideIcons.bell,
                               title: 'الإشعارات',
                               iconColor: Colors.amber.shade600,
-                              onTap: () => _showComingSoon(
-                                'الإشعارات',
-                                'ستصلك إشعارات وتنبيهات بمواعيد الأدوية وتحديثات حالة الطلب قريباً.',
-                              ),
+                              // 💡 تم ربط الزر هنا
+                              onTap: () => NotificationsSheet.show(context),
                             ),
                             _buildListItem(
                               icon: LucideIcons.globe,
@@ -324,8 +323,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 activeColor: kPrimary,
                                 onChanged: (v) async {
                                   setState(() => _darkMode = v);
-                                  final p =
-                                      await SharedPreferences.getInstance();
+                                  final p = await SharedPreferences.getInstance();
                                   await p.setBool('dark_mode', v);
                                 },
                               ),

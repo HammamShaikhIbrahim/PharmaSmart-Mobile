@@ -7,7 +7,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../config/api_config.dart';
 
 class MyOrdersScreen extends StatefulWidget {
-  const MyOrdersScreen({super.key});
+  final bool isFromBottomNav; // 💡 أضفنا هذا المتغير السحري
+
+  const MyOrdersScreen({
+    super.key,
+    this.isFromBottomNav = false,
+  }); // افتراضياً False
 
   @override
   State<MyOrdersScreen> createState() => _MyOrdersScreenState();
@@ -26,6 +31,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     _fetchOrders();
   }
 
+  // ... (أبقِ دالة _fetchOrders كما هي بالضبط)
   Future<void> _fetchOrders() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('userId');
@@ -72,10 +78,16 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             ),
           ),
           centerTitle: true,
-          leading: IconButton(
-            icon: const Icon(LucideIcons.arrowRight, color: Colors.black87),
-            onPressed: () => Navigator.pop(context),
-          ),
+          // 💡 هنا يتم إخفاء سهم الرجوع إذا كانت الشاشة من ضمن الشريط السفلي
+          leading: widget.isFromBottomNav
+              ? const SizedBox()
+              : IconButton(
+                  icon: const Icon(
+                    LucideIcons.arrowRight,
+                    color: Colors.black87,
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                ),
         ),
         body: _isLoading
             ? Center(child: CircularProgressIndicator(color: primaryColor))
