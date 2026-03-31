@@ -6,14 +6,14 @@
 // ==========================================
 
 class CartItem {
-  final int stockId;        // رقم المخزون من PharmacyStock
-  final int systemMedId;    // رقم الدواء من SystemMedicine
+  final int stockId; // رقم المخزون من PharmacyStock
+  final int systemMedId; // رقم الدواء من SystemMedicine
   final String medicineName;
   final String image;
   final double price;
   final int pharmacistId;
   final String pharmacyName;
-  final bool isControlled;  // هل الدواء مراقب (Rx)؟
+  final bool isControlled; // هل الدواء مراقب (Rx)؟
   int quantity;
 
   CartItem({
@@ -55,7 +55,8 @@ class CartService {
   bool get isEmpty => _items.isEmpty;
   int get itemCount => _items.fold(0, (sum, item) => sum + item.quantity);
 
-  double get totalAmount => _items.fold(0.0, (sum, item) => sum + item.totalPrice);
+  double get totalAmount =>
+      _items.fold(0.0, (sum, item) => sum + item.totalPrice);
 
   // هل يوجد دواء مراقب في السلة؟ (لإجبار المريض على رفع وصفة)
   bool get hasControlledMedicine => _items.any((item) => item.isControlled);
@@ -92,16 +93,18 @@ class CartService {
       return 'updated';
     } else {
       // دواء جديد: إضافته للسلة
-      _items.add(CartItem(
-        stockId: stockId,
-        systemMedId: systemMedId,
-        medicineName: medicineName,
-        image: image,
-        price: price,
-        pharmacistId: pharmacistId,
-        pharmacyName: pharmacyName,
-        isControlled: isControlled,
-      ));
+      _items.add(
+        CartItem(
+          stockId: stockId,
+          systemMedId: systemMedId,
+          medicineName: medicineName,
+          image: image,
+          price: price,
+          pharmacistId: pharmacistId,
+          pharmacyName: pharmacyName,
+          isControlled: isControlled,
+        ),
+      );
       return 'added';
     }
   }

@@ -23,39 +23,62 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           centerTitle: true,
           title: const Text(
             'تعديل الملف الشخصي',
-            style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w900, fontSize: 18),
+            style: TextStyle(
+              color: Colors.black87,
+              fontWeight: FontWeight.w900,
+              fontSize: 18,
+            ),
           ),
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
-            children:[
+            children: [
               // صورة البروفايل
               Center(
                 child: Stack(
-                  children:[
+                  children: [
                     Container(
                       width: 100,
                       height: 100,
                       decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: const Color(0xFF0A7A48).withOpacity(0.1),
-                          border: Border.all(color: Colors.white, width: 4),
-                          boxShadow:[
-                            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)
-                          ]
+                        shape: BoxShape.circle,
+                        color: const Color(0xFF0A7A48).withOpacity(0.1),
+                        border: Border.all(color: Colors.white, width: 4),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                          ),
+                        ],
                       ),
-                      child: const Center(child: Text('م', style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Color(0xFF0A7A48)))),
+                      child: const Center(
+                        child: Text(
+                          'م',
+                          style: TextStyle(
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF0A7A48),
+                          ),
+                        ),
+                      ),
                     ),
                     Positioned(
                       bottom: 0,
                       right: 0,
                       child: Container(
                         padding: const EdgeInsets.all(6),
-                        decoration: const BoxDecoration(color: Colors.black87, shape: BoxShape.circle),
-                        child: const Icon(LucideIcons.camera, color: Colors.white, size: 16),
+                        decoration: const BoxDecoration(
+                          color: Colors.black87,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          LucideIcons.camera,
+                          color: Colors.white,
+                          size: 16,
+                        ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -67,15 +90,33 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(24),
-                  boxShadow:[BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Column(
-                  children:[
-                    _buildCleanTextField('الاسم الأول', 'محمد', LucideIcons.user),
+                  children: [
+                    _buildCleanTextField(
+                      'الاسم الأول',
+                      'محمد',
+                      LucideIcons.user,
+                    ),
                     const Divider(color: Color(0xFFF0F0F0), height: 30),
-                    _buildCleanTextField('اسم العائلة', 'علي', LucideIcons.user),
+                    _buildCleanTextField(
+                      'اسم العائلة',
+                      'علي',
+                      LucideIcons.user,
+                    ),
                     const Divider(color: Color(0xFFF0F0F0), height: 30),
-                    _buildCleanTextField('رقم الهاتف', '0599123456', LucideIcons.phone),
+                    _buildCleanTextField(
+                      'رقم الهاتف',
+                      '0599123456',
+                      LucideIcons.phone,
+                    ),
                   ],
                 ),
               ),
@@ -92,10 +133,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black87,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     elevation: 0,
                   ),
-                  child: const Text('حفظ التغييرات', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'حفظ التغييرات',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -108,12 +158,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget _buildCleanTextField(String label, String hint, IconData icon) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children:[
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.bold)),
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Colors.grey,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         TextField(
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 16),
+            hintStyle: const TextStyle(
+              color: Colors.black87,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
             prefixIcon: Icon(icon, size: 20, color: Colors.black54),
             prefixIconConstraints: const BoxConstraints(minWidth: 40),
             border: InputBorder.none,

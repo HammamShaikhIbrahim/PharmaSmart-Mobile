@@ -44,12 +44,19 @@ class CartHelper {
               children: [
                 const Icon(Icons.check_circle, color: Colors.white, size: 20),
                 const SizedBox(width: 10),
-                Expanded(child: Text('تمت إضافة "$medicineName" للسلة', style: const TextStyle(fontWeight: FontWeight.bold))),
+                Expanded(
+                  child: Text(
+                    'تمت إضافة "$medicineName" للسلة',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
               ],
             ),
             backgroundColor: primaryColor,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             margin: const EdgeInsets.all(15),
             duration: const Duration(seconds: 2),
           ),
@@ -65,12 +72,19 @@ class CartHelper {
               children: [
                 const Icon(Icons.add_circle, color: Colors.white, size: 20),
                 const SizedBox(width: 10),
-                Expanded(child: Text('تم زيادة كمية "$medicineName"', style: const TextStyle(fontWeight: FontWeight.bold))),
+                Expanded(
+                  child: Text(
+                    'تم زيادة كمية "$medicineName"',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
               ],
             ),
             backgroundColor: Colors.blue,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             margin: const EdgeInsets.all(15),
             duration: const Duration(seconds: 2),
           ),
@@ -84,7 +98,8 @@ class CartHelper {
           context: context,
           dialogType: DialogType.warning,
           title: 'تبديل الصيدلية؟',
-          desc: 'سلتك تحتوي على أدوية من "${_cart.currentPharmacyName}".\n\nهل تريد تفريغ السلة والبدء من "$pharmacyName"؟',
+          desc:
+              'سلتك تحتوي على أدوية من "${_cart.currentPharmacyName}".\n\nهل تريد تفريغ السلة والبدء من "$pharmacyName"؟',
           btnCancelOnPress: () {},
           btnCancelText: 'إبقاء السلة',
           btnOkOnPress: () {
@@ -100,10 +115,15 @@ class CartHelper {
             );
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('تم تفريغ السلة وإضافة "$medicineName" من "$pharmacyName"', style: const TextStyle(fontWeight: FontWeight.bold)),
+                content: Text(
+                  'تم تفريغ السلة وإضافة "$medicineName" من "$pharmacyName"',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
                 backgroundColor: primaryColor,
                 behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 margin: const EdgeInsets.all(15),
               ),
             );

@@ -1,14 +1,14 @@
 // ==========================================
 // 1. استدعاء المكتبات الأساسية للتطبيق
 // ==========================================
-import 'package:flutter/material.dart'; 
-import 'package:flutter_map/flutter_map.dart'; 
-import 'package:latlong2/latlong.dart'; 
-import 'package:lucide_icons/lucide_icons.dart'; 
-import 'package:geolocator/geolocator.dart'; 
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import 'package:geolocator/geolocator.dart';
 
 // ==========================================
-// 2. إنشاء كلاس الشاشة 
+// 2. إنشاء كلاس الشاشة
 // ==========================================
 class MapPickerScreen extends StatefulWidget {
   const MapPickerScreen({super.key});
@@ -18,9 +18,8 @@ class MapPickerScreen extends StatefulWidget {
 }
 
 class _MapPickerScreenState extends State<MapPickerScreen> {
-  
   // نقطة البداية الافتراضية للخريطة
-  LatLng _selectedLocation = const LatLng(32.3194, 35.0244); 
+  LatLng _selectedLocation = const LatLng(32.3194, 35.0244);
   final MapController _mapController = MapController();
 
   // ==========================================
@@ -30,9 +29,14 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('الرجاء تفعيل خدمة الموقع (GPS) في هاتفك', textDirection: TextDirection.rtl)),
+        const SnackBar(
+          content: Text(
+            'الرجاء تفعيل خدمة الموقع (GPS) في هاتفك',
+            textDirection: TextDirection.rtl,
+          ),
+        ),
       );
-      return; 
+      return;
     }
 
     LocationPermission permission = await Geolocator.checkPermission();
@@ -40,22 +44,34 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم رفض صلاحية الوصول للموقع', textDirection: TextDirection.rtl)),
+          const SnackBar(
+            content: Text(
+              'تم رفض صلاحية الوصول للموقع',
+              textDirection: TextDirection.rtl,
+            ),
+          ),
         );
-        return; 
+        return;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('صلاحيات الموقع معطلة نهائياً من الإعدادات', textDirection: TextDirection.rtl)),
+        const SnackBar(
+          content: Text(
+            'صلاحيات الموقع معطلة نهائياً من الإعدادات',
+            textDirection: TextDirection.rtl,
+          ),
+        ),
       );
       return;
     }
 
     // جلب الموقع بدقة عالية
-    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
     setState(() {
       _selectedLocation = LatLng(position.latitude, position.longitude);
     });
@@ -64,16 +80,22 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
   }
 
   // ==========================================
-  // 4. دوال التكبير والتصغير 
+  // 4. دوال التكبير والتصغير
   // ==========================================
   void _zoomIn() {
     final double currentZoom = _mapController.camera.zoom;
-    _mapController.move(_mapController.camera.center, (currentZoom + 1).clamp(1.0, 18.0));
+    _mapController.move(
+      _mapController.camera.center,
+      (currentZoom + 1).clamp(1.0, 18.0),
+    );
   }
 
   void _zoomOut() {
     final double currentZoom = _mapController.camera.zoom;
-    _mapController.move(_mapController.camera.center, (currentZoom - 1).clamp(1.0, 18.0));
+    _mapController.move(
+      _mapController.camera.center,
+      (currentZoom - 1).clamp(1.0, 18.0),
+    );
   }
 
   // ==========================================
@@ -83,43 +105,48 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('تحديد موقع التوصيل', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-        backgroundColor: const Color(0xFF0A7A48), 
-        centerTitle: true, 
+        title: const Text(
+          'تحديد موقع التوصيل',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
+        backgroundColor: const Color(0xFF0A7A48),
+        centerTitle: true,
       ),
-      
+
       body: Stack(
-        children:[
+        children: [
           // ------------------------------------------
-          // أ) الخريطة التفاعلية 
+          // أ) الخريطة التفاعلية
           // ------------------------------------------
           FlutterMap(
-            mapController: _mapController, 
+            mapController: _mapController,
             options: MapOptions(
-              initialCenter: _selectedLocation, 
-              initialZoom: 13.0, 
+              initialCenter: _selectedLocation,
+              initialZoom: 13.0,
               onTap: (tapPosition, point) {
                 setState(() {
                   _selectedLocation = point;
                 });
               },
             ),
-            children:[
+            children: [
               TileLayer(
-                urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+                urlTemplate:
+                    'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
                 userAgentPackageName: 'com.pharmasmart.app',
               ),
-              
+
               // ------------------------------------------
               // طبقة رسم الدبوس (تم تعديله ليكون سادة وجميل)
               // ------------------------------------------
               MarkerLayer(
-                markers:[
+                markers: [
                   Marker(
-                    point: _selectedLocation, 
-                    width: 50, 
-                    height: 50, 
-                    alignment: Alignment.topCenter, // لكي يكون رأس الدبوس بالضبط على النقطة المحددة
+                    point: _selectedLocation,
+                    width: 50,
+                    height: 50,
+                    alignment: Alignment
+                        .topCenter, // لكي يكون رأس الدبوس بالضبط على النقطة المحددة
                     child: const Icon(
                       LucideIcons.mapPin, // الأيقونة السادة
                       color: Color(0xFF0A7A48), // اللون الأخضر الأساسي للتطبيق
@@ -141,18 +168,23 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.95), 
-                borderRadius: BorderRadius.circular(15), 
-                boxShadow: const[BoxShadow(color: Colors.black12, blurRadius: 10)], 
+                color: Colors.white.withOpacity(0.95),
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black12, blurRadius: 10),
+                ],
               ),
               child: const Row(
-                children:[
+                children: [
                   Icon(LucideIcons.info, color: Color(0xFF0A7A48)),
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       'حرك الخريطة، واضغط على موقعك بدقة لتثبيت الدبوس.',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
                       textDirection: TextDirection.rtl,
                     ),
                   ),
@@ -165,27 +197,27 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
           // ج) أزرار التحكم الجانبية (Zoom & GPS)
           // ------------------------------------------
           Positioned(
-            bottom: 100, 
-            right: 15,   
+            bottom: 100,
+            right: 15,
             child: Column(
-              children:[
+              children: [
                 FloatingActionButton(
-                  heroTag: "gpsBtn", 
+                  heroTag: "gpsBtn",
                   backgroundColor: Colors.white,
-                  onPressed: _getCurrentLocation, 
+                  onPressed: _getCurrentLocation,
                   child: const Icon(LucideIcons.navigation, color: Colors.blue),
                 ),
-                const SizedBox(height: 15), 
-                
+                const SizedBox(height: 15),
+
                 FloatingActionButton(
                   heroTag: "zoomInBtn",
-                  mini: true, 
+                  mini: true,
                   backgroundColor: Colors.white,
                   onPressed: _zoomIn,
                   child: const Icon(LucideIcons.plus, color: Colors.black87),
                 ),
                 const SizedBox(height: 5),
-                
+
                 FloatingActionButton(
                   heroTag: "zoomOutBtn",
                   mini: true,
@@ -198,7 +230,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
           ),
 
           // ------------------------------------------
-          // د) زر التأكيد والاعتماد 
+          // د) زر التأكيد والاعتماد
           // ------------------------------------------
           Positioned(
             bottom: 25,
@@ -209,17 +241,23 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                 Navigator.pop(context, _selectedLocation);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0A7A48), 
+                backgroundColor: const Color(0xFF0A7A48),
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
                 elevation: 5,
               ),
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children:[
+                children: [
                   Text(
                     'تأكيد الموقع المختار',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                   SizedBox(width: 10),
                   Icon(LucideIcons.checkCircle, color: Colors.white),

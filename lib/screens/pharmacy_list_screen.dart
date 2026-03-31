@@ -3,7 +3,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart'; // 💡 الأيقونات الطبية
+import 'package:latlong2/latlong.dart';
 import '../config/api_config.dart';
 import 'pharmacy_store_screen.dart';
 
@@ -16,9 +17,12 @@ class PharmacyListScreen extends StatefulWidget {
 }
 
 class _PharmacyListScreenState extends State<PharmacyListScreen> {
-  List<dynamic> _pharmacies = [];
+  List<Map<String, dynamic>> _pharmacies = [];
   bool _loading = true;
+
+  // 💡 ألوان مطابقة للويب
   final Color primaryColor = const Color(0xFF0A7A48);
+  final Color bgColor = const Color(0xFFF2FBF5);
 
   @override
   void initState() {
@@ -28,23 +32,45 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
 
   Future<void> _fetchAndSortPharmacies() async {
     try {
-      final res = await http.get(Uri.parse("${ApiConfig.baseUrl}home_data.php"));
+      final res = await http.get(
+        Uri.parse("${ApiConfig.baseUrl}home_data.php"),
+      );
+
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-        List list = data['pharmacies'] ?? [];
+        List<dynamic> rawList = data['pharmacies'] ?? [];
+        List<Map<String, dynamic>> mutableList = rawList
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList();
 
-        for (var p in list) {
+        for (var p in mutableList) {
           double lat = double.tryParse(p['Latitude']?.toString() ?? '0') ?? 0;
           double lng = double.tryParse(p['Longitude']?.toString() ?? '0') ?? 0;
-          p['dist'] = Geolocator.distanceBetween(widget.userPos.latitude, widget.userPos.longitude, lat, lng) / 1000;
-        }
-        
-        list.sort((a, b) => (a['dist'] as double).compareTo(b['dist'] as double));
 
-        if (mounted) setState(() { _pharmacies = list; _loading = false; });
+          p['dist'] =
+              Geolocator.distanceBetween(
+                widget.userPos.latitude,
+                widget.userPos.longitude,
+                lat,
+                lng,
+              ) /
+              1000;
+        }
+
+        mutableList.sort(
+          (a, b) => (a['dist'] as num).compareTo(b['dist'] as num),
+        );
+
+        if (mounted) {
+          setState(() {
+            _pharmacies = mutableList;
+            _loading = false;
+          });
+        }
       }
     } catch (e) {
-      if (mounted) setState(() { _loading = false; });
+      debugPrint("❌ حدث خطأ أثناء جلب الصيدليات: $e");
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -53,17 +79,20 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF8F9FA),
+        backgroundColor: bgColor, // 💡 توحيد اللون
         appBar: AppBar(
-          title: const Text("الصيدليات المتاحة", style: TextStyle(fontWeight: FontWeight.w900)),
+          title: const Text(
+            "الصيدليات المتاحة",
+            style: TextStyle(fontWeight: FontWeight.w900),
+          ),
           centerTitle: true,
           elevation: 0,
           backgroundColor: Colors.white,
           foregroundColor: Colors.black87,
         ),
         body: _loading
-          ? Center(child: CircularProgressIndicator(color: primaryColor))
-          : _pharmacies.isEmpty
+            ? Center(child: CircularProgressIndicator(color: primaryColor))
+            : _pharmacies.isEmpty
             ? _buildEmptyState()
             : ListView.builder(
                 padding: const EdgeInsets.all(15),
@@ -77,25 +106,34 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
     );
   }
 
-  Widget _buildPharmacyCard(dynamic p) {
+  Widget _buildPharmacyCard(Map<String, dynamic> p) {
     final String name = p['PharmacyName'] ?? 'صيدلية غير معروفة';
     final String location = p['Location'] ?? 'العنوان غير متوفر';
-    final String hours = (p['WorkingHours'] != null && p['WorkingHours'].toString().trim().isNotEmpty) ? p['WorkingHours'] : 'ساعات العمل غير محددة';
+    final String hours =
+        (p['WorkingHours'] != null &&
+            p['WorkingHours'].toString().trim().isNotEmpty)
+        ? p['WorkingHours']
+        : 'ساعات العمل غير محددة';
     final String owner = "${p['Fname'] ?? ''} ${p['Lname'] ?? ''}".trim();
-    final String phone = p['Phone'] ?? 'لا يوجد هاتف';
     final double dist = p['dist'] ?? 0.0;
-    
+
     final String logoName = p['Logo']?.toString() ?? '';
     final bool hasLogo = logoName.isNotEmpty;
-    final String logoUrl = "${ApiConfig.baseUrl.replaceAll('api/', '')}uploads/logos/$logoName";
-    
+    final String logoUrl =
+        "${ApiConfig.baseUrl.replaceAll('api/', '')}uploads/logos/$logoName";
 
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 15, offset: const Offset(0, 5))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
         border: Border.all(color: Colors.grey.shade100),
       ),
       child: Column(
@@ -109,7 +147,9 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
                   width: 70,
                   height: 70,
                   decoration: BoxDecoration(
-                    color: hasLogo ? Colors.white : primaryColor.withOpacity(0.1),
+                    color: hasLogo
+                        ? Colors.white
+                        : primaryColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(color: Colors.grey.shade100),
                   ),
@@ -132,29 +172,79 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Expanded(child: Text(name, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 17, color: Colors.black87), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                          Expanded(
+                            child: Text(
+                              name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 17,
+                                color: Colors.black87,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(8)),
-                            child: Text("${dist.toStringAsFixed(1)} كم", style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 11)),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              "${dist.toStringAsFixed(1)} كم",
+                              style: const TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 11,
+                              ),
+                            ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 6),
                       Row(
                         children: [
-                          const Icon(LucideIcons.user, size: 14, color: Colors.grey),
+                          const Icon(
+                            LucideIcons.user,
+                            size: 14,
+                            color: Colors.grey,
+                          ),
                           const SizedBox(width: 6),
-                          Text(owner, style: const TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.bold)),
+                          Text(
+                            owner,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 6),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(LucideIcons.mapPin, size: 14, color: Colors.grey),
+                          const Icon(
+                            LucideIcons.mapPin,
+                            size: 14,
+                            color: Colors.grey,
+                          ),
                           const SizedBox(width: 6),
-                          Expanded(child: Text(location, style: const TextStyle(fontSize: 12, color: Colors.grey, height: 1.3), maxLines: 2, overflow: TextOverflow.ellipsis)),
+                          Expanded(
+                            child: Text(
+                              location,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                                height: 1.3,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -163,53 +253,113 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
               ],
             ),
           ),
-          
+
           Divider(height: 1, color: Colors.grey.shade100, thickness: 1.5),
-          
+
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
                     children: [
-                      Row(
-                        children: [
-                          const Icon(LucideIcons.clock, size: 14, color: Colors.orange),
-                          const SizedBox(width: 6),
-                          Expanded(child: Text(hours, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black87), overflow: TextOverflow.ellipsis)),
-                        ],
+                      const Icon(
+                        LucideIcons.clock,
+                        size: 14,
+                        color: Colors.orange,
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(LucideIcons.phone, size: 14, color: primaryColor),
-                          const SizedBox(width: 6),
-                          Text(phone, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87), textDirection: TextDirection.ltr),
-                        ],
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          hours,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (c) => PharmacyStoreScreen(pharmacyId: int.parse(p['PharmacistID'].toString()), pharmacyName: name)));
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    elevation: 0,
-                  ),
-                  child: const Row(
-                    children: [
-                      Text("تصفح الصيدلية", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-                      SizedBox(width: 8),
-                      Icon(LucideIcons.arrowLeft, color: Colors.white, size: 16),
-                    ],
-                  ),
+
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (c) => PharmacyStoreScreen(
+                              pharmacyId: int.parse(
+                                p['PharmacistID'].toString(),
+                              ),
+                              pharmacyName: name,
+                            ),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Row(
+                        children: [
+                          Text(
+                            "تصفح",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                          SizedBox(width: 5),
+                          Icon(
+                            LucideIcons.arrowLeft,
+                            color: Colors.white,
+                            size: 14,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    OutlinedButton(
+                      onPressed: () {
+                        double lat =
+                            double.tryParse(p['Latitude']?.toString() ?? '0') ??
+                            0;
+                        double lng =
+                            double.tryParse(
+                              p['Longitude']?.toString() ?? '0',
+                            ) ??
+                            0;
+                        Navigator.pop(context, LatLng(lat, lng));
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 10,
+                        ),
+                        side: BorderSide(color: primaryColor.withOpacity(0.5)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Icon(
+                        LucideIcons.mapPin,
+                        color: primaryColor,
+                        size: 18,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -219,21 +369,33 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
     );
   }
 
-  // 💡 الأيقونة الاحتياطية الجديدة (زجاجة دواء / صيدلية)
+  // 💡 استخدام أيقونة طبية للصيدلية التي ليس لها شعار
   Widget _buildFallbackLogo() {
     return const Center(
-      child: FaIcon(FontAwesomeIcons.prescriptionBottleMedical, color: Color(0xFF0A7A48), size: 30),
+      child: FaIcon(
+        FontAwesomeIcons.houseMedical,
+        color: Color(0xFF0A7A48),
+        size: 30,
+      ),
     );
   }
 
+  // 💡 تغيير أيقونة الـ Empty State
   Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(LucideIcons.store, size: 80, color: Colors.grey[300]),
+          FaIcon(
+            FontAwesomeIcons.houseMedicalCircleXmark,
+            size: 70,
+            color: Colors.grey[300],
+          ),
           const SizedBox(height: 15),
-          const Text("لا توجد صيدليات قريبة حالياً", style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+          const Text(
+            "لا توجد صيدليات قريبة حالياً",
+            style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+          ),
         ],
       ),
     );
