@@ -8,12 +8,12 @@ import '../config/api_config.dart';
 class NotificationsSheet extends StatefulWidget {
   const NotificationsSheet({super.key});
 
-  // 💡 دالة سحرية لفتح هذه النافذة من أي مكان في التطبيق بسطر واحد
+  // 💡 دالة لفتح النافذة
   static void show(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // لتأخذ مساحة الشاشة بشكل جيد
-      backgroundColor: Colors.transparent, // شفاف لكي يظهر التصميم الدائري
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => const NotificationsSheet(),
     );
   }
@@ -25,13 +25,13 @@ class NotificationsSheet extends StatefulWidget {
 class _NotificationsSheetState extends State<NotificationsSheet> {
   bool _isLoading = true;
   bool _isGuest = false;
-  List<Map<String, dynamic>> _notifications = [];
-  String _selectedTab = 'all'; // التبويب الافتراضي هو "الكل"
+  final List<Map<String, dynamic>> _notifications = [];
+  String _selectedTab = 'all';
 
+  // ألوان مطابقة للويب تماماً
   final Color primaryColor = const Color(0xFF0A7A48);
   final Color bgColor = const Color(0xFFF2FBF5);
 
-  // تعريف التبويبات وخصائصها
   final List<Map<String, dynamic>> _tabs = [
     {'id': 'all', 'title': 'الكل', 'icon': LucideIcons.layers, 'isSoon': false},
     {
@@ -71,10 +71,10 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
     }
 
     try {
-      // 1. إضافة الإشعارات المستقبلية (التنبيهات والمراسلات)
+      // 1. الإشعارات المستقبلية (بدون إيموجي)
       _notifications.add({
         'id': 'mock1',
-        'title': 'ميزة منبه الأدوية الذكي ⏰',
+        'title': 'ميزة منبه الأدوية الذكي',
         'body':
             'قريباً سيتيح لك التطبيق جدولة أدويتك وسنقوم بتذكيرك بمواعيد تناولها بدقة لضمان التزامك بالعلاج.',
         'time': 'قريباً',
@@ -84,7 +84,7 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
 
       _notifications.add({
         'id': 'mock2',
-        'title': 'المحادثات المباشرة 💬',
+        'title': 'المحادثات المباشرة',
         'body':
             'قريباً ستتمكن من المراسلة الفورية والآمنة مع الصيدلي للاستشارة الطبية أو الاستفسار عن بدائل الأدوية.',
         'time': 'قريباً',
@@ -92,7 +92,7 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
         'isSoon': true,
       });
 
-      // 2. جلب الطلبات الحقيقية لتحويلها لإشعارات
+      // 2. جلب الطلبات الحقيقية (بدون إيموجي)
       final response = await http.get(
         Uri.parse("${ApiConfig.baseUrl}patient_orders.php?patient_id=$userId"),
       );
@@ -104,22 +104,21 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
 
           for (var order in orders) {
             String status = order['Status'];
-            if (status == 'Pending')
-              continue; // لا نظهر إشعار للطلب قيد الانتظار
+            if (status == 'Pending') continue;
 
             String nTitle = '';
             String nBody = '';
 
             if (status == 'Accepted') {
-              nTitle = 'تم قبول طلبك! 🎉';
+              nTitle = 'تم قبول طلبك';
               nBody =
                   'صيدلية ${order['PharmacyName']} تقوم بتجهيز طلبك رقم #${order['OrderID']} الآن.';
             } else if (status == 'Delivered') {
-              nTitle = 'اكتمل الطلب ✔️';
+              nTitle = 'اكتمل الطلب';
               nBody =
-                  'تم تسليم طلبك رقم #${order['OrderID']} بنجاح، نتمنى لك دوام الصحة.';
+                  'تم تسليم طلبك رقم #${order['OrderID']} بنجاح، نتمنى لك دوام الصحة والعافية.';
             } else if (status == 'Rejected') {
-              nTitle = 'عذراً، تم رفض الطلب ❌';
+              nTitle = 'تم رفض الطلب';
               nBody =
                   'تم رفض طلبك رقم #${order['OrderID']}. السبب: ${order['RejectionReason'] ?? "غير محدد"}';
             }
@@ -128,9 +127,9 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
               'id': order['OrderID'].toString(),
               'title': nTitle,
               'body': nBody,
-              'time': order['OrderDate'].toString().split(' ')[0], // التاريخ
-              'type': 'orders', // نصنفه كطلب
-              'status': status, // نحتفظ بالحالة لتلوين الأيقونة
+              'time': order['OrderDate'].toString().split(' ')[0],
+              'type': 'orders',
+              'status': status,
               'isSoon': false,
             });
           }
@@ -143,7 +142,6 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
     }
   }
 
-  // فلترة الإشعارات بناءً على التبويب المختار
   List<Map<String, dynamic>> get filteredNotifications {
     if (_selectedTab == 'all') return _notifications;
     return _notifications.where((n) => n['type'] == _selectedTab).toList();
@@ -154,7 +152,7 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.85, // يغطي 85% من الشاشة
+        height: MediaQuery.of(context).size.height * 0.85,
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
@@ -173,7 +171,7 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
             ),
             const SizedBox(height: 15),
 
-            // الهيدر (العنوان وزر الإغلاق)
+            // الهيدر
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
@@ -187,27 +185,28 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
                       color: Colors.black87,
                     ),
                   ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: Container(
-                      padding: const EdgeInsets.all(5),
+                  InkWell(
+                    onTap: () => Navigator.pop(context),
+                    borderRadius: BorderRadius.circular(50),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.red.shade50,
+                        color: Colors.grey.shade200,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         LucideIcons.x,
-                        color: Colors.red,
-                        size: 20,
+                        color: Colors.grey.shade600,
+                        size: 18,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 15),
 
-            // 💡 شريط التبويبات الأنيق (الكل، طلبات، تذكير، رسائل)
+            // شريط التبويبات (Tabs) - مطابق للويب
             SizedBox(
               height: 45,
               child: ListView.builder(
@@ -221,21 +220,23 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
 
                   return GestureDetector(
                     onTap: () => setState(() => _selectedTab = tab['id']),
-                    child: Container(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
                       margin: const EdgeInsets.symmetric(horizontal: 5),
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
                         color: isSelected ? primaryColor : Colors.white,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(15),
                         border: Border.all(
                           color: isSelected
                               ? primaryColor
-                              : Colors.grey.shade300,
+                              : Colors.grey.shade200,
+                          width: 1,
                         ),
                         boxShadow: isSelected
                             ? [
                                 BoxShadow(
-                                  color: primaryColor.withOpacity(0.3),
+                                  color: primaryColor.withOpacity(0.2),
                                   blurRadius: 8,
                                   offset: const Offset(0, 3),
                                 ),
@@ -250,7 +251,7 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
                             size: 16,
                             color: isSelected
                                 ? Colors.white
-                                : Colors.grey.shade600,
+                                : Colors.grey.shade500,
                           ),
                           const SizedBox(width: 8),
                           Text(
@@ -263,7 +264,6 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
                               fontSize: 13,
                             ),
                           ),
-                          // 💡 شارة "قريباً" التنبيهية داخل التبويب
                           if (tab['isSoon']) ...[
                             const SizedBox(width: 8),
                             Container(
@@ -273,18 +273,24 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
                               ),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? Colors.white
-                                    : Colors.orange.shade100,
-                                borderRadius: BorderRadius.circular(10),
+                                    ? Colors.white.withOpacity(0.2)
+                                    : Colors.amber.shade50,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? Colors.transparent
+                                      : Colors.amber.shade200,
+                                ),
                               ),
                               child: Text(
                                 "قريباً",
                                 style: TextStyle(
                                   color: isSelected
-                                      ? Colors.orange.shade700
-                                      : Colors.orange.shade800,
+                                      ? Colors.white
+                                      : Colors.amber.shade700,
                                   fontSize: 9,
-                                  fontWeight: FontWeight.w900,
+                                  fontWeight:
+                                      FontWeight.w900, // 💡 تم التصحيح هنا
                                 ),
                               ),
                             ),
@@ -332,37 +338,33 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
     );
   }
 
-  // 🎨 تصميم كرت الإشعار
+  // 🎨 تصميم كرت الإشعار الاحترافي (بدون إيموجي ومطابق لبطاقات الويب)
   Widget _buildNotificationCard(Map<String, dynamic> notif) {
     Color iconBgColor;
     Color iconColor;
     IconData icon;
-    Color cardBorderColor = Colors.grey.shade200;
+    Color cardBorderColor = Colors.grey.shade100; // لون الإطار الافتراضي الخفيف
 
-    // تحديد الألوان والأيقونات بناءً على نوع الإشعار
     if (notif['type'] == 'reminders') {
       iconBgColor = Colors.orange.shade50;
-      iconColor = Colors.orange.shade700;
+      iconColor = Colors.orange.shade600;
       icon = LucideIcons.pill;
-      cardBorderColor = Colors.orange.shade100;
     } else if (notif['type'] == 'messages') {
       iconBgColor = Colors.purple.shade50;
-      iconColor = Colors.purple.shade700;
+      iconColor = Colors.purple.shade600;
       icon = LucideIcons.messageSquare;
-      cardBorderColor = Colors.purple.shade100;
     } else if (notif['type'] == 'orders') {
-      // للطلبات نحدد اللون حسب الحالة
       if (notif['status'] == 'Accepted') {
         iconBgColor = Colors.blue.shade50;
-        iconColor = Colors.blue.shade700;
+        iconColor = Colors.blue.shade600;
         icon = LucideIcons.packageCheck;
       } else if (notif['status'] == 'Delivered') {
         iconBgColor = Colors.green.shade50;
-        iconColor = Colors.green.shade700;
+        iconColor = Colors.green.shade600;
         icon = LucideIcons.checkCheck;
       } else {
         iconBgColor = Colors.red.shade50;
-        iconColor = Colors.red.shade700;
+        iconColor = Colors.red.shade600;
         icon = LucideIcons.xCircle;
       }
     } else {
@@ -373,15 +375,15 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18), // حواف داخلية ممتازة
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20), // حواف ناعمة
         border: Border.all(color: cardBorderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 10,
+            color: Colors.black.withOpacity(0.03), // ظل خفيف جداً مطابق للويب
+            blurRadius: 15,
             offset: const Offset(0, 4),
           ),
         ],
@@ -389,18 +391,15 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // أيقونة الإشعار
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: iconBgColor,
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: iconColor, size: 22),
+            child: Icon(icon, color: iconColor, size: 20),
           ),
           const SizedBox(width: 15),
-
-          // نصوص الإشعار
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -419,7 +418,6 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
                         ),
                       ),
                     ),
-                    // شارة "قريباً" إذا كان الإشعار لشيء مستقبلي
                     if (notif['isSoon'])
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -427,16 +425,16 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
                           vertical: 3,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.amber.shade100,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.amber.shade300),
+                          color: Colors.amber.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.amber.shade200),
                         ),
                         child: Text(
                           "قريباً",
                           style: TextStyle(
                             fontSize: 10,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.amber.shade800,
+                            fontWeight: FontWeight.w900, // 💡 تم التصحيح هنا
+                            color: Colors.amber.shade700,
                           ),
                         ),
                       )
@@ -452,13 +450,13 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
                       ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 Text(
                   notif['body'],
                   style: TextStyle(
                     fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey.shade700,
+                    fontWeight: FontWeight.w600, // خط مريح للقراءة
+                    color: Colors.grey.shade600,
                     height: 1.5,
                   ),
                 ),
@@ -478,13 +476,20 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color: Colors.white,
               shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.03),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
             ),
             child: Icon(
               LucideIcons.bellOff,
               size: 50,
-              color: Colors.grey.shade400,
+              color: Colors.grey.shade300,
             ),
           ),
           const SizedBox(height: 20),
@@ -509,13 +514,20 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color: Colors.white,
               shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.03),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
             ),
             child: Icon(
               LucideIcons.userX,
               size: 50,
-              color: Colors.grey.shade400,
+              color: Colors.grey.shade300,
             ),
           ),
           const SizedBox(height: 20),
@@ -524,7 +536,7 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
             style: TextStyle(
               color: Colors.black54,
               fontWeight: FontWeight.w900,
-              fontSize: 16,
+              fontSize: 15,
             ),
           ),
         ],
