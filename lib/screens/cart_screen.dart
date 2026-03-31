@@ -27,12 +27,21 @@ class _CartScreenState extends State<CartScreen> {
   final Color primaryColor = const Color(0xFF0A7A48);
   final Color bgColor = const Color(0xFFF2FBF5);
 
-  int _addressType = 1;
+  // 💡 إضافة متحكم للنص الذي سيكتبه المريض للعنوان
+  final TextEditingController _addressDescController = TextEditingController();
+
+  int _addressType = 1; // 1 = مسجل في الحساب, 2 = خريطة جديدة
   double? _deliveryLat;
   double? _deliveryLng;
 
   Uint8List? _prescriptionImageBytes;
   final ImagePicker _picker = ImagePicker();
+
+  @override
+  void dispose() {
+    _addressDescController.dispose();
+    super.dispose();
+  }
 
   Future<void> _pickImage(ImageSource source) async {
     try {
@@ -202,10 +211,10 @@ class _CartScreenState extends State<CartScreen> {
           ..._cart.items.map((item) => _buildCartItemCard(item)),
           const SizedBox(height: 10),
 
-          // 💡 منطقة الرفع أصبحت تظهر دائماً (ستتغير ألوانها برمجياً حسب نوع الأدوية)
           _buildRxUploadSection(),
           const SizedBox(height: 20),
 
+          // 💡 تم تحديث قسم التوصيل ليشمل الوصف والكتابة
           _buildDeliverySection(),
           const SizedBox(height: 20),
 
@@ -449,14 +458,9 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  // ==========================================
-  // 💡 4. منطقة الرفع (الديناميكية) للوصفة
-  // ==========================================
   Widget _buildRxUploadSection() {
-    // تحديد الحالة: هل يوجد دواء مراقب أم لا؟
     bool isMandatory = _cart.hasControlledMedicine;
 
-    // الألوان والنصوص بناءً على الحالة
     Color boxColor = isMandatory ? Colors.red.shade50 : Colors.blue.shade50;
     Color borderColor = isMandatory
         ? Colors.red.shade200
@@ -475,7 +479,7 @@ class _CartScreenState extends State<CartScreen> {
         : 'إرفاق وصفة طبية (اختياري)';
     String descText = isMandatory
         ? 'سلتك تحتوي على أدوية مراقبة، يرجى إرفاق صورة واضحة للوصفة الطبية لإتمام الطلب.'
-        : 'إذا كان لديك وصفة طبية (روشتة) وتريد إرفاقها للصيدلي، يمكنك رفع صورتها هنا.';
+        : 'إذا كان لديك وصفة طبية وتريد إرفاقها للصيدلي، يمكنك رفع صورتها هنا.';
 
     return Container(
       width: double.infinity,
@@ -584,6 +588,9 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+  // ==========================================
+  // 5. 💡 منطقة تحديد الموقع وتفاصيل العنوان الجديدة
+  // ==========================================
   Widget _buildDeliverySection() {
     bool hasMapAddress = _deliveryLat != null;
 
@@ -620,6 +627,36 @@ class _CartScreenState extends State<CartScreen> {
           ),
           const SizedBox(height: 15),
 
+          // 💡 حقل إدخال العنوان الوصفي (مطلوب)
+          TextField(
+            controller: _addressDescController,
+            decoration: InputDecoration(
+              hintText: 'وصف العنوان (المنطقة، الشارع، المعلم، ...)',
+              hintStyle: const TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+                fontWeight: FontWeight.bold,
+              ),
+              filled: true,
+              fillColor: Colors.grey.shade50,
+              prefixIcon: const Icon(
+                LucideIcons.home,
+                color: Colors.grey,
+                size: 18,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15),
+                borderSide: BorderSide(color: primaryColor, width: 1.5),
+              ),
+            ),
+          ),
+          const SizedBox(height: 15),
+
+          // 💡 الخيار الأول: الموقع المسجل
           GestureDetector(
             onTap: () => setState(() => _addressType = 1),
             child: Container(
@@ -647,7 +684,7 @@ class _CartScreenState extends State<CartScreen> {
                   const SizedBox(width: 10),
                   const Expanded(
                     child: Text(
-                      "عنواني المسجل في الحساب",
+                      "موقعي المسجل في الحساب",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
@@ -660,6 +697,7 @@ class _CartScreenState extends State<CartScreen> {
           ),
           const SizedBox(height: 10),
 
+          // 💡 الخيار الثاني: موقع جديد على الخريطة
           GestureDetector(
             onTap: () => setState(() => _addressType = 2),
             child: Container(
@@ -690,7 +728,7 @@ class _CartScreenState extends State<CartScreen> {
                       const SizedBox(width: 10),
                       const Expanded(
                         child: Text(
-                          "تحديد موقع جديد على الخريطة",
+                          "تحديد موقع جديد (GPS)",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
@@ -711,7 +749,7 @@ class _CartScreenState extends State<CartScreen> {
                             color: Colors.grey,
                             fontWeight: FontWeight.w600,
                           ),
-                          textDirection: TextDirection.ltr,
+                          textDirection: TextDirection.ltr, // 💡 حل مشكلة الخطأ
                         ),
                       ),
                     SizedBox(
@@ -934,6 +972,7 @@ class _CartScreenState extends State<CartScreen> {
         setState(() {
           _cart.clearCart();
           _prescriptionImageBytes = null;
+          _addressDescController.clear(); // مسح العنوان أيضا
         });
       },
       btnOkText: 'تفريغ',
@@ -946,6 +985,7 @@ class _CartScreenState extends State<CartScreen> {
     bool isGuest = prefs.getBool('isGuest') ?? false;
     String? userId = prefs.getString('userId');
 
+    // 1. فحص الدخول
     if (isGuest || userId == null) {
       _showAwesomeInfo(
         'تسجيل الدخول مطلوب',
@@ -954,15 +994,25 @@ class _CartScreenState extends State<CartScreen> {
       return;
     }
 
-    if (_addressType == 2 && (_deliveryLat == null || _deliveryLng == null)) {
+    // 2. فحص النص (مطلوب دائماً ليعرف الصيدلي مكان المريض بالضبط)
+    if (_addressDescController.text.trim().isEmpty) {
       _showAwesomeError(
-        'موقع الخريطة مطلوب',
-        'لقد اخترت توصيل لموقع جديد، الرجاء تحديده على الخريطة.',
+        'وصف العنوان مطلوب',
+        'الرجاء كتابة وصف للعنوان في المربع المخصص لنسهل على عامل التوصيل الوصول إليك.',
       );
       return;
     }
 
-    // 💡 التحقق الذكي من الروشتة الإجبارية
+    // 3. فحص الخريطة إذا اختار (موقع جديد)
+    if (_addressType == 2 && (_deliveryLat == null || _deliveryLng == null)) {
+      _showAwesomeError(
+        'موقع الخريطة مطلوب',
+        'لقد اخترت موقع جديد على الخريطة، الرجاء فتح الخريطة وتحديد الموقع.',
+      );
+      return;
+    }
+
+    // 4. فحص الوصفة للأدوية المراقبة
     if (_cart.hasControlledMedicine && _prescriptionImageBytes == null) {
       _showAwesomeError(
         'الوصفة الطبية مطلوبة',
@@ -989,16 +1039,19 @@ class _CartScreenState extends State<CartScreen> {
         base64Image = base64Encode(_prescriptionImageBytes!);
       }
 
+      // 💡 بناء البيانات للإرسال، وإخبار السيرفر بما اختاره المستخدم من نوع العنوان
       final response = await http.post(
         Uri.parse("${ApiConfig.baseUrl}create_order.php"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "patient_id": int.parse(userId),
           "total_amount": _cart.totalAmount,
-          "delivery_address": _addressType == 1
-              ? "العنوان المسجل في الحساب"
-              : "موقع مُحدد على الخريطة",
-          "delivery_lat": _addressType == 2 ? _deliveryLat : null,
+          "delivery_address": _addressDescController.text.trim(), // إرسال النص
+          "use_saved_location":
+              _addressType == 1, // 💡 True يعني هات الموقع من الداتابيز
+          "delivery_lat": _addressType == 2
+              ? _deliveryLat
+              : null, // فقط إذا كان موقع جديد
           "delivery_lng": _addressType == 2 ? _deliveryLng : null,
           "items": orderItems,
           "prescription_image": base64Image,
@@ -1008,18 +1061,25 @@ class _CartScreenState extends State<CartScreen> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['status'] == 'success') {
+          // 1. تفريغ السلة والذاكرة بالكامل
           _cart.clearCart();
           _prescriptionImageBytes = null;
+          _addressDescController.clear();
 
           if (!mounted) return;
+
           AwesomeDialog(
             context: context,
             dialogType: DialogType.success,
             title: 'تم إرسال الطلب!',
             desc: 'طلبك رقم #${data['order_id']} قيد المراجعة الآن.',
-            btnOkOnPress: () => setState(() {}),
             btnOkColor: primaryColor,
-            btnOkText: 'ممتاز!',
+            btnOkText: 'العودة للرئيسية',
+            dismissOnTouchOutside: false, // نمنع إغلاق النافذة بالضغط خارجها
+            btnOkOnPress: () {
+              // 💡 2. الحل الجذري: نرجع المريض للشاشة الأولى (الرئيسية) لتنظيف الذاكرة تماماً
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            },
           ).show();
         } else {
           _showAwesomeError('خطأ', data['message'] ?? 'حدث خطأ غير متوقع');

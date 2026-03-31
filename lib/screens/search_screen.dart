@@ -537,11 +537,8 @@ class _SearchScreenState extends State<SearchScreen> {
                   try {
                     CartHelper.addToCart(
                       context: context,
-                      // نأخذ الـ SystemMedID إذا لم يتوفر نأخذه من الـ id القادم
-                      stockId: int.parse(
-                        item['SystemMedID']?.toString() ??
-                            item['SystemMedID'].toString(),
-                      ),
+                      // 💡 التعديل الجذري هنا (أصبح يأخذ الـ StockID الحقيقي القادم من الداتابيز)
+                      stockId: int.parse(item['StockID'].toString()),
                       systemMedId: int.parse(item['SystemMedID'].toString()),
                       medicineName: item['MedName'],
                       image: item['Image'] ?? 'default_med.png',
