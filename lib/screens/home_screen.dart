@@ -14,6 +14,7 @@ import 'search_screen.dart';
 import 'pharmacy_profile_screen.dart';
 import 'login_screen.dart'; // 💡 أضفنا شاشات الدخول
 import 'signup_screen.dart';
+import 'notifications_sheet.dart'; // 💡 استدعاء ملف الإشعارات الجديد
 
 class HomeScreen extends StatefulWidget {
   final bool isGuest;
@@ -289,7 +290,8 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Stack(
             children: [
               IconButton(
-                onPressed: () {},
+                // 💡 التعديل هنا: استدعاء النافذة المنبثقة عند الضغط
+                onPressed: () => NotificationsSheet.show(context),
                 icon: const Icon(LucideIcons.bell, color: Colors.black87),
               ),
               Positioned(
