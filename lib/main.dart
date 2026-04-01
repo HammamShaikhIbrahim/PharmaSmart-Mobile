@@ -52,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _checkLoginStatus() async {
     // عرض الشاشة لمدة 3 ثوانٍ
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 4));
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
@@ -91,16 +91,17 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // 💡 خلفية بيضاء نظيفة ومريحة للعين تتدرج بشكل خفيف جداً
+      // 💡 1. خلفية متدرجة فخمة وناعمة جداً مأخوذة من لون اللوجو
       body: Container(
         width: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
             colors: [
-              Colors.white,
-              Color(0xFFF9FDFB), // لون أخضر ثلجي خفيييف جداً في الأسفل
+              Color(0xFFE8F5E9), // أخضر نعناعي فاتح جداً
+              Colors.white, // أبيض في المنتصف
+              Color(0xFFF2FBF5), // لون التطبيق الأساسي الفاتح
             ],
           ),
         ),
@@ -115,38 +116,35 @@ class _SplashScreenState extends State<SplashScreen> {
               opacity: _startAnimation ? 1.0 : 0.0,
               child: AnimatedScale(
                 duration: const Duration(milliseconds: 1500),
-                scale: _startAnimation ? 1.0 : 0.8, // يكبر من 80% إلى 100%
-                curve: Curves.easeOutBack, // حركة ارتدادية راقية
+                scale: _startAnimation ? 1.0 : 0.85,
+                curve: Curves.easeOutBack,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // 💡 استدعاء اللوجو الخاص بك هنا
-                    // تأكد أن مسار الصورة واسمها يتطابق مع ما وضعته في مجلد assets
+                    // اللوجو الفخم الخاص بك
                     Image.asset(
-                      'assets/images/logo.png', // مسار صورتك
-                      width: 180, // يمكنك تكبير أو تصغير الرقم حسب حجم اللوجو
-                      height: 180,
+                      'assets/images/logo.png',
+                      width: 170, // 💡 صغرت الحجم شعرة بسيطة ليكون أرتب
+                      height: 170,
                       fit: BoxFit.contain,
                     ),
+                    const SizedBox(height: 25),
 
-                    const SizedBox(height: 20),
-
-                    // يمكنك ترك هذا النص أو مسحه إذا كان اللوجو يحتوي على الاسم
                     const Text(
                       'PharmaSmart',
                       style: TextStyle(
-                        color: Color(0xFF0A7A48), // أخضر التطبيق
-                        fontSize: 28.0,
+                        color: Color(0xFF0A7A48), // أخضر يطابق اللوجو
+                        fontSize: 30.0,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 1.2,
                       ),
                     ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 8),
                     const Text(
                       'صيدليتك بين يديك',
                       style: TextStyle(
                         color: Colors.grey,
-                        fontSize: 14.0,
+                        fontSize: 15.0,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -165,13 +163,22 @@ class _SplashScreenState extends State<SplashScreen> {
                 opacity: _startAnimation ? 1.0 : 0.0,
                 child: Column(
                   children: [
-                    SizedBox(
-                      width: 30,
-                      height: 30,
+                    // 💡 استخدمنا دائرة تحميل أنيقة وبسيطة بدل تكرار اللوجو
+                    const SizedBox(
+                      width: 35,
+                      height: 35,
                       child: CircularProgressIndicator(
-                        color: primaryColor, // أخضر
+                        color: Color(0xFF0A7A48),
                         strokeWidth: 3,
-                        backgroundColor: primaryColor.withOpacity(0.1),
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Text(
+                      'جاري التجهيز...',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],

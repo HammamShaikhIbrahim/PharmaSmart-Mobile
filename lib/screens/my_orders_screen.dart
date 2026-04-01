@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/api_config.dart';
+import '../widgets/pharma_ui.dart';
 
 class MyOrdersScreen extends StatefulWidget {
   final bool isFromBottomNav; // 💡 أضفنا هذا المتغير السحري
@@ -90,7 +91,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                 ),
         ),
         body: _isLoading
-            ? Center(child: CircularProgressIndicator(color: primaryColor))
+            ? Center(child: PharmaUI.loader())
             : _orders.isEmpty
             ? _buildEmptyState()
             : ListView.builder(
@@ -385,27 +386,10 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          FaIcon(FontAwesomeIcons.boxOpen, size: 70, color: Colors.grey[300]),
-          const SizedBox(height: 15),
-          const Text(
-            'لا توجد طلبات سابقة',
-            style: TextStyle(
-              color: Colors.grey,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(height: 5),
-          const Text(
-            'قم بإضافة أدوية للسلة وإتمام طلبك الأول!',
-            style: TextStyle(color: Colors.grey, fontSize: 13),
-          ),
-        ],
-      ),
+    return PharmaUI.emptyState(
+      icon: LucideIcons.packageOpen,
+      title: 'لا توجد طلبات سابقة',
+      subtitle: 'قم بإضافة أدوية للسلة وإتمام طلبك الأول من الصيدليات المتاحة!',
     );
   }
 }

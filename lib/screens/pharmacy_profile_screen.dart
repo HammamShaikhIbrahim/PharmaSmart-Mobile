@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
 import '../config/api_config.dart';
 import 'pharmacy_store_screen.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 
 class PharmacyProfileScreen extends StatelessWidget {
   final dynamic pharmacyData;
@@ -16,7 +16,6 @@ class PharmacyProfileScreen extends StatelessWidget {
     this.userPos,
   });
 
-  // دالة الاتصال الهاتفي
   Future<void> _makePhoneCall(String phoneNumber) async {
     final Uri launchUri = Uri(scheme: 'tel', path: phoneNumber);
     if (await canLaunchUrl(launchUri)) {
@@ -26,7 +25,6 @@ class PharmacyProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // تجهيز البيانات
     final String name = pharmacyData['PharmacyName'] ?? 'صيدلية غير معروفة';
     final String doctor =
         "${pharmacyData['Fname'] ?? ''} ${pharmacyData['Lname'] ?? ''}".trim();
@@ -38,7 +36,6 @@ class PharmacyProfileScreen extends StatelessWidget {
         ? pharmacyData['WorkingHours']
         : 'ساعات العمل غير محددة';
 
-    // حساب المسافة الدقيق
     double dist = 0.0;
     double pLat =
         double.tryParse(pharmacyData['Latitude']?.toString() ?? '0') ?? 0;
@@ -59,17 +56,34 @@ class PharmacyProfileScreen extends StatelessWidget {
     }
 
     final String logoName = pharmacyData['Logo']?.toString() ?? '';
-    final bool hasLogo = logoName.isNotEmpty;
+    final bool hasLogo = logoName.isNotEmpty && logoName != 'default.png';
     final String logoUrl =
         "${ApiConfig.baseUrl.replaceAll('api/', '')}uploads/logos/$logoName";
+
     final Color primaryColor = const Color(0xFF0A7A48);
+    final Color bgColor = const Color(0xFFF2FBF5); // 💡 ثيم التطبيق الموحد
 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF8F9FA),
+        backgroundColor: bgColor,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
+          title: const Text(
+            "معلومات الصيدلية",
+            style: TextStyle(
+              color: Colors.black87,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          leading: IconButton(
+            icon: const Icon(LucideIcons.arrowRight, color: Colors.black87),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
 
-        // زر المتجر العائم
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -102,234 +116,190 @@ class PharmacyProfileScreen extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
-              elevation: 8,
-              shadowColor: primaryColor.withOpacity(0.5),
+              elevation: 5,
+              shadowColor: primaryColor.withOpacity(0.4),
             ),
           ),
         ),
 
         body: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              // 1. الغلاف الهندسي المبهر
-              Stack(
-                clipBehavior: Clip.none,
-                alignment: Alignment.bottomCenter,
-                children: [
-                  ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(40),
-                      bottomRight: Radius.circular(40),
+              // 💡 كرت المعلومات الأساسي (نظيف ومتناسق)
+              Container(
+                padding: const EdgeInsets.all(25),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: Colors.grey.shade100),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.03),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
                     ),
-                    child: Container(
-                      height: 220,
-                      width: double.infinity,
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Color(0xFF0A7A48), Color(0xFF0F9D58)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                      ),
-                      child: Stack(
-                        children: [
-                          Positioned(
-                            top: -40,
-                            right: -30,
-                            child: CircleAvatar(
-                              radius: 90,
-                              backgroundColor: Colors.white.withOpacity(0.08),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: -50,
-                            left: -20,
-                            child: CircleAvatar(
-                              radius: 70,
-                              backgroundColor: Colors.white.withOpacity(0.08),
-                            ),
-                          ),
-                          Positioned(
-                            top: 50,
-                            left: 50,
-                            child: CircleAvatar(
-                              radius: 20,
-                              backgroundColor: Colors.white.withOpacity(0.1),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // زر العودة
-                  Positioned(
-                    top: 50,
-                    right: 20,
-                    child: InkWell(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.3),
-                          ),
-                        ),
-                        child: const Icon(
-                          LucideIcons.arrowRight,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // اللوجو
-                  Positioned(
-                    bottom: -50,
-                    child: Container(
-                      width: 110,
-                      height: 110,
-                      padding: const EdgeInsets.all(4),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    // اللوجو
+                    Container(
+                      width: 100,
+                      height: 100,
+                      padding: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
-                            blurRadius: 15,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
+                        border: Border.all(
+                          color: Colors.grey.shade200,
+                          width: 2,
+                        ),
                       ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: hasLogo
-                              ? Colors.white
-                              : primaryColor.withOpacity(0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: ClipOval(
-                          child: hasLogo
-                              ? Image.network(
-                                  logoUrl,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (c, e, s) =>
-                                      _buildFallbackLogo(primaryColor),
-                                )
-                              : _buildFallbackLogo(primaryColor),
-                        ),
+                      child: ClipOval(
+                        child: hasLogo
+                            ? Image.network(
+                                logoUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (c, e, s) => _buildFallbackLogo(),
+                              )
+                            : _buildFallbackLogo(),
                       ),
                     ),
-                  ),
-                ],
-              ),
+                    const SizedBox(height: 20),
 
-              const SizedBox(height: 60),
-
-              // 2. معلومات الصيدلية
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  children: [
                     Text(
                       name,
                       style: const TextStyle(
-                        fontSize: 24,
+                        fontSize: 22,
                         fontWeight: FontWeight.w900,
                         color: Colors.black87,
                       ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 5),
-                    if (doctor.length > 3)
-                      Text(
-                        doctor,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey,
-                        ),
+                    Text(
+                      "د. $doctor",
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
                       ),
+                    ),
                     const SizedBox(height: 15),
 
                     if (dist > 0)
-                      _buildTag(
-                        LucideIcons.mapPin,
-                        "تبعد عنك ${dist.toStringAsFixed(1)} كم",
-                        Colors.blue,
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 15,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              LucideIcons.mapPin,
+                              size: 16,
+                              color: Colors.blue.shade700,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              "تبعد عنك ${dist.toStringAsFixed(1)} كم",
+                              style: TextStyle(
+                                color: Colors.blue.shade700,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                   ],
                 ),
               ),
+              const SizedBox(height: 25),
 
-              const SizedBox(height: 30),
-
-              // 3. أزرار التواصل (تم إزالة زر الاتجاهات وبقي زر الاتصال بالمنتصف)
+              // 💡 أزرار التواصل (تصميم جديد)
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildCircleAction(
-                    LucideIcons.phoneCall,
-                    "اتصال",
-                    primaryColor,
-                    () {
-                      if (phone.isNotEmpty) {
-                        _makePhoneCall(phone);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('رقم الهاتف غير متوفر')),
-                        );
-                      }
-                    },
+                  Expanded(
+                    child: _buildActionBtn(
+                      LucideIcons.phone,
+                      "اتصال بالصيدلية",
+                      primaryColor,
+                      () {
+                        if (phone.isNotEmpty) {
+                          _makePhoneCall(phone);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('رقم الهاتف غير متوفر'),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: _buildActionBtn(
+                      LucideIcons.messageCircle, // أيقونة المحادثة الموحدة
+                      "استشارة طبية",
+                      Colors.orange.shade600,
+                      () {
+                        // 💡 استدعاء الدالة الفخمة الموحدة
+                        _showComingSoonMsg(context, "المحادثات المباشرة");
+                      },
+                    ),
                   ),
                 ],
               ),
+              const SizedBox(height: 25),
 
-              const SizedBox(height: 30),
-
-              // 4. تفاصيل العمل
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+              // 💡 تفاصيل العمل
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: Colors.grey.shade100),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "معلومات التواصل والعمل",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                    _buildInfoCard(
+                    _buildInfoTile(
                       LucideIcons.mapPin,
-                      "العنوان التفصيلي",
+                      "العنوان",
                       location,
-                      primaryColor,
+                      isLast: false,
                     ),
-                    const SizedBox(height: 15),
-                    _buildInfoCard(
+                    _buildInfoTile(
                       LucideIcons.clock,
                       "ساعات الدوام",
                       hours,
-                      Colors.orange,
+                      isLast: false,
                     ),
-                    const SizedBox(height: 15),
-                    _buildInfoCard(
+                    _buildInfoTile(
                       LucideIcons.phone,
                       "رقم التواصل",
                       phone.isNotEmpty ? phone : 'لا يوجد',
-                      primaryColor,
+                      isLast: true,
                       isPhone: true,
                     ),
-                    const SizedBox(height: 100),
                   ],
                 ),
               ),
+              const SizedBox(height: 100),
             ],
           ),
         ),
@@ -337,112 +307,112 @@ class PharmacyProfileScreen extends StatelessWidget {
     );
   }
 
-  // دوال مساعدة
-  Widget _buildFallbackLogo(Color color) {
-    return Center(
-      child: FaIcon(
-        FontAwesomeIcons.prescriptionBottleMedical,
-        color: color,
-        size: 40,
+  // 💡 اللوجو الخاص بك كبديل هنا أيضاً
+  Widget _buildFallbackLogo() {
+    return Opacity(
+      opacity: 0.4,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
       ),
     );
   }
 
-  Widget _buildTag(IconData icon, String text, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
+  // 💡 الدالة الموحدة لإظهار رسالة "قريباً" بنفس التصميم الفخم
+  void _showComingSoonMsg(BuildContext context, String featureName) {
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.noHeader,
+      customHeader: Container(
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10),
+          ],
+        ),
+        child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: color),
-          const SizedBox(width: 6),
-          Text(
-            text,
-            style: TextStyle(
-              color: color,
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-            ),
-          ),
-        ],
+      title: 'ميزة $featureName',
+      desc:
+          'هذه الميزة قيد التطوير حالياً، وتعمل فرقنا على تجهيزها بأفضل شكل لتكون متاحة في التحديث القادم!',
+      btnOkOnPress: () {},
+      btnOkColor: const Color(0xFF0A7A48),
+      btnOkText: 'فهمت ذلك',
+      buttonsBorderRadius: BorderRadius.circular(15),
+      descTextStyle: const TextStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.bold,
+        height: 1.5,
       ),
-    );
+    ).show();
   }
 
-  Widget _buildCircleAction(
+  Widget _buildActionBtn(
     IconData icon,
     String label,
     Color color,
     VoidCallback onTap,
   ) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: color.withOpacity(0.2),
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-              border: Border.all(color: color.withOpacity(0.1)),
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 15),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withOpacity(0.3)),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
-            child: Icon(icon, color: color, size: 26),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+          ],
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 24),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildInfoCard(
+  Widget _buildInfoTile(
     IconData icon,
     String title,
-    String subtitle,
-    Color color, {
+    String subtitle, {
+    required bool isLast,
     bool isPhone = false,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.grey.shade100),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: isLast
+            ? null
+            : Border(bottom: BorderSide(color: Colors.grey.shade100)),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: const Color(0xFF0A7A48).withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: color),
+            child: Icon(icon, color: const Color(0xFF0A7A48), size: 20),
           ),
           const SizedBox(width: 15),
           Expanded(
@@ -461,7 +431,7 @@ class PharmacyProfileScreen extends StatelessWidget {
                 Text(
                   subtitle,
                   style: const TextStyle(
-                    fontSize: 15,
+                    fontSize: 14,
                     fontWeight: FontWeight.w900,
                     color: Colors.black87,
                   ),

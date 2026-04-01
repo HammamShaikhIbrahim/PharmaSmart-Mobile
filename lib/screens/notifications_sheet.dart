@@ -4,11 +4,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../config/api_config.dart';
+import '../widgets/pharma_ui.dart';
 
 class NotificationsSheet extends StatefulWidget {
   const NotificationsSheet({super.key});
 
-  // 💡 دالة لفتح النافذة
   static void show(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -28,7 +28,6 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
   final List<Map<String, dynamic>> _notifications = [];
   String _selectedTab = 'all';
 
-  // ألوان مطابقة للويب تماماً
   final Color primaryColor = const Color(0xFF0A7A48);
   final Color bgColor = const Color(0xFFF2FBF5);
 
@@ -71,7 +70,6 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
     }
 
     try {
-      // 1. الإشعارات المستقبلية (بدون إيموجي)
       _notifications.add({
         'id': 'mock1',
         'title': 'ميزة منبه الأدوية الذكي',
@@ -92,7 +90,6 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
         'isSoon': true,
       });
 
-      // 2. جلب الطلبات الحقيقية (بدون إيموجي)
       final response = await http.get(
         Uri.parse("${ApiConfig.baseUrl}patient_orders.php?patient_id=$userId"),
       );
@@ -123,11 +120,17 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
                   'تم رفض طلبك رقم #${order['OrderID']}. السبب: ${order['RejectionReason'] ?? "غير محدد"}';
             }
 
+            // 💡 جلب الوقت والتاريخ معاً
+            String dateTimeStr = order['OrderDate'].toString();
+            String displayTime = dateTimeStr.length >= 16
+                ? dateTimeStr.substring(0, 16)
+                : dateTimeStr;
+
             _notifications.add({
               'id': order['OrderID'].toString(),
               'title': nTitle,
               'body': nBody,
-              'time': order['OrderDate'].toString().split(' ')[0],
+              'time': displayTime,
               'type': 'orders',
               'status': status,
               'isSoon': false,
@@ -159,7 +162,6 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
         ),
         child: Column(
           children: [
-            // مقبض السحب (Drag Handle)
             const SizedBox(height: 12),
             Container(
               width: 50,
@@ -170,8 +172,6 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
               ),
             ),
             const SizedBox(height: 15),
-
-            // الهيدر
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
@@ -205,8 +205,6 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
               ),
             ),
             const SizedBox(height: 15),
-
-            // شريط التبويبات (Tabs) - مطابق للويب
             SizedBox(
               height: 45,
               child: ListView.builder(
@@ -289,8 +287,7 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
                                       ? Colors.white
                                       : Colors.amber.shade700,
                                   fontSize: 9,
-                                  fontWeight:
-                                      FontWeight.w900, // 💡 تم التصحيح هنا
+                                  fontWeight: FontWeight.w900,
                                 ),
                               ),
                             ),
@@ -302,18 +299,13 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
                 },
               ),
             ),
-
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 10),
               child: Divider(color: Colors.black12, height: 1),
             ),
-
-            // محتوى الإشعارات
             Expanded(
               child: _isLoading
-                  ? Center(
-                      child: CircularProgressIndicator(color: primaryColor),
-                    )
+                  ? PharmaUI.loader()
                   : _isGuest
                   ? _buildGuestMessage()
                   : filteredNotifications.isEmpty
@@ -338,12 +330,11 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
     );
   }
 
-  // 🎨 تصميم كرت الإشعار الاحترافي (بدون إيموجي ومطابق لبطاقات الويب)
   Widget _buildNotificationCard(Map<String, dynamic> notif) {
     Color iconBgColor;
     Color iconColor;
     IconData icon;
-    Color cardBorderColor = Colors.grey.shade100; // لون الإطار الافتراضي الخفيف
+    Color cardBorderColor = Colors.grey.shade100;
 
     if (notif['type'] == 'reminders') {
       iconBgColor = Colors.orange.shade50;
@@ -375,14 +366,14 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
-      padding: const EdgeInsets.all(18), // حواف داخلية ممتازة
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20), // حواف ناعمة
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: cardBorderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03), // ظل خفيف جداً مطابق للويب
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 15,
             offset: const Offset(0, 4),
           ),
@@ -433,7 +424,7 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
                           "قريباً",
                           style: TextStyle(
                             fontSize: 10,
-                            fontWeight: FontWeight.w900, // 💡 تم التصحيح هنا
+                            fontWeight: FontWeight.w900,
                             color: Colors.amber.shade700,
                           ),
                         ),
@@ -442,7 +433,7 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
                       Text(
                         notif['time'],
                         style: const TextStyle(
-                          fontSize: 11,
+                          fontSize: 10,
                           fontWeight: FontWeight.bold,
                           color: Colors.grey,
                         ),
@@ -455,7 +446,7 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
                   notif['body'],
                   style: TextStyle(
                     fontSize: 13,
-                    fontWeight: FontWeight.w600, // خط مريح للقراءة
+                    fontWeight: FontWeight.w600,
                     color: Colors.grey.shade600,
                     height: 1.5,
                   ),
@@ -469,78 +460,18 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.03),
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Icon(
-              LucideIcons.bellOff,
-              size: 50,
-              color: Colors.grey.shade300,
-            ),
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            'لا توجد إشعارات في هذا القسم',
-            style: TextStyle(
-              color: Colors.black54,
-              fontWeight: FontWeight.w900,
-              fontSize: 16,
-            ),
-          ),
-        ],
-      ),
+    return PharmaUI.emptyState(
+      icon: LucideIcons.bellOff,
+      title: 'لا توجد إشعارات',
+      subtitle: 'لم تصلك أي تنبيهات في هذا القسم حتى الآن.',
     );
   }
 
   Widget _buildGuestMessage() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.03),
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Icon(
-              LucideIcons.userX,
-              size: 50,
-              color: Colors.grey.shade300,
-            ),
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            'سجل دخولك لتتمكن من رؤية الإشعارات',
-            style: TextStyle(
-              color: Colors.black54,
-              fontWeight: FontWeight.w900,
-              fontSize: 15,
-            ),
-          ),
-        ],
-      ),
+    return PharmaUI.emptyState(
+      icon: LucideIcons.userX,
+      title: 'لا توجد إشعارات',
+      subtitle: 'سجل دخولك لتتمكن من رؤية الإشعارات والتنبيهات الخاصة بك.',
     );
   }
 }
