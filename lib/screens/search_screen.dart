@@ -254,9 +254,7 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             Expanded(
               child: _isLoading
-                  ? Center(
-                      child: PharmaUI.loader(),
-                    )
+                  ? Center(child: PharmaUI.loader())
                   : _results.isEmpty
                   ? _buildEmptyState()
                   : ListView.builder(
