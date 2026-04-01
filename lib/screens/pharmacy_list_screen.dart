@@ -3,10 +3,10 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart'; // 💡 الأيقونات الطبية
 import 'package:latlong2/latlong.dart';
 import '../config/api_config.dart';
 import 'pharmacy_store_screen.dart';
+import '../widgets/pharma_ui.dart';
 
 class PharmacyListScreen extends StatefulWidget {
   final Position userPos;
@@ -20,7 +20,6 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
   List<Map<String, dynamic>> _pharmacies = [];
   bool _loading = true;
 
-  // 💡 ألوان مطابقة للويب
   final Color primaryColor = const Color(0xFF0A7A48);
   final Color bgColor = const Color(0xFFF2FBF5);
 
@@ -79,7 +78,7 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: bgColor, // 💡 توحيد اللون
+        backgroundColor: bgColor,
         appBar: AppBar(
           title: const Text(
             "الصيدليات المتاحة",
@@ -91,7 +90,7 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
           foregroundColor: Colors.black87,
         ),
         body: _loading
-            ? Center(child: CircularProgressIndicator(color: primaryColor))
+            ? PharmaUI.loader()
             : _pharmacies.isEmpty
             ? _buildEmptyState()
             : ListView.builder(
@@ -118,7 +117,7 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
     final double dist = p['dist'] ?? 0.0;
 
     final String logoName = p['Logo']?.toString() ?? '';
-    final bool hasLogo = logoName.isNotEmpty;
+    final bool hasLogo = logoName.isNotEmpty && logoName != 'default.png';
     final String logoUrl =
         "${ApiConfig.baseUrl.replaceAll('api/', '')}uploads/logos/$logoName";
 
@@ -147,9 +146,7 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
                   width: 70,
                   height: 70,
                   decoration: BoxDecoration(
-                    color: hasLogo
-                        ? Colors.white
-                        : primaryColor.withOpacity(0.1),
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(color: Colors.grey.shade100),
                   ),
@@ -283,7 +280,6 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
                     ],
                   ),
                 ),
-
                 Row(
                   children: [
                     ElevatedButton(
@@ -369,35 +365,22 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
     );
   }
 
-  // 💡 استخدام أيقونة طبية للصيدلية التي ليس لها شعار
+  // 💡 اللوجو الخاص بالتطبيق كبديل في حال عدم وجود صورة للصيدلية
   Widget _buildFallbackLogo() {
-    return const Center(
-      child: FaIcon(
-        FontAwesomeIcons.houseMedical,
-        color: Color(0xFF0A7A48),
-        size: 30,
+    return Opacity(
+      opacity: 0.3, // شفافية ليدل أنه افتراضي
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
       ),
     );
   }
 
-  // 💡 تغيير أيقونة الـ Empty State
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          FaIcon(
-            FontAwesomeIcons.houseMedicalCircleXmark,
-            size: 70,
-            color: Colors.grey[300],
-          ),
-          const SizedBox(height: 15),
-          const Text(
-            "لا توجد صيدليات قريبة حالياً",
-            style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
+    return PharmaUI.emptyState(
+      icon: LucideIcons.store,
+      title: 'لا توجد صيدليات قريبة',
+      subtitle: 'لم يتم العثور على أي صيدلية في هذا القسم.',
     );
   }
 }

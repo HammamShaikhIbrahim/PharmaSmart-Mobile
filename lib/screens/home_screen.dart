@@ -12,9 +12,10 @@ import '../config/api_config.dart';
 import 'pharmacy_list_screen.dart';
 import 'search_screen.dart';
 import 'pharmacy_profile_screen.dart';
-import 'login_screen.dart'; // 💡 أضفنا شاشات الدخول
+import 'login_screen.dart';
 import 'signup_screen.dart';
-import 'notifications_sheet.dart'; // 💡 استدعاء ملف الإشعارات الجديد
+import '../widgets/pharma_ui.dart';
+import 'notifications_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
   final bool isGuest;
@@ -31,6 +32,8 @@ class _HomeScreenState extends State<HomeScreen> {
   List _pharmacies = [];
   int _selectedCatIndex = -1;
   Position? _userPos;
+
+  bool _hasNewNotifications = true; // 💡 للتحكم بالنقطة الحمراء
 
   final Color primaryColor = const Color(0xFF0A7A48);
   final Color bgColor = const Color(0xFFF2FBF5);
@@ -172,13 +175,30 @@ class _HomeScreenState extends State<HomeScreen> {
     AwesomeDialog(
       context: context,
       dialogType: DialogType.noHeader,
-      title: 'قريباً جداً!',
+      customHeader: Container(
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10),
+          ],
+        ),
+        // 💡 استخدام اللوجو الخاص بك في الرسالة
+        child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
+      ),
+      title: 'ميزة $featureName',
       desc:
-          'ميزة ($featureName) قيد التطوير حالياً، وسيتم إضافتها في التحديث القادم للتطبيق.',
+          'هذه الميزة قيد التطوير حالياً، وتعمل فرقنا على تجهيزها بأفضل شكل لتكون متاحة في التحديث القادم! ',
       btnOkOnPress: () {},
       btnOkColor: primaryColor,
-      btnOkText: 'حسناً',
-      descTextStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+      btnOkText: 'فهمت ذلك',
+      buttonsBorderRadius: BorderRadius.circular(15),
+      descTextStyle: const TextStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.bold,
+        height: 1.5,
+      ),
     ).show();
   }
 
@@ -203,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: bgColor,
       body: _isLoading
-          ? Center(child: CircularProgressIndicator(color: primaryColor))
+          ? PharmaUI.loader()
           : SafeArea(
               child: Directionality(
                 textDirection: TextDirection.rtl,
@@ -220,10 +240,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         const SizedBox(height: 10),
                         _buildTopBar(),
-
-                        // 💡 إضافة بنر للزائر ليدعوه للتسجيل
                         if (widget.isGuest) _buildGuestBanner(),
-
                         const SizedBox(height: 30),
                         _buildQuickServices(),
                         const SizedBox(height: 30),
@@ -290,22 +307,25 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Stack(
             children: [
               IconButton(
-                // 💡 التعديل هنا: استدعاء النافذة المنبثقة عند الضغط
-                onPressed: () => NotificationsSheet.show(context),
+                onPressed: () {
+                  setState(() => _hasNewNotifications = false);
+                  NotificationsSheet.show(context);
+                },
                 icon: const Icon(LucideIcons.bell, color: Colors.black87),
               ),
-              Positioned(
-                right: 12,
-                top: 12,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: Colors.redAccent,
-                    shape: BoxShape.circle,
+              if (_hasNewNotifications)
+                Positioned(
+                  right: 12,
+                  top: 12,
+                  child: Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: Colors.redAccent,
+                      shape: BoxShape.circle,
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),
@@ -313,9 +333,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ==========================================
-  // 💡 تصميم بنر الزائر
-  // ==========================================
   Widget _buildGuestBanner() {
     return Container(
       margin: const EdgeInsets.only(top: 20),
@@ -373,7 +390,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        // 💡 استخدمنا push بدلاً من pushReplacement
                         onPressed: () => Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -401,7 +417,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: OutlinedButton(
-                        // 💡 استخدمنا push بدلاً من pushReplacement
                         onPressed: () => Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -451,7 +466,6 @@ class _HomeScreenState extends State<HomeScreen> {
         Row(
           children: [
             Expanded(
-              // 💡 توجيه المريض لشاشة "البحث عن الأدوية"
               child: _buildServiceCard(
                 "صرف وصفة",
                 const FaIcon(
@@ -470,7 +484,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     btnOkColor: primaryColor,
                     btnOkText: 'البحث عن الأدوية',
                     btnOkOnPress: () {
-                      // التوجيه إلى شاشة البحث عن الأدوية وتمرير موقع المريض
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -492,9 +505,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   size: 22,
                 ),
                 Colors.blue,
-                () {
-                  _showComingSoonMsg("منبه الأدوية الذكي");
-                },
+                () => _showComingSoonMsg("منبه الأدوية الذكي"),
               ),
             ),
             const SizedBox(width: 10),
@@ -507,9 +518,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   size: 22,
                 ),
                 primaryColor,
-                () {
-                  _showComingSoonMsg("المحادثة المباشرة مع الصيدلي");
-                },
+                () => _showComingSoonMsg(
+                  "المحادثات المباشرة",
+                ), // 💡 تم توحيد الاسم
               ),
             ),
           ],
@@ -797,7 +808,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         const SizedBox(height: 20),
-
         ElevatedButton(
           onPressed: () async {
             final selectedLocation = await Navigator.push(
