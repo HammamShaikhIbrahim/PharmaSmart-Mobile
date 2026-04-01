@@ -9,14 +9,11 @@ import 'login_screen.dart';
 import 'edit_profile_screen.dart';
 import 'security_screen.dart';
 import 'my_orders_screen.dart';
-<<<<<<< Updated upstream
-=======
 import 'notifications_sheet.dart'; 
 import 'medical_history_screen.dart'; 
 import 'my_prescriptions_screen.dart'; 
 import 'saved_addresses_screen.dart'; 
 import 'payment_methods_screen.dart'; 
->>>>>>> Stashed changes
 
 const Color kPrimary = Color(0xFF0A7A48);
 const Color kBgColor = Color(0xFFF2FBF5);
@@ -201,76 +198,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ]),
                           const SizedBox(height: 25),
 
-<<<<<<< Updated upstream
-                          // 3. الإعدادات
-                          _buildSectionTitle(
-                            'الإعدادات',
-                            LucideIcons.settings,
-                            Colors.grey.shade700,
-                          ),
-                          _buildGlassCard([
-                            _buildListItem(
-                              icon: LucideIcons.bell,
-                              title: 'الإشعارات',
-                              iconColor: Colors.amber.shade600,
-                              onTap: () => _showComingSoon(
-                                'الإشعارات',
-                                'ستصلك إشعارات وتنبيهات بمواعيد الأدوية وتحديثات حالة الطلب قريباً.',
-                              ),
-                            ),
-                            _buildListItem(
-                              icon: LucideIcons.globe,
-                              title: 'تغيير اللغة',
-                              trailingText: 'العربية',
-                              iconColor: Colors.lightBlue,
-                              onTap: () => _showComingSoon(
-                                'تغيير اللغة',
-                                'دعم اللغة الإنجليزية قادم في التحديثات القادمة.',
-                              ),
-                            ),
-                            _buildListItem(
-                              icon: LucideIcons.moon,
-                              title: 'الوضع الليلي',
-                              iconColor: Colors.indigo.shade900,
-                              showArrow: false,
-                              trailingWidget: Switch(
-                                value: _darkMode,
-                                activeColor: kPrimary,
-                                onChanged: (v) async {
-                                  setState(() => _darkMode = v);
-                                  final p =
-                                      await SharedPreferences.getInstance();
-                                  await p.setBool('dark_mode', v);
-                                },
-                              ),
-                            ),
-                            _buildListItem(
-                              icon: LucideIcons.shieldCheck,
-                              title: 'الخصوصية والأمان',
-                              iconColor: Colors.green.shade700,
-                              isLast: true,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const SecurityScreen(),
-                                ),
-                              ),
-                            ),
-                          ]),
-                          const SizedBox(height: 25),
-
-                          // 4. تسجيل الخروج
-                          _buildGlassCard([
-                            _buildListItem(
-                              icon: LucideIcons.logOut,
-                              title: 'تسجيل الخروج',
-                              titleColor: Colors.redAccent,
-                              iconColor: Colors.redAccent,
-                              showArrow: false,
-                              isLast: true,
-                              onTap: _logout,
-                            ),
-=======
                           _buildSectionTitle('الإعدادات', LucideIcons.settings, Colors.grey.shade700),
                           _buildCard([
                             _buildActionRow(LucideIcons.bell, 'الإشعارات', Colors.amber.shade600, onTap: () {
@@ -283,7 +210,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             _buildSoonRow(LucideIcons.globe, 'تغيير اللغة', Colors.lightBlue),
                             // 💡 زر الخروج: تم تمرير hideArrow: true لإزالة السهم
                             _buildActionRow(LucideIcons.logOut, 'تسجيل الخروج', Colors.redAccent, isLast: true, textColor: Colors.redAccent, hideArrow: true, onTap: _logout),
->>>>>>> Stashed changes
                           ]),
                           const SizedBox(height: 40),
                         ],
