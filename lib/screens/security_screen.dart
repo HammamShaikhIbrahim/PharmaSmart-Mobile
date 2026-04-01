@@ -50,12 +50,8 @@ class _SecurityScreenState extends State<SecurityScreen> {
   }
 
   Future<void> _updateSecurity() async {
-    if (_emailController.text.trim().isEmpty ||
-        _oldPassController.text.isEmpty) {
-      _showWarning(
-        'تنبيه',
-        'البريد الإلكتروني وكلمة المرور الحالية حقول مطلوبة.',
-      );
+    if (_emailController.text.trim().isEmpty || _oldPassController.text.isEmpty) {
+      _showWarning('تنبيه', 'البريد الإلكتروني وكلمة المرور الحالية حقول مطلوبة.');
       return;
     }
 
@@ -69,9 +65,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
           "user_id": _userId,
           "email": _emailController.text.trim(),
           "old_pass": _oldPassController.text,
-          "new_pass": _newPassController.text.isEmpty
-              ? null
-              : _newPassController.text,
+          "new_pass": _newPassController.text.isEmpty ? null : _newPassController.text,
         }),
       );
 
@@ -90,7 +84,12 @@ class _SecurityScreenState extends State<SecurityScreen> {
             btnOkColor: primaryColor,
             btnOkText: 'ممتاز',
             dismissOnTouchOutside: false,
-            btnOkOnPress: () => Navigator.pop(context),
+            btnOkOnPress: () {
+              // 💡 تفريغ الخانات عند النجاح
+              _oldPassController.clear();
+              _newPassController.clear();
+              Navigator.pop(context);
+            },
           ).show();
         } else {
           _showError(data['message'] ?? 'فشل التحديث');
@@ -106,27 +105,11 @@ class _SecurityScreenState extends State<SecurityScreen> {
   }
 
   void _showError(String msg) {
-    AwesomeDialog(
-      context: context,
-      dialogType: DialogType.error,
-      title: 'خطأ',
-      desc: msg,
-      btnOkColor: Colors.redAccent,
-      btnOkText: 'حسناً',
-      btnOkOnPress: () {},
-    ).show();
+    AwesomeDialog(context: context, dialogType: DialogType.error, title: 'خطأ', desc: msg, btnOkColor: Colors.redAccent, btnOkText: 'حسناً', btnOkOnPress: () {}).show();
   }
 
   void _showWarning(String title, String desc) {
-    AwesomeDialog(
-      context: context,
-      dialogType: DialogType.warning,
-      title: title,
-      desc: desc,
-      btnOkColor: Colors.orange,
-      btnOkText: 'حسناً',
-      btnOkOnPress: () {},
-    ).show();
+    AwesomeDialog(context: context, dialogType: DialogType.warning, title: title, desc: desc, btnOkColor: Colors.orange, btnOkText: 'حسناً', btnOkOnPress: () {}).show();
   }
 
   @override
@@ -138,181 +121,61 @@ class _SecurityScreenState extends State<SecurityScreen> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          iconTheme: const IconThemeData(color: Colors.black87),
+          title: const Text('الخصوصية والأمان', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w900)),
           centerTitle: true,
-          title: const Text(
-            'الخصوصية والأمان',
-            style: TextStyle(
-              color: Colors.black87,
-              fontWeight: FontWeight.w900,
-              fontSize: 18,
-            ),
-          ),
+          leading: IconButton(icon: const Icon(LucideIcons.arrowRight, color: Colors.black87), onPressed: () => Navigator.pop(context)),
         ),
         body: _isLoading
             ? Center(child: CircularProgressIndicator(color: primaryColor))
             : SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(24),
                 child: Column(
                   children: [
-                    // 💡 الأيقونة العلوية (مطابقة تماماً لشكل صورة البروفايل)
                     Center(
-                      child: Stack(
-                        children: [
-                          Container(
-                            width: 100,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: primaryColor.withOpacity(0.1),
-                              border: Border.all(color: Colors.white, width: 4),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 10,
-                                ),
-                              ],
-                            ),
-                            child: Center(
-                              child: Icon(
-                                LucideIcons.shieldCheck,
-                                size: 45,
-                                color: primaryColor,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: primaryColor,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 2,
-                                ),
-                              ),
-                              child: const Icon(
-                                LucideIcons.lock,
-                                color: Colors.white,
-                                size: 14,
-                              ),
-                            ),
-                          ),
-                        ],
+                      child: Container(
+                        width: 90, height: 90,
+                        decoration: BoxDecoration(shape: BoxShape.circle, color: primaryColor.withOpacity(0.1), border: Border.all(color: Colors.white, width: 4), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)]),
+                        child: Center(child: Icon(LucideIcons.shieldCheck, size: 40, color: primaryColor)),
                       ),
                     ),
-                    const SizedBox(height: 40),
-
-                    // 💡 الكارد الأبيض (مطابق تماماً لصفحة التعديل)
+                    const SizedBox(height: 35),
+                    
                     Container(
                       padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.02),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                        border: Border.all(color: Colors.grey.shade100),
-                      ),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))], border: Border.all(color: Colors.grey.shade100)),
                       child: Column(
                         children: [
-                          _buildCleanField(
-                            'البريد الإلكتروني',
-                            LucideIcons.mail,
-                            _emailController,
-                          ),
+                          _buildCleanField('البريد الإلكتروني', LucideIcons.mail, _emailController),
                           const Divider(color: Color(0xFFF0F0F0), height: 30),
-
-                          _buildCleanField(
-                            'كلمة المرور الحالية',
-                            LucideIcons.lock,
-                            _oldPassController,
-                            isPassword: true,
-                            isHidden: _hideOld,
-                            onToggle: () =>
-                                setState(() => _hideOld = !_hideOld),
-                          ),
+                          _buildCleanField('كلمة المرور الحالية', LucideIcons.lock, _oldPassController, isPassword: true, isHidden: _hideOld, onToggle: () => setState(() => _hideOld = !_hideOld)),
                           const Divider(color: Color(0xFFF0F0F0), height: 30),
-
-                          _buildCleanField(
-                            'كلمة المرور الجديدة (اختياري)',
-                            LucideIcons.key,
-                            _newPassController,
-                            isPassword: true,
-                            isHidden: _hideNew,
-                            onToggle: () =>
-                                setState(() => _hideNew = !_hideNew),
-                          ),
+                          _buildCleanField('كلمة المرور الجديدة (اختياري)', LucideIcons.key, _newPassController, isPassword: true, isHidden: _hideNew, onToggle: () => setState(() => _hideNew = !_hideNew)),
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 15),
+
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Row(
                         children: [
-                          Icon(
-                            LucideIcons.info,
-                            size: 14,
-                            color: Colors.grey.shade400,
-                          ),
-                          const SizedBox(width: 6),
-                          const Expanded(
-                            child: Text(
-                              'يجب إدخال كلمة المرور الحالية لتتمكن من تحديث البيانات.',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.grey,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+                          Icon(LucideIcons.info, size: 16, color: Colors.orange.shade400),
+                          const SizedBox(width: 8),
+                          const Expanded(child: Text('يجب إدخال كلمة المرور الحالية لتتمكن من تحديث بريدك أو تغيير كلمة المرور.', style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.bold))),
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 40),
 
-                    // 💡 زر التحديث (مطابق تماماً لزر الحفظ)
                     SizedBox(
-                      width: double.infinity,
-                      height: 55,
+                      width: double.infinity, height: 55,
                       child: ElevatedButton(
                         onPressed: _isSaving ? null : _updateSecurity,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 5,
-                          shadowColor: primaryColor.withOpacity(0.3),
-                        ),
+                        style: ElevatedButton.styleFrom(backgroundColor: primaryColor, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), elevation: 5, shadowColor: primaryColor.withOpacity(0.3)),
                         child: _isSaving
-                            ? const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 3,
-                                ),
-                              )
-                            : const Text(
-                                'تحديث بيانات الأمان',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                            ? const CircularProgressIndicator(color: Colors.white)
+                            : const Text('تحديث بيانات الأمان', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                       ),
                     ),
                   ],
@@ -322,48 +185,20 @@ class _SecurityScreenState extends State<SecurityScreen> {
     );
   }
 
-  // 💡 الدالة الموحدة لبناء الحقول (مطابقة تماماً لصفحة التعديل)
-  Widget _buildCleanField(
-    String label,
-    IconData icon,
-    TextEditingController controller, {
-    bool isPassword = false,
-    bool isHidden = false,
-    VoidCallback? onToggle,
-  }) {
+  Widget _buildCleanField(String label, IconData icon, TextEditingController controller, {bool isPassword = false, bool isHidden = false, VoidCallback? onToggle}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.grey,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.bold)),
         TextField(
           controller: controller,
           obscureText: isHidden,
-          textAlign: TextAlign.left, // البريد والباسوورد دائماً لليسار
-          style: const TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.bold,
-            fontSize: 15,
-          ),
+          textAlign: TextAlign.left,
+          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 15),
           decoration: InputDecoration(
             prefixIcon: Icon(icon, size: 20, color: primaryColor),
             prefixIconConstraints: const BoxConstraints(minWidth: 40),
-            suffixIcon: isPassword
-                ? IconButton(
-                    icon: Icon(
-                      isHidden ? LucideIcons.eyeOff : LucideIcons.eye,
-                      size: 18,
-                      color: Colors.grey,
-                    ),
-                    onPressed: onToggle,
-                  )
-                : null,
+            suffixIcon: isPassword ? IconButton(icon: Icon(isHidden ? LucideIcons.eyeOff : LucideIcons.eye, size: 18, color: Colors.grey), onPressed: onToggle) : null,
             border: InputBorder.none,
             isDense: true,
             contentPadding: const EdgeInsets.only(top: 10),
