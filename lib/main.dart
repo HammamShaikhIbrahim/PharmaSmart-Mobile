@@ -52,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _checkLoginStatus() async {
     // عرض الشاشة لمدة 3 ثوانٍ
-    await Future.delayed(const Duration(seconds: 5));
+    await Future.delayed(const Duration(seconds: 3));
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
