@@ -6,6 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../config/api_config.dart';
 import '../services/cart_helper.dart';
 import 'medicine_details_screen.dart';
+import '../widgets/pharma_ui.dart';
 
 class PharmacyStoreScreen extends StatefulWidget {
   final int pharmacyId;
@@ -164,9 +165,7 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
             ),
             Expanded(
               child: _loading
-                  ? Center(
-                      child: CircularProgressIndicator(color: primaryColor),
-                    )
+                  ? PharmaUI.loader()
                   : _filteredItems.isEmpty
                   ? _buildEmptyState()
                   : ListView.builder(
@@ -218,9 +217,6 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
     );
   }
 
-  // ==========================================
-  // 💡 تصميم الكارت المطابق لصورة (Lyrica) 100%
-  // ==========================================
   Widget _buildModernResultCard(dynamic item) {
     final String imageUrl =
         "${ApiConfig.baseUrl.replaceAll('api/', '')}uploads/medicines/${item['Image']}";
@@ -240,10 +236,10 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
       ),
       child: Container(
         margin: const EdgeInsets.only(bottom: 15),
-        padding: const EdgeInsets.all(16), // زيادة التباعد الداخلي
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(24), // حواف أكثر نعومة
+          borderRadius: BorderRadius.circular(24),
           border: Border.all(color: Colors.grey.shade100),
           boxShadow: [
             BoxShadow(
@@ -258,12 +254,10 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 1. النصوص على اليمين (RTL)
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // الاسم التجاري
                       Text(
                         item['Name'],
                         style: const TextStyle(
@@ -275,7 +269,6 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 2),
-                      // الاسم العلمي
                       Text(
                         item['ScientificName'] ?? '',
                         style: const TextStyle(
@@ -287,8 +280,6 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 10),
-
-                      // التصنيف + الصيدلية
                       Row(
                         children: [
                           Container(
@@ -309,36 +300,9 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                FaIcon(
-                                  FontAwesomeIcons.houseMedical,
-                                  size: 10,
-                                  color: primaryColor,
-                                ),
-                                const SizedBox(width: 4),
-                                Expanded(
-                                  child: Text(
-                                    widget.pharmacyName,
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: primaryColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
                         ],
                       ),
                       const SizedBox(height: 15),
-
-                      // السعر والتوفر (السعر يمين، متوفر يسار)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.end,
@@ -368,8 +332,6 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
                   ),
                 ),
                 const SizedBox(width: 15),
-
-                // 2. الصورة على اليسار (RTL)
                 Stack(
                   children: [
                     Container(
@@ -423,8 +385,6 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
               ],
             ),
             const SizedBox(height: 16),
-
-            // زر إضافة للسلة
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -486,26 +446,11 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          FaIcon(
-            FontAwesomeIcons.magnifyingGlassChart,
-            size: 70,
-            color: Colors.grey[300],
-          ),
-          const SizedBox(height: 15),
-          const Text(
-            'لا توجد منتجات مطابقة',
-            style: TextStyle(
-              color: Colors.grey,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-        ],
-      ),
+    return PharmaUI.emptyState(
+      icon: LucideIcons.searchX,
+      title: 'لا توجد منتجات',
+      subtitle:
+          'لم تقم هذه الصيدلية بإضافة أدوية حتى الآن، أو لا توجد نتائج مطابقة لبحثك.',
     );
   }
 }

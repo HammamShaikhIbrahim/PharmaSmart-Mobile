@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import '../config/api_config.dart';
 import 'medicine_details_screen.dart';
 import '../services/cart_helper.dart'; // 💡 استدعاء السلة
+import '../widgets/pharma_ui.dart';
 
 class SearchScreen extends StatefulWidget {
   final int? initialCategoryId;
@@ -254,7 +255,7 @@ class _SearchScreenState extends State<SearchScreen> {
             Expanded(
               child: _isLoading
                   ? Center(
-                      child: CircularProgressIndicator(color: primaryColor),
+                      child: PharmaUI.loader(),
                     )
                   : _results.isEmpty
                   ? _buildEmptyState()
@@ -592,31 +593,10 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          FaIcon(
-            FontAwesomeIcons.magnifyingGlassChart,
-            size: 70,
-            color: Colors.grey[300],
-          ),
-          const SizedBox(height: 15),
-          const Text(
-            'لا توجد نتائج مطابقة',
-            style: TextStyle(
-              color: Colors.grey,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(height: 5),
-          const Text(
-            'حاول البحث باسم مختلف أو اختر تصنيفاً آخر',
-            style: TextStyle(color: Colors.grey, fontSize: 13),
-          ),
-        ],
-      ),
+    return PharmaUI.emptyState(
+      icon: LucideIcons.searchX,
+      title: 'لا توجد نتائج مطابقة',
+      subtitle: 'حاول البحث باسم دواء مختلف، أو جرب اختيار تصنيف طبي آخر.',
     );
   }
 }

@@ -12,6 +12,8 @@ import 'package:latlong2/latlong.dart';
 import '../services/cart_service.dart';
 import '../config/api_config.dart';
 import 'map_picker_screen.dart';
+import 'main_screen.dart'; // 💡 لحل مشكلة العودة
+import '../widgets/pharma_ui.dart'; // 💡 للتصميم الفخم
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -27,7 +29,6 @@ class _CartScreenState extends State<CartScreen> {
   final Color primaryColor = const Color(0xFF0A7A48);
   final Color bgColor = const Color(0xFFF2FBF5);
 
-  // 💡 إضافة متحكم للنص الذي سيكتبه المريض للعنوان
   final TextEditingController _addressDescController = TextEditingController();
 
   int _addressType = 1; // 1 = مسجل في الحساب, 2 = خريطة جديدة
@@ -161,40 +162,11 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildEmptyCart() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(40),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            FaIcon(
-              FontAwesomeIcons.cartArrowDown,
-              size: 80,
-              color: Colors.grey[300],
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'سلتك فارغة',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w900,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'تصفح الصيدليات وأضف الأدوية التي تحتاجها إلى سلتك لتبدأ عملية الطلب.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[500],
-                height: 1.6,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return PharmaUI.emptyState(
+      icon: LucideIcons.shoppingCart,
+      title: 'سلتك فارغة',
+      subtitle:
+          'تصفح الصيدليات وأضف الأدوية التي تحتاجها إلى سلتك لتبدأ عملية الطلب.',
     );
   }
 
@@ -207,17 +179,12 @@ class _CartScreenState extends State<CartScreen> {
         children: [
           _buildPharmacyHeader(),
           const SizedBox(height: 20),
-
           ..._cart.items.map((item) => _buildCartItemCard(item)),
           const SizedBox(height: 10),
-
           _buildRxUploadSection(),
           const SizedBox(height: 20),
-
-          // 💡 تم تحديث قسم التوصيل ليشمل الوصف والكتابة
           _buildDeliverySection(),
           const SizedBox(height: 20),
-
           _buildPriceSummary(),
           const SizedBox(height: 100),
         ],
@@ -516,7 +483,6 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ),
           const SizedBox(height: 15),
-
           GestureDetector(
             onTap: _showImageSourceDialog,
             child: _prescriptionImageBytes == null
@@ -588,9 +554,6 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  // ==========================================
-  // 5. 💡 منطقة تحديد الموقع وتفاصيل العنوان الجديدة
-  // ==========================================
   Widget _buildDeliverySection() {
     bool hasMapAddress = _deliveryLat != null;
 
@@ -626,8 +589,6 @@ class _CartScreenState extends State<CartScreen> {
             ],
           ),
           const SizedBox(height: 15),
-
-          // 💡 حقل إدخال العنوان الوصفي (مطلوب)
           TextField(
             controller: _addressDescController,
             decoration: InputDecoration(
@@ -655,8 +616,6 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ),
           const SizedBox(height: 15),
-
-          // 💡 الخيار الأول: الموقع المسجل
           GestureDetector(
             onTap: () => setState(() => _addressType = 1),
             child: Container(
@@ -696,8 +655,6 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ),
           const SizedBox(height: 10),
-
-          // 💡 الخيار الثاني: موقع جديد على الخريطة
           GestureDetector(
             onTap: () => setState(() => _addressType = 2),
             child: Container(
@@ -749,7 +706,7 @@ class _CartScreenState extends State<CartScreen> {
                             color: Colors.grey,
                             fontWeight: FontWeight.w600,
                           ),
-                          textDirection: TextDirection.ltr, // 💡 حل مشكلة الخطأ
+                          textDirection: TextDirection.ltr,
                         ),
                       ),
                     SizedBox(
@@ -972,7 +929,7 @@ class _CartScreenState extends State<CartScreen> {
         setState(() {
           _cart.clearCart();
           _prescriptionImageBytes = null;
-          _addressDescController.clear(); // مسح العنوان أيضا
+          _addressDescController.clear();
         });
       },
       btnOkText: 'تفريغ',
@@ -985,7 +942,6 @@ class _CartScreenState extends State<CartScreen> {
     bool isGuest = prefs.getBool('isGuest') ?? false;
     String? userId = prefs.getString('userId');
 
-    // 1. فحص الدخول
     if (isGuest || userId == null) {
       _showAwesomeInfo(
         'تسجيل الدخول مطلوب',
@@ -994,7 +950,6 @@ class _CartScreenState extends State<CartScreen> {
       return;
     }
 
-    // 2. فحص النص (مطلوب دائماً ليعرف الصيدلي مكان المريض بالضبط)
     if (_addressDescController.text.trim().isEmpty) {
       _showAwesomeError(
         'وصف العنوان مطلوب',
@@ -1003,7 +958,6 @@ class _CartScreenState extends State<CartScreen> {
       return;
     }
 
-    // 3. فحص الخريطة إذا اختار (موقع جديد)
     if (_addressType == 2 && (_deliveryLat == null || _deliveryLng == null)) {
       _showAwesomeError(
         'موقع الخريطة مطلوب',
@@ -1012,7 +966,6 @@ class _CartScreenState extends State<CartScreen> {
       return;
     }
 
-    // 4. فحص الوصفة للأدوية المراقبة
     if (_cart.hasControlledMedicine && _prescriptionImageBytes == null) {
       _showAwesomeError(
         'الوصفة الطبية مطلوبة',
@@ -1039,19 +992,15 @@ class _CartScreenState extends State<CartScreen> {
         base64Image = base64Encode(_prescriptionImageBytes!);
       }
 
-      // 💡 بناء البيانات للإرسال، وإخبار السيرفر بما اختاره المستخدم من نوع العنوان
       final response = await http.post(
         Uri.parse("${ApiConfig.baseUrl}create_order.php"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "patient_id": int.parse(userId),
           "total_amount": _cart.totalAmount,
-          "delivery_address": _addressDescController.text.trim(), // إرسال النص
-          "use_saved_location":
-              _addressType == 1, // 💡 True يعني هات الموقع من الداتابيز
-          "delivery_lat": _addressType == 2
-              ? _deliveryLat
-              : null, // فقط إذا كان موقع جديد
+          "delivery_address": _addressDescController.text.trim(),
+          "use_saved_location": _addressType == 1,
+          "delivery_lat": _addressType == 2 ? _deliveryLat : null,
           "delivery_lng": _addressType == 2 ? _deliveryLng : null,
           "items": orderItems,
           "prescription_image": base64Image,
@@ -1061,7 +1010,6 @@ class _CartScreenState extends State<CartScreen> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['status'] == 'success') {
-          // 1. تفريغ السلة والذاكرة بالكامل
           _cart.clearCart();
           _prescriptionImageBytes = null;
           _addressDescController.clear();
@@ -1075,10 +1023,20 @@ class _CartScreenState extends State<CartScreen> {
             desc: 'طلبك رقم #${data['order_id']} قيد المراجعة الآن.',
             btnOkColor: primaryColor,
             btnOkText: 'العودة للرئيسية',
-            dismissOnTouchOutside: false, // نمنع إغلاق النافذة بالضغط خارجها
-            btnOkOnPress: () {
-              // 💡 2. الحل الجذري: نرجع المريض للشاشة الأولى (الرئيسية) لتنظيف الذاكرة تماماً
-              Navigator.of(context).popUntil((route) => route.isFirst);
+            dismissOnTouchOutside: false,
+            btnOkOnPress: () async {
+              final prefs = await SharedPreferences.getInstance();
+              if (!context.mounted) return;
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MainScreen(
+                    isGuest: false,
+                    userName: prefs.getString('userName'),
+                  ),
+                ),
+                (route) => false,
+              );
             },
           ).show();
         } else {

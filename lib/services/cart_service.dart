@@ -1,19 +1,14 @@
-// ==========================================
-// خدمة سلة المشتريات (Cart Service - Singleton)
-// ==========================================
-// هذا الملف يدير حالة السلة في الذاكرة (In-Memory).
-// القيد الأساسي: السلة مقيّدة بصيدلية واحدة فقط في كل طلب.
-// ==========================================
+import 'package:flutter/material.dart'; // 💡 أضفنا هاد لاستخدام ChangeNotifier
 
 class CartItem {
-  final int stockId; // رقم المخزون من PharmacyStock
-  final int systemMedId; // رقم الدواء من SystemMedicine
+  final int stockId;
+  final int systemMedId;
   final String medicineName;
   final String image;
   final double price;
   final int pharmacistId;
   final String pharmacyName;
-  final bool isControlled; // هل الدواء مراقب (Rx)؟
+  final bool isControlled;
   int quantity;
 
   CartItem({
@@ -31,40 +26,25 @@ class CartItem {
   double get totalPrice => price * quantity;
 }
 
-class CartService {
-  // ==========================================
-  // نمط Singleton (نسخة وحيدة في كل التطبيق)
-  // ==========================================
+// 💡 جعلنا الكلاس ChangeNotifier ليرسل تنبيهات للتطبيق
+class CartService extends ChangeNotifier {
   CartService._internal();
   static final CartService _instance = CartService._internal();
   factory CartService() => _instance;
 
-  // ==========================================
-  // البيانات الأساسية
-  // ==========================================
   final List<CartItem> _items = [];
   int? _currentPharmacistId;
   String? _currentPharmacyName;
 
-  // ==========================================
-  // Getters (للقراءة فقط)
-  // ==========================================
   List<CartItem> get items => List.unmodifiable(_items);
   int? get currentPharmacistId => _currentPharmacistId;
   String? get currentPharmacyName => _currentPharmacyName;
   bool get isEmpty => _items.isEmpty;
   int get itemCount => _items.fold(0, (sum, item) => sum + item.quantity);
-
   double get totalAmount =>
       _items.fold(0.0, (sum, item) => sum + item.totalPrice);
-
-  // هل يوجد دواء مراقب في السلة؟ (لإجبار المريض على رفع وصفة)
   bool get hasControlledMedicine => _items.any((item) => item.isControlled);
 
-  // ==========================================
-  // إضافة دواء للسلة
-  // ==========================================
-  // يعيد: 'added' إذا نجح، 'updated' إذا زاد الكمية، 'pharmacy_conflict' إذا صيدلية مختلفة
   String addItem({
     required int stockId,
     required int systemMedId,
@@ -75,24 +55,15 @@ class CartService {
     required String pharmacyName,
     required bool isControlled,
   }) {
-    // التحقق من قيد الصيدلية الواحدة
     if (_currentPharmacistId != null && _currentPharmacistId != pharmacistId) {
       return 'pharmacy_conflict';
     }
-
-    // تعيين الصيدلية الحالية
     _currentPharmacistId = pharmacistId;
     _currentPharmacyName = pharmacyName;
-
-    // البحث عن الدواء في السلة (بناءً على StockID)
     final existingIndex = _items.indexWhere((item) => item.stockId == stockId);
-
     if (existingIndex != -1) {
-      // الدواء موجود مسبقاً: زيادة الكمية
       _items[existingIndex].quantity++;
-      return 'updated';
     } else {
-      // دواء جديد: إضافته للسلة
       _items.add(
         CartItem(
           stockId: stockId,
@@ -105,49 +76,38 @@ class CartService {
           isControlled: isControlled,
         ),
       );
-      return 'added';
     }
+    notifyListeners(); // 💡 تنبيه التطبيق لتحديث العداد فوراً
+    return existingIndex != -1 ? 'updated' : 'added';
   }
 
-  // ==========================================
-  // تعديل الكمية
-  // ==========================================
   void updateQuantity(int stockId, int newQuantity) {
     final index = _items.indexWhere((item) => item.stockId == stockId);
     if (index != -1) {
-      if (newQuantity <= 0) {
+      if (newQuantity <= 0)
         removeItem(stockId);
-      } else {
+      else
         _items[index].quantity = newQuantity;
-      }
+      notifyListeners(); // 💡 تنبيه التطبيق
     }
   }
 
-  // ==========================================
-  // حذف دواء من السلة
-  // ==========================================
   void removeItem(int stockId) {
     _items.removeWhere((item) => item.stockId == stockId);
-
-    // إذا أصبحت السلة فارغة، نزيل قيد الصيدلية
     if (_items.isEmpty) {
       _currentPharmacistId = null;
       _currentPharmacyName = null;
     }
+    notifyListeners(); // 💡 تنبيه التطبيق
   }
 
-  // ==========================================
-  // تفريغ السلة بالكامل
-  // ==========================================
   void clearCart() {
     _items.clear();
     _currentPharmacistId = null;
     _currentPharmacyName = null;
+    notifyListeners(); // 💡 تنبيه التطبيق
   }
 
-  // ==========================================
-  // تفريغ السلة والتبديل لصيدلية جديدة
-  // ==========================================
   void clearAndAddNew({
     required int stockId,
     required int systemMedId,
@@ -158,7 +118,7 @@ class CartService {
     required String pharmacyName,
     required bool isControlled,
   }) {
-    clearCart();
+    _items.clear();
     addItem(
       stockId: stockId,
       systemMedId: systemMedId,
