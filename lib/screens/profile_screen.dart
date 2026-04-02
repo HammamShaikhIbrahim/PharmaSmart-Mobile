@@ -11,12 +11,16 @@ import 'login_screen.dart';
 import 'edit_profile_screen.dart';
 import 'security_screen.dart';
 import 'my_orders_screen.dart';
-import 'notifications_sheet.dart'; // 💡 استدعاء ملف الإشعارات الجديد
+import 'notifications_sheet.dart';
+import 'medical_history_screen.dart';
+import 'prescriptions_screen.dart';
+import 'payment_methods_screen.dart'; // 💡 استدعاء شاشة طرق الدفع الجديدة
 
 const Color kPrimary = Color(0xFF0A7A48);
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
@@ -28,13 +32,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _darkMode = false;
   bool _isGuest = false;
 
+  final Color bgColor = const Color(0xFFF2FBF5); // 💡 اللون الموحد للتطبيق
+
   @override
   void initState() {
     super.initState();
     _fetchProfileData();
   }
 
-  // 💡 جلب البيانات الحقيقية من السيرفر
+  // جلب البيانات الحقيقية من السيرفر
   Future<void> _fetchProfileData() async {
     final prefs = await SharedPreferences.getInstance();
     _isGuest = prefs.getBool('isGuest') ?? false;
@@ -145,6 +151,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (_isGuest) {
       return Scaffold(
+        backgroundColor: bgColor,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -176,245 +183,204 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        body: Stack(
-          children: [
-            _buildModernBackground(),
-            SafeArea(
-              child: CustomScrollView(
-                physics: const BouncingScrollPhysics(),
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Center(
-                            child: Text(
-                              'حسابي',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 30),
-
-                          _buildProfileHeaderCard(),
-                          const SizedBox(height: 30),
-
-                          // 1. المعلومات الشخصية (بيانات حقيقية)
-                          _buildSectionTitle(
-                            'المعلومات الشخصية',
-                            LucideIcons.contact,
-                            Colors.blueAccent,
-                          ),
-                          _buildGlassCard([
-                            _buildListItem(
-                              icon: LucideIcons.phone,
-                              title: 'رقم الهاتف',
-                              trailingText: _phone,
-                              iconColor: Colors.green,
-                              showArrow: false,
-                            ),
-                            _buildListItem(
-                              icon: LucideIcons.calendar,
-                              title: 'تاريخ الميلاد',
-                              trailingText: _dob,
-                              iconColor: Colors.orange,
-                              showArrow: false,
-                            ),
-                            _buildListItem(
-                              icon: LucideIcons.mapPin,
-                              title: 'العنوان',
-                              trailingText: _address,
-                              iconColor: Colors.redAccent,
-                              showArrow: false,
-                              isLast: true,
-                            ),
-                          ]),
-                          const SizedBox(height: 25),
-
-                          // 2. نشاطي
-                          _buildSectionTitle(
-                            'نشاطي',
-                            LucideIcons.activity,
-                            Colors.redAccent,
-                          ),
-                          _buildGlassCard([
-                            _buildListItem(
-                              icon: LucideIcons.stethoscope,
-                              title: 'السجل المرضي',
-                              iconColor: Colors.red,
-                              onTap: () => _showComingSoon(
-                                'السجل المرضي',
-                                'هذه الشاشة ستمكنك من تعديل سجلك المرضي وإضافة عمليات جراحية سابقة ليكون الصيدلي على علم بها.',
-                              ), // 💡 سنبرمجها لاحقاً
-                            ),
-                            _buildListItem(
-                              icon: LucideIcons.shoppingBag,
-                              title: 'الطلبات السابقة',
-                              iconColor: Colors.teal,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (c) => const MyOrdersScreen(),
-                                ),
-                              ),
-                            ),
-                            _buildListItem(
-                              icon: LucideIcons.fileText,
-                              title: 'وصفاتي الطبية',
-                              iconColor: Colors.indigo,
-                              onTap: () => _showComingSoon(
-                                'وصفاتي الطبية',
-                                'قريباً ستتمكن من استعراض كافة الروشتات التي قمت برفعها مسبقاً.',
-                              ),
-                            ),
-                            _buildPaymentMethodItem(),
-                            _buildListItem(
-                              icon: LucideIcons.bookmark,
-                              title: 'العناوين المحفوظة',
-                              iconColor: Colors.purple,
-                              isLast: true,
-                              onTap: () => _showComingSoon(
-                                'عناويني',
-                                'قريباً ستتمكن من إضافة أكثر من عنوان (منزل، عمل) لسرعة التوصيل.',
-                              ),
-                            ),
-                          ]),
-                          const SizedBox(height: 25),
-
-                          // 3. الإعدادات
-                          _buildSectionTitle(
-                            'الإعدادات',
-                            LucideIcons.settings,
-                            Colors.grey.shade700,
-                          ),
-                          _buildGlassCard([
-                            _buildListItem(
-                              icon: LucideIcons.bell,
-                              title: 'الإشعارات',
-                              iconColor: Colors.amber.shade600,
-                              // 💡 تم ربط الزر هنا
-                              onTap: () => NotificationsSheet.show(context),
-                            ),
-                            _buildListItem(
-                              icon: LucideIcons.globe,
-                              title: 'تغيير اللغة',
-                              trailingText: 'العربية',
-                              iconColor: Colors.lightBlue,
-                              onTap: () => _showComingSoon(
-                                'تغيير اللغة',
-                                'دعم اللغة الإنجليزية قادم في التحديثات القادمة.',
-                              ),
-                            ),
-                            _buildListItem(
-                              icon: LucideIcons.moon,
-                              title: 'الوضع الليلي',
-                              iconColor: Colors.indigo.shade900,
-                              showArrow: false,
-                              trailingWidget: Switch(
-                                value: _darkMode,
-                                activeColor: kPrimary,
-                                onChanged: (v) async {
-                                  setState(() => _darkMode = v);
-                                  final p =
-                                      await SharedPreferences.getInstance();
-                                  await p.setBool('dark_mode', v);
-                                },
-                              ),
-                            ),
-                            _buildListItem(
-                              icon: LucideIcons.shieldCheck,
-                              title: 'الخصوصية والأمان',
-                              iconColor: Colors.green.shade700,
-                              isLast: true,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const SecurityScreen(),
-                                ),
-                              ),
-                            ),
-                          ]),
-                          const SizedBox(height: 25),
-
-                          // 4. تسجيل الخروج
-                          _buildGlassCard([
-                            _buildListItem(
-                              icon: LucideIcons.logOut,
-                              title: 'تسجيل الخروج',
-                              titleColor: Colors.redAccent,
-                              iconColor: Colors.redAccent,
-                              showArrow: false,
-                              isLast: true,
-                              onTap: _logout,
-                            ),
-                          ]),
-                          const SizedBox(height: 40),
-                        ],
-                      ),
-                    ),
+        backgroundColor: bgColor,
+        body: SafeArea(
+          child: CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
                   ),
-                ],
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Center(
+                        child: Text(
+                          'حسابي',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+
+                      _buildProfileHeaderCard(),
+                      const SizedBox(height: 30),
+
+                      // 1. المعلومات الشخصية
+                      _buildSectionTitle(
+                        'المعلومات الشخصية',
+                        LucideIcons.contact,
+                        Colors.blueAccent,
+                      ),
+                      _buildGlassCard([
+                        _buildListItem(
+                          icon: LucideIcons.phone,
+                          title: 'رقم الهاتف',
+                          trailingText: _phone,
+                          iconColor: Colors.green,
+                          showArrow: false,
+                        ),
+                        _buildListItem(
+                          icon: LucideIcons.calendar,
+                          title: 'تاريخ الميلاد',
+                          trailingText: _dob,
+                          iconColor: Colors.orange,
+                          showArrow: false,
+                        ),
+                        _buildListItem(
+                          icon: LucideIcons.mapPin,
+                          title: 'العنوان',
+                          trailingText: _address, 
+                          iconColor: Colors.redAccent,
+                          showArrow: false,
+                          isLast: true,
+                        ),
+                      ]),
+                      const SizedBox(height: 25),
+
+                      // 2. نشاطي
+                      _buildSectionTitle(
+                        'نشاطي',
+                        LucideIcons.activity,
+                        Colors.redAccent,
+                      ),
+                      _buildGlassCard([
+                        _buildListItem(
+                          icon: LucideIcons.stethoscope,
+                          title: 'السجل المرضي',
+                          iconColor: Colors.red,
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => MedicalHistoryScreen(
+                                currentHistory: _medicalHistory,
+                              ),
+                            ),
+                          ).then((_) => _fetchProfileData()), 
+                        ),
+                        _buildListItem(
+                          icon: LucideIcons.shoppingBag,
+                          title: 'الطلبات السابقة',
+                          iconColor: Colors.teal,
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (c) => const MyOrdersScreen(),
+                            ),
+                          ),
+                        ),
+                        _buildListItem(
+                          icon: LucideIcons.fileText,
+                          title: 'وصفاتي الطبية',
+                          iconColor: Colors.indigo,
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const PrescriptionsScreen(),
+                            ),
+                          ),
+                        ),
+                        _buildPaymentMethodItem(), // 💡 تم التعديل على هذا العنصر في الأسفل
+                        _buildListItem(
+                          icon: LucideIcons.bookmark,
+                          title: 'العناوين المحفوظة',
+                          iconColor: Colors.purple,
+                          isLast: true,
+                          onTap: () => _showComingSoon(
+                            'عناويني',
+                            'قريباً ستتمكن من إضافة أكثر من عنوان (منزل، عمل) لسرعة التوصيل.',
+                          ),
+                        ),
+                      ]),
+                      const SizedBox(height: 25),
+
+                      // 3. الإعدادات
+                      _buildSectionTitle(
+                        'الإعدادات',
+                        LucideIcons.settings,
+                        Colors.grey.shade700,
+                      ),
+                      _buildGlassCard([
+                        _buildListItem(
+                          icon: LucideIcons.bell,
+                          title: 'الإشعارات',
+                          iconColor: Colors.amber.shade600,
+                          onTap: () => NotificationsSheet.show(context),
+                        ),
+                        _buildListItem(
+                          icon: LucideIcons.globe,
+                          title: 'تغيير اللغة',
+                          trailingText: 'العربية',
+                          iconColor: Colors.lightBlue,
+                          onTap: () => _showComingSoon(
+                            'تغيير اللغة',
+                            'دعم اللغة الإنجليزية قادم في التحديثات القادمة.',
+                          ),
+                        ),
+                        _buildListItem(
+                          icon: LucideIcons.moon,
+                          title: 'الوضع الليلي',
+                          iconColor: Colors.indigo.shade900,
+                          showArrow: false,
+                          trailingWidget: Switch(
+                            value: _darkMode,
+                            activeColor: kPrimary,
+                            onChanged: (v) async {
+                              setState(() => _darkMode = v);
+                              final p =
+                                  await SharedPreferences.getInstance();
+                              await p.setBool('dark_mode', v);
+                            },
+                          ),
+                        ),
+                        _buildListItem(
+                          icon: LucideIcons.shieldCheck,
+                          title: 'الخصوصية والأمان',
+                          iconColor: Colors.green.shade700,
+                          isLast: true,
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const SecurityScreen(),
+                            ),
+                          ),
+                        ),
+                      ]),
+                      const SizedBox(height: 25),
+
+                      // 4. تسجيل الخروج
+                      _buildGlassCard([
+                        _buildListItem(
+                          icon: LucideIcons.logOut,
+                          title: 'تسجيل الخروج',
+                          titleColor: Colors.redAccent,
+                          iconColor: Colors.redAccent,
+                          showArrow: false,
+                          isLast: true,
+                          onTap: _logout,
+                        ),
+                      ]),
+                      const SizedBox(height: 40),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
   // =====================================
-  // Widgets التصميم (لم يتغير)
+  // Widgets التصميم
   // =====================================
-
-  Widget _buildModernBackground() {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFFE6F5EC), Color(0xFFF4F9F6)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            top: -50,
-            right: -50,
-            child: CircleAvatar(
-              radius: 120,
-              backgroundColor: kPrimary.withOpacity(0.04),
-            ),
-          ),
-          Positioned(
-            top: 200,
-            left: -80,
-            child: CircleAvatar(
-              radius: 100,
-              backgroundColor: Colors.white.withOpacity(0.4),
-            ),
-          ),
-          Positioned(
-            bottom: 100,
-            right: -20,
-            child: CircleAvatar(
-              radius: 80,
-              backgroundColor: kPrimary.withOpacity(0.03),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildProfileHeaderCard() {
     return ClipRRect(
@@ -485,7 +451,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               ),
-              // 💡 زر التعديل (ينعش البيانات بعد العودة)
+              // زر التعديل (ينعش البيانات بعد العودة)
               IconButton(
                 onPressed: () => Navigator.push(
                   context,
@@ -612,11 +578,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  // 💡 تم تعديل هذا الجزء ليقوم بنقلك لشاشة طرق الدفع
   Widget _buildPaymentMethodItem() {
     return InkWell(
-      onTap: () => _showComingSoon(
-        'طريقة الدفع',
-        'الدفع عند الاستلام متاح حالياً. سيتم تفعيل الدفع بالبطاقات قريباً.',
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const PaymentMethodsScreen(),
+        ),
       ),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
