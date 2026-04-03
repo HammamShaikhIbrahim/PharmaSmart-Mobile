@@ -12,8 +12,8 @@ import 'package:latlong2/latlong.dart';
 import '../services/cart_service.dart';
 import '../config/api_config.dart';
 import 'map_picker_screen.dart';
-import 'main_screen.dart'; // 💡 لحل مشكلة العودة
-import '../widgets/pharma_ui.dart'; // 💡 للتصميم الفخم
+import 'main_screen.dart'; 
+import '../widgets/pharma_ui.dart'; 
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -31,12 +31,35 @@ class _CartScreenState extends State<CartScreen> {
 
   final TextEditingController _addressDescController = TextEditingController();
 
-  int _addressType = 1; // 1 = مسجل في الحساب, 2 = خريطة جديدة
+  int _selectedAddressOption = 0; 
+  List<Map<String, dynamic>> _customAddresses = [];
+
   double? _deliveryLat;
   double? _deliveryLng;
 
   Uint8List? _prescriptionImageBytes;
   final ImagePicker _picker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCustomAddresses();
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _cart.markCartAsViewed();
+    });
+  }
+
+  Future<void> _loadCustomAddresses() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('userId');
+    if (userId != null) {
+      List<String> savedList = prefs.getStringList('custom_addresses_$userId') ?? [];
+      setState(() {
+        _customAddresses = savedList.map((item) => jsonDecode(item) as Map<String, dynamic>).toList();
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -135,6 +158,7 @@ class _CartScreenState extends State<CartScreen> {
           backgroundColor: Colors.white,
           elevation: 0,
           centerTitle: true,
+          // 💡 العداد غير موجود هنا بناءً على طلبك
           title: const Text(
             "سلة المشتريات",
             style: TextStyle(
@@ -192,58 +216,143 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+  // 💡 تصميم كرت الصيدلية الجديد المفصل والأنيق
   Widget _buildPharmacyHeader() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 10,
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 15,
             offset: const Offset(0, 5),
           ),
         ],
       ),
-      child: Row(
+      child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: primaryColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: FaIcon(
-              FontAwesomeIcons.houseMedical,
-              color: primaryColor,
-              size: 20,
-            ),
+          // 1. الجزء العلوي: اسم الصيدلية
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: primaryColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: FaIcon(
+                  FontAwesomeIcons.houseMedical,
+                  color: primaryColor,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 15),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'يتم تجهيز طلبك من:',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _cart.currentPharmacyName ?? 'صيدلية غير محددة',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.black87,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'الطلب من صيدلية:',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.bold,
+          
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 15),
+            child: Divider(color: Color(0xFFF0F0F0), height: 1),
+          ),
+
+          // 2. الجزء السفلي: الإحصائيات (الأصناف والقطع)
+          Row(
+            children: [
+              // مربع الأصناف المختلفة
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.blue.shade100),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        '${_cart.uniqueItemsCount}',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.blue.shade700,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'أصناف مختلفة',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue.shade600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Text(
-                  _cart.currentPharmacyName ?? '',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.black87,
+              ),
+              const SizedBox(width: 12),
+              // مربع إجمالي القطع
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: BoxDecoration(
+                    color: primaryColor.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: primaryColor.withOpacity(0.1)),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        '${_cart.totalItemsQuantity}',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                          color: primaryColor,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'إجمالي القطع',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: primaryColor.withOpacity(0.8),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
@@ -589,173 +698,175 @@ class _CartScreenState extends State<CartScreen> {
             ],
           ),
           const SizedBox(height: 15),
-          TextField(
-            controller: _addressDescController,
-            decoration: InputDecoration(
-              hintText: 'وصف العنوان (المنطقة، الشارع، المعلم، ...)',
-              hintStyle: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-                fontWeight: FontWeight.bold,
-              ),
-              filled: true,
-              fillColor: Colors.grey.shade50,
-              prefixIcon: const Icon(
-                LucideIcons.home,
-                color: Colors.grey,
-                size: 18,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide(color: primaryColor, width: 1.5),
-              ),
-            ),
+
+          _buildAddressOptionRadio(
+            title: 'العنوان الأساسي',
+            subtitle: 'المسجل في الملف الشخصي',
+            value: 0,
+            icon: LucideIcons.home,
           ),
-          const SizedBox(height: 15),
-          GestureDetector(
-            onTap: () => setState(() => _addressType = 1),
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: _addressType == 1
-                    ? primaryColor.withOpacity(0.05)
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: _addressType == 1
-                      ? primaryColor
-                      : Colors.grey.shade200,
+
+          ..._customAddresses.asMap().entries.map((entry) {
+            return _buildAddressOptionRadio(
+              title: entry.value['title'],
+              subtitle: entry.value['desc'],
+              value: entry.key + 1,
+              icon: LucideIcons.mapPin,
+            );
+          }),
+
+          _buildAddressOptionRadio(
+            title: 'تحديد موقع جديد (GPS)',
+            value: -1,
+            icon: LucideIcons.navigation,
+          ),
+
+          if (_selectedAddressOption == -1) ...[
+            const SizedBox(height: 10),
+            TextField(
+              controller: _addressDescController,
+              decoration: InputDecoration(
+                hintText: 'وصف العنوان (المنطقة، الشارع، المعلم، ...)',
+                hintStyle: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                  fontWeight: FontWeight.bold,
+                ),
+                filled: true,
+                fillColor: Colors.grey.shade50,
+                prefixIcon: const Icon(
+                  LucideIcons.penTool,
+                  color: Colors.grey,
+                  size: 18,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide(color: primaryColor, width: 1.5),
                 ),
               ),
-              child: Row(
-                children: [
-                  Icon(
-                    _addressType == 1
-                        ? Icons.radio_button_checked
-                        : Icons.radio_button_unchecked,
-                    color: _addressType == 1 ? primaryColor : Colors.grey,
-                    size: 20,
+            ),
+            const SizedBox(height: 10),
+            if (hasMapAddress)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Text(
+                  'تم التحديد: (${_deliveryLat!.toStringAsFixed(4)}, ${_deliveryLng!.toStringAsFixed(4)})',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.green,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(width: 10),
-                  const Expanded(
-                    child: Text(
-                      "موقعي المسجل في الحساب",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                      ),
+                  textDirection: TextDirection.ltr,
+                ),
+              ),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MapPickerScreen(),
                     ),
+                  );
+                  if (result != null && result is LatLng) {
+                    setState(() {
+                      _deliveryLat = result.latitude;
+                      _deliveryLng = result.longitude;
+                    });
+                  }
+                },
+                icon: Icon(
+                  hasMapAddress ? LucideIcons.checkCircle2 : LucideIcons.map,
+                  size: 18,
+                  color: hasMapAddress ? Colors.green : primaryColor,
+                ),
+                label: Text(
+                  hasMapAddress ? 'تم تحديد الموقع' : 'افتح الخريطة لتحديد الموقع',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    color: hasMapAddress ? Colors.green : primaryColor,
                   ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          GestureDetector(
-            onTap: () => setState(() => _addressType = 2),
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: _addressType == 2
-                    ? primaryColor.withOpacity(0.05)
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: _addressType == 2
-                      ? primaryColor
-                      : Colors.grey.shade200,
+                ),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  side: BorderSide(
+                    color: hasMapAddress ? Colors.green : primaryColor.withOpacity(0.5),
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAddressOptionRadio({
+    required String title,
+    String? subtitle,
+    required int value,
+    required IconData icon,
+  }) {
+    bool isSelected = _selectedAddressOption == value;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedAddressOption = value),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isSelected ? primaryColor.withOpacity(0.05) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? primaryColor : Colors.grey.shade200,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+              color: isSelected ? primaryColor : Colors.grey,
+              size: 20,
+            ),
+            const SizedBox(width: 10),
+            Icon(icon, color: Colors.grey, size: 18),
+            const SizedBox(width: 8),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Icon(
-                        _addressType == 2
-                            ? Icons.radio_button_checked
-                            : Icons.radio_button_unchecked,
-                        color: _addressType == 2 ? primaryColor : Colors.grey,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 10),
-                      const Expanded(
-                        child: Text(
-                          "تحديد موقع جديد (GPS)",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (_addressType == 2) ...[
-                    const SizedBox(height: 12),
-                    if (hasMapAddress)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: Text(
-                          'تم التحديد: (${_deliveryLat!.toStringAsFixed(4)}, ${_deliveryLng!.toStringAsFixed(4)})',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          textDirection: TextDirection.ltr,
-                        ),
-                      ),
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: () async {
-                          final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const MapPickerScreen(),
-                            ),
-                          );
-                          if (result != null && result is LatLng) {
-                            setState(() {
-                              _deliveryLat = result.latitude;
-                              _deliveryLng = result.longitude;
-                            });
-                          }
-                        },
-                        icon: Icon(
-                          hasMapAddress
-                              ? LucideIcons.edit3
-                              : LucideIcons.navigation,
-                          size: 16,
-                        ),
-                        label: Text(
-                          hasMapAddress ? 'تغيير الموقع' : 'افتح الخريطة',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: primaryColor,
-                          side: BorderSide(
-                            color: primaryColor.withOpacity(0.5),
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold, 
+                      fontSize: 13, 
+                      color: Colors.black87
                     ),
-                  ],
+                  ),
+                  if (subtitle != null)
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 11, 
+                        color: Colors.grey, 
+                        fontWeight: FontWeight.bold
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -783,8 +894,9 @@ class _CartScreenState extends State<CartScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              // 💡 تم تعديل الكلمة هنا لتعكس عدد القطع بدقة
               Text(
-                'المجموع الفرعي (${_cart.itemCount})',
+                'المجموع الفرعي (${_cart.totalItemsQuantity} قطع)',
                 style: TextStyle(
                   fontSize: 13,
                   color: Colors.grey[600],
@@ -950,20 +1062,39 @@ class _CartScreenState extends State<CartScreen> {
       return;
     }
 
-    if (_addressDescController.text.trim().isEmpty) {
-      _showAwesomeError(
-        'وصف العنوان مطلوب',
-        'الرجاء كتابة وصف للعنوان في المربع المخصص لنسهل على عامل التوصيل الوصول إليك.',
-      );
-      return;
-    }
+    String finalAddressDesc = "";
+    bool useSavedLoc = false;
+    double? finalLat;
+    double? finalLng;
 
-    if (_addressType == 2 && (_deliveryLat == null || _deliveryLng == null)) {
-      _showAwesomeError(
-        'موقع الخريطة مطلوب',
-        'لقد اخترت موقع جديد على الخريطة، الرجاء فتح الخريطة وتحديد الموقع.',
-      );
-      return;
+    if (_selectedAddressOption == 0) {
+      useSavedLoc = true;
+      finalAddressDesc = "العنوان الأساسي (من الملف الشخصي)";
+    } else if (_selectedAddressOption == -1) {
+      useSavedLoc = false;
+      if (_addressDescController.text.trim().isEmpty) {
+        _showAwesomeError(
+          'وصف العنوان مطلوب',
+          'الرجاء كتابة وصف للعنوان في المربع المخصص.',
+        );
+        return;
+      }
+      if (_deliveryLat == null || _deliveryLng == null) {
+        _showAwesomeError(
+          'موقع الخريطة مطلوب',
+          'الرجاء تحديد الموقع الجغرافي على الخريطة.',
+        );
+        return;
+      }
+      finalAddressDesc = _addressDescController.text.trim();
+      finalLat = _deliveryLat;
+      finalLng = _deliveryLng;
+    } else {
+      useSavedLoc = false;
+      int listIndex = _selectedAddressOption - 1;
+      finalAddressDesc = _customAddresses[listIndex]['desc'];
+      finalLat = _customAddresses[listIndex]['lat'];
+      finalLng = _customAddresses[listIndex]['lng'];
     }
 
     if (_cart.hasControlledMedicine && _prescriptionImageBytes == null) {
@@ -998,10 +1129,10 @@ class _CartScreenState extends State<CartScreen> {
         body: jsonEncode({
           "patient_id": int.parse(userId),
           "total_amount": _cart.totalAmount,
-          "delivery_address": _addressDescController.text.trim(),
-          "use_saved_location": _addressType == 1,
-          "delivery_lat": _addressType == 2 ? _deliveryLat : null,
-          "delivery_lng": _addressType == 2 ? _deliveryLng : null,
+          "delivery_address": finalAddressDesc,
+          "use_saved_location": useSavedLoc,
+          "delivery_lat": finalLat,
+          "delivery_lng": finalLng,
           "items": orderItems,
           "prescription_image": base64Image,
         }),

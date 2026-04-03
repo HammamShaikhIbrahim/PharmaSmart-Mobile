@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart'; // 💡 أضفنا هاد لاستخدام ChangeNotifier
+import 'package:flutter/material.dart';
 
 class CartItem {
   final int stockId;
@@ -26,7 +26,6 @@ class CartItem {
   double get totalPrice => price * quantity;
 }
 
-// 💡 جعلنا الكلاس ChangeNotifier ليرسل تنبيهات للتطبيق
 class CartService extends ChangeNotifier {
   CartService._internal();
   static final CartService _instance = CartService._internal();
@@ -35,15 +34,26 @@ class CartService extends ChangeNotifier {
   final List<CartItem> _items = [];
   int? _currentPharmacistId;
   String? _currentPharmacyName;
+  
+  bool _hasNewItems = false;
 
   List<CartItem> get items => List.unmodifiable(_items);
   int? get currentPharmacistId => _currentPharmacistId;
   String? get currentPharmacyName => _currentPharmacyName;
   bool get isEmpty => _items.isEmpty;
-  int get itemCount => _items.fold(0, (sum, item) => sum + item.quantity);
+  
+  // 💡 التعديل هنا: التفريق بين الأصناف والكميات
+  // 1. عدد الأصناف المختلفة (الأنواع)
+  int get uniqueItemsCount => _items.length; 
+  
+  // 2. إجمالي القطع (كم علبة دواء موجودة بالسلة)
+  int get totalItemsQuantity => _items.fold(0, (sum, item) => sum + item.quantity); 
+  
   double get totalAmount =>
       _items.fold(0.0, (sum, item) => sum + item.totalPrice);
   bool get hasControlledMedicine => _items.any((item) => item.isControlled);
+  
+  bool get hasNewItems => _hasNewItems;
 
   String addItem({
     required int stockId,
@@ -58,12 +68,19 @@ class CartService extends ChangeNotifier {
     if (_currentPharmacistId != null && _currentPharmacistId != pharmacistId) {
       return 'pharmacy_conflict';
     }
+    
     _currentPharmacistId = pharmacistId;
     _currentPharmacyName = pharmacyName;
+    
     final existingIndex = _items.indexWhere((item) => item.stockId == stockId);
+    
     if (existingIndex != -1) {
+      // 💡 إذا كان الصنف موجود مسبقاً، نزيد القطع فقط (لا نعتبره صنف جديد)
       _items[existingIndex].quantity++;
+      notifyListeners();
+      return 'updated';
     } else {
+      // 💡 إذا لم يكن موجوداً، نضيفه كصنف جديد ونضيء النقطة الحمراء
       _items.add(
         CartItem(
           stockId: stockId,
@@ -76,19 +93,21 @@ class CartService extends ChangeNotifier {
           isControlled: isControlled,
         ),
       );
+      _hasNewItems = true; 
+      notifyListeners(); 
+      return 'added';
     }
-    notifyListeners(); // 💡 تنبيه التطبيق لتحديث العداد فوراً
-    return existingIndex != -1 ? 'updated' : 'added';
   }
 
   void updateQuantity(int stockId, int newQuantity) {
     final index = _items.indexWhere((item) => item.stockId == stockId);
     if (index != -1) {
-      if (newQuantity <= 0)
+      if (newQuantity <= 0) {
         removeItem(stockId);
-      else
+      } else {
         _items[index].quantity = newQuantity;
-      notifyListeners(); // 💡 تنبيه التطبيق
+      }
+      notifyListeners(); 
     }
   }
 
@@ -98,14 +117,15 @@ class CartService extends ChangeNotifier {
       _currentPharmacistId = null;
       _currentPharmacyName = null;
     }
-    notifyListeners(); // 💡 تنبيه التطبيق
+    notifyListeners(); 
   }
 
   void clearCart() {
     _items.clear();
     _currentPharmacistId = null;
     _currentPharmacyName = null;
-    notifyListeners(); // 💡 تنبيه التطبيق
+    _hasNewItems = false; 
+    notifyListeners(); 
   }
 
   void clearAndAddNew({
@@ -118,7 +138,7 @@ class CartService extends ChangeNotifier {
     required String pharmacyName,
     required bool isControlled,
   }) {
-    _items.clear();
+    clearCart(); 
     addItem(
       stockId: stockId,
       systemMedId: systemMedId,
@@ -129,5 +149,12 @@ class CartService extends ChangeNotifier {
       pharmacyName: pharmacyName,
       isControlled: isControlled,
     );
+  }
+
+  void markCartAsViewed() {
+    if (_hasNewItems) {
+      _hasNewItems = false;
+      notifyListeners();
+    }
   }
 }

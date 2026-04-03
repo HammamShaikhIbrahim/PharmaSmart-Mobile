@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+
 import 'home_screen.dart';
 import 'my_orders_screen.dart';
 import 'cart_screen.dart';
@@ -19,8 +20,6 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   final CartService _cartService = CartService();
 
-  // 💡 قمنا بإزالة قائمة _screens الثابتة لنقوم بإنشائها ديناميكياً
-
   Widget _getSelectedScreen(int index) {
     switch (index) {
       case 0:
@@ -29,9 +28,9 @@ class _MainScreenState extends State<MainScreen> {
         return MyOrdersScreen(
           key: UniqueKey(),
           isFromBottomNav: true,
-        ); // 💡 UniqueKey يجبرها على التحديث فوراً
+        );
       case 2:
-        return CartScreen(key: UniqueKey()); // تحديث السلة دائماً
+        return CartScreen(key: UniqueKey());
       case 3:
         return const ProfileScreen();
       default:
@@ -52,7 +51,6 @@ class _MainScreenState extends State<MainScreen> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
-        // 💡 استخدام AnimatedBuilder لسماع تغييرات عداد السلة فوراً
         body: _getSelectedScreen(_currentIndex),
         bottomNavigationBar: AnimatedBuilder(
           animation: _cartService,
@@ -81,15 +79,10 @@ class _MainScreenState extends State<MainScreen> {
                       label: 'طلباتي',
                     ),
                     BottomNavigationBarItem(
+                      // 💡 النقطة الحمراء: تظهر إذا كانت السلة غير فارغة + المستخدم ليس في صفحة السلة حالياً
                       icon: Badge(
-                        isLabelVisible: _cartService.itemCount > 0,
-                        label: Text(
-                          '${_cartService.itemCount}',
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        isLabelVisible: _currentIndex != 2 && _cartService.items.isNotEmpty,
+                        smallSize: 10,
                         backgroundColor: Colors.redAccent,
                         child: const Icon(LucideIcons.shoppingCart),
                       ),

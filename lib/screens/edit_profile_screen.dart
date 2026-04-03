@@ -17,14 +17,13 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final TextEditingController _fnameController = TextEditingController();
   final TextEditingController _lnameController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
 
   bool _isLoading = true;
   bool _isSaving = false;
   String _userId = '';
 
   final Color primaryColor = const Color(0xFF0A7A48);
-  final Color bgColor = const Color(0xFFF2FBF5); // 💡 اللون الموحد الجديد
+  final Color bgColor = const Color(0xFFF2FBF5); 
 
   @override
   void initState() {
@@ -36,11 +35,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void dispose() {
     _fnameController.dispose();
     _lnameController.dispose();
-    _phoneController.dispose();
     super.dispose();
   }
 
-  // 💡 جلب بيانات المريض الحقيقية لوضعها في الخانات
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     _userId = prefs.getString('userId') ?? '';
@@ -60,7 +57,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           setState(() {
             _fnameController.text = data['data']['Fname'] ?? '';
             _lnameController.text = data['data']['Lname'] ?? '';
-            _phoneController.text = data['data']['Phone'] ?? '';
             _isLoading = false;
           });
         }
@@ -71,7 +67,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  // 💡 إرسال البيانات المحدثة للسيرفر (update_profile.php)
   Future<void> _updateProfile() async {
     if (_fnameController.text.trim().isEmpty ||
         _lnameController.text.trim().isEmpty) {
@@ -97,14 +92,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           "user_id": _userId,
           "fname": _fnameController.text.trim(),
           "lname": _lnameController.text.trim(),
-          "phone": _phoneController.text.trim(),
         }),
       );
 
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         if (data['status'] == 'success') {
-          // تحديث الاسم في الذاكرة المحلية (SharedPreferences) لكي ينعكس في كل التطبيق
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString(
             'userName',
@@ -121,7 +114,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             btnOkText: 'ممتاز',
             dismissOnTouchOutside: false,
             btnOkOnPress: () {
-              Navigator.pop(context); // العودة لصفحة البروفايل بعد النجاح
+              Navigator.pop(context, true); 
             },
           ).show();
         } else {
@@ -149,8 +142,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     ).show();
   }
 
-  // لاستخراج الحرف الأول من الاسم للصورة الرمزية
-  String get _initial {
+  String get _initials {
     return _fnameController.text.isNotEmpty
         ? _fnameController.text[0].toUpperCase()
         : 'م';
@@ -161,7 +153,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: bgColor, // 💡 توحيد اللون
+        backgroundColor: bgColor, 
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -183,61 +175,35 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    // صورة البروفايل
                     Center(
-                      child: Stack(
-                        children: [
-                          Container(
-                            width: 100,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: primaryColor.withOpacity(0.1),
-                              border: Border.all(color: Colors.white, width: 4),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 10,
-                                ),
-                              ],
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: primaryColor.withOpacity(0.1),
+                          border: Border.all(color: Colors.white, width: 4),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
                             ),
-                            child: Center(
-                              child: Text(
-                                _initial,
-                                style: TextStyle(
-                                  fontSize: 40,
-                                  fontWeight: FontWeight.bold,
-                                  color: primaryColor,
-                                ),
-                              ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text(
+                            _initials,
+                            style: TextStyle(
+                              fontSize: 40,
+                              fontWeight: FontWeight.bold,
+                              color: primaryColor,
                             ),
                           ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: primaryColor,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 2,
-                                ),
-                              ),
-                              child: const Icon(
-                                LucideIcons.camera,
-                                color: Colors.white,
-                                size: 14,
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                     const SizedBox(height: 40),
 
-                    // الحقول داخل كارد زجاجي أبيض
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
@@ -267,20 +233,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             LucideIcons.user,
                             _lnameController,
                           ),
-                          const Divider(color: Color(0xFFF0F0F0), height: 30),
-                          _buildCleanTextField(
-                            'رقم الهاتف',
-                            '05XXXXXXXX',
-                            LucideIcons.phone,
-                            _phoneController,
-                            isPhone: true,
-                          ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 30),
 
-                    // زر الحفظ (أصبح بالأخضر بدل الأسود)
                     SizedBox(
                       width: double.infinity,
                       height: 55,
@@ -324,9 +281,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     String label,
     String hint,
     IconData icon,
-    TextEditingController controller, {
-    bool isPhone = false,
-  }) {
+    TextEditingController controller,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -340,9 +296,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         TextField(
           controller: controller,
-          keyboardType: isPhone ? TextInputType.phone : TextInputType.text,
-          // 💡 التعديل هنا: محاذاة لليسار إذا كان هاتف، ولليمين إذا كان اسم
-          textAlign: isPhone ? TextAlign.left : TextAlign.right,
+          textAlign: TextAlign.right,
           style: const TextStyle(
             color: Colors.black87,
             fontWeight: FontWeight.bold,
@@ -355,7 +309,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               fontWeight: FontWeight.bold,
               fontSize: 14,
             ),
-            // جعل الأيقونة تظهر دائماً في الجهة المناسبة
             prefixIcon: Icon(icon, size: 20, color: primaryColor),
             prefixIconConstraints: const BoxConstraints(minWidth: 40),
             border: InputBorder.none,

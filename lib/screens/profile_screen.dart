@@ -14,7 +14,8 @@ import 'my_orders_screen.dart';
 import 'notifications_sheet.dart';
 import 'medical_history_screen.dart';
 import 'prescriptions_screen.dart';
-import 'payment_methods_screen.dart'; // 💡 استدعاء شاشة طرق الدفع الجديدة
+import 'payment_methods_screen.dart';
+import 'saved_addresses_screen.dart';
 
 const Color kPrimary = Color(0xFF0A7A48);
 
@@ -32,7 +33,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _darkMode = false;
   bool _isGuest = false;
 
-  final Color bgColor = const Color(0xFFF2FBF5); // 💡 اللون الموحد للتطبيق
+  final Color bgColor = const Color(0xFFF2FBF5);
 
   @override
   void initState() {
@@ -40,7 +41,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _fetchProfileData();
   }
 
-  // جلب البيانات الحقيقية من السيرفر
   Future<void> _fetchProfileData() async {
     final prefs = await SharedPreferences.getInstance();
     _isGuest = prefs.getBool('isGuest') ?? false;
@@ -87,7 +87,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return '$f$l'.toUpperCase();
   }
 
-  // دالة إظهار "قريباً" للأشياء التي طلبناها
   void _showComingSoon(String title, String desc) {
     AwesomeDialog(
       context: context,
@@ -209,23 +208,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(height: 30),
 
-                      _buildProfileHeaderCard(),
-                      const SizedBox(height: 30),
+                      // 💡 التصميم المركزي الجديد للصورة والاسم (مستوحى من التطبيقات المشهورة)
+                      _buildCenteredProfileHeader(),
+                      
+                      const SizedBox(height: 40),
 
                       // 1. المعلومات الشخصية
-                      _buildSectionTitle(
-                        'المعلومات الشخصية',
-                        LucideIcons.contact,
-                        Colors.blueAccent,
-                      ),
+                      _buildSectionTitle('المعلومات الشخصية', LucideIcons.contact, Colors.blueAccent),
                       _buildGlassCard([
-                        _buildListItem(
-                          icon: LucideIcons.phone,
-                          title: 'رقم الهاتف',
-                          trailingText: _phone,
-                          iconColor: Colors.green,
-                          showArrow: false,
-                        ),
                         _buildListItem(
                           icon: LucideIcons.calendar,
                           title: 'تاريخ الميلاد',
@@ -235,8 +225,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         _buildListItem(
                           icon: LucideIcons.mapPin,
-                          title: 'العنوان',
-                          trailingText: _address, 
+                          title: 'العنوان الأساسي',
+                          trailingText: _address,
                           iconColor: Colors.redAccent,
                           showArrow: false,
                           isLast: true,
@@ -245,11 +235,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(height: 25),
 
                       // 2. نشاطي
-                      _buildSectionTitle(
-                        'نشاطي',
-                        LucideIcons.activity,
-                        Colors.redAccent,
-                      ),
+                      _buildSectionTitle('نشاطي', LucideIcons.activity, Colors.redAccent),
                       _buildGlassCard([
                         _buildListItem(
                           icon: LucideIcons.stethoscope,
@@ -257,55 +243,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           iconColor: Colors.red,
                           onTap: () => Navigator.push(
                             context,
-                            MaterialPageRoute(
-                              builder: (_) => MedicalHistoryScreen(
-                                currentHistory: _medicalHistory,
-                              ),
-                            ),
+                            MaterialPageRoute(builder: (_) => MedicalHistoryScreen(currentHistory: _medicalHistory)),
                           ).then((_) => _fetchProfileData()), 
                         ),
                         _buildListItem(
                           icon: LucideIcons.shoppingBag,
                           title: 'الطلبات السابقة',
                           iconColor: Colors.teal,
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (c) => const MyOrdersScreen(),
-                            ),
-                          ),
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (c) => const MyOrdersScreen())),
                         ),
                         _buildListItem(
                           icon: LucideIcons.fileText,
                           title: 'وصفاتي الطبية',
                           iconColor: Colors.indigo,
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const PrescriptionsScreen(),
-                            ),
-                          ),
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PrescriptionsScreen())),
                         ),
-                        _buildPaymentMethodItem(), // 💡 تم التعديل على هذا العنصر في الأسفل
+                        _buildPaymentMethodItem(),
                         _buildListItem(
                           icon: LucideIcons.bookmark,
                           title: 'العناوين المحفوظة',
                           iconColor: Colors.purple,
                           isLast: true,
-                          onTap: () => _showComingSoon(
-                            'عناويني',
-                            'قريباً ستتمكن من إضافة أكثر من عنوان (منزل، عمل) لسرعة التوصيل.',
-                          ),
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SavedAddressesScreen())),
                         ),
                       ]),
                       const SizedBox(height: 25),
 
                       // 3. الإعدادات
-                      _buildSectionTitle(
-                        'الإعدادات',
-                        LucideIcons.settings,
-                        Colors.grey.shade700,
-                      ),
+                      _buildSectionTitle('الإعدادات', LucideIcons.settings, Colors.grey.shade700),
                       _buildGlassCard([
                         _buildListItem(
                           icon: LucideIcons.bell,
@@ -314,42 +279,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           onTap: () => NotificationsSheet.show(context),
                         ),
                         _buildListItem(
+                          icon: LucideIcons.shieldCheck,
+                          title: 'الخصوصية والأمان',
+                          iconColor: Colors.green.shade700,
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SecurityScreen())).then((_) => _fetchProfileData()), 
+                        ),
+                        _buildListItem(
                           icon: LucideIcons.globe,
                           title: 'تغيير اللغة',
-                          trailingText: 'العربية',
                           iconColor: Colors.lightBlue,
-                          onTap: () => _showComingSoon(
-                            'تغيير اللغة',
-                            'دعم اللغة الإنجليزية قادم في التحديثات القادمة.',
-                          ),
+                          showArrow: false,
+                          onTap: null, 
+                          trailingWidget: _buildSoonBadge(),
                         ),
                         _buildListItem(
                           icon: LucideIcons.moon,
                           title: 'الوضع الليلي',
                           iconColor: Colors.indigo.shade900,
                           showArrow: false,
-                          trailingWidget: Switch(
-                            value: _darkMode,
-                            activeColor: kPrimary,
-                            onChanged: (v) async {
-                              setState(() => _darkMode = v);
-                              final p =
-                                  await SharedPreferences.getInstance();
-                              await p.setBool('dark_mode', v);
-                            },
-                          ),
-                        ),
-                        _buildListItem(
-                          icon: LucideIcons.shieldCheck,
-                          title: 'الخصوصية والأمان',
-                          iconColor: Colors.green.shade700,
-                          isLast: true,
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const SecurityScreen(),
-                            ),
-                          ),
+                          isLast: true, 
+                          onTap: null, 
+                          trailingWidget: _buildSoonBadge(),
                         ),
                       ]),
                       const SizedBox(height: 25),
@@ -379,89 +329,100 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   // =====================================
-  // Widgets التصميم
+  // 💡 تصميم رأس الصفحة الجديد (في المنتصف)
   // =====================================
-
-  Widget _buildProfileHeaderCard() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.7),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.white, width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.03),
-                blurRadius: 20,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-          child: Row(
+  Widget _buildCenteredProfileHeader() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Stack(
+            alignment: Alignment.bottomRight,
             children: [
+              // الدائرة الكبيرة للصورة
               Container(
-                width: 70,
-                height: 70,
+                width: 110,
+                height: 110,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: kPrimary.withOpacity(0.1),
-                  border: Border.all(color: Colors.white, width: 3),
+                  border: Border.all(color: Colors.white, width: 4),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 15, offset: const Offset(0, 8)),
+                  ],
                 ),
                 child: Center(
                   child: Text(
                     _initials,
-                    style: const TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w900,
-                      color: kPrimary,
-                    ),
+                    style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: kPrimary),
                   ),
                 ),
               ),
-              const SizedBox(width: 15),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '$_fname $_lname',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.black87,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+              // زر التعديل الدائري الصغير
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: InkWell(
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfileScreen())).then((_) => _fetchProfileData()),
+                  borderRadius: BorderRadius.circular(50),
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: kPrimary,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 3),
+                      boxShadow: [BoxShadow(color: kPrimary.withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 3))],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _email,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                    child: const Icon(LucideIcons.edit3, color: Colors.white, size: 18),
+                  ),
                 ),
-              ),
-              // زر التعديل (ينعش البيانات بعد العودة)
-              IconButton(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const EditProfileScreen()),
-                ).then((_) => _fetchProfileData()),
-                icon: const Icon(LucideIcons.edit3, color: Colors.black87),
               ),
             ],
           ),
-        ),
+          const SizedBox(height: 15),
+          // الاسم بالخط العريض
+          Text(
+            '$_fname $_lname',
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.black87),
+          ),
+          const SizedBox(height: 5),
+          // الإيميل في بطاقة صغيرة أنيقة
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.grey.shade200)
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(LucideIcons.phone, size: 14, color: Colors.grey.shade600),
+                const SizedBox(width: 6),
+                Text(
+                  _phone,
+                  style: const TextStyle(fontSize: 13, color: Colors.black54, fontWeight: FontWeight.w900),
+                  textDirection: TextDirection.ltr,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSoonBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: Colors.orange.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.orange.shade200),
+      ),
+      child: const Text(
+        'قريباً',
+        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.orange),
       ),
     );
   }
@@ -473,14 +434,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Icon(icon, size: 20, color: iconColor),
           const SizedBox(width: 8),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w900,
-              color: Colors.black87,
-            ),
-          ),
+          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.black87)),
         ],
       ),
     );
@@ -496,13 +450,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             color: Colors.white.withOpacity(0.7),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: Colors.white, width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                blurRadius: 15,
-                offset: const Offset(0, 5),
-              ),
-            ],
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 15, offset: const Offset(0, 5))],
           ),
           child: Column(children: children),
         ),
@@ -523,15 +471,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     bool isLtr = false,
   }) {
     return InkWell(
-      onTap: onTap ?? () {},
+      onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
-          border: isLast
-              ? null
-              : Border(
-                  bottom: BorderSide(color: Colors.grey.shade200, width: 1),
-                ),
+          border: isLast ? null : Border(bottom: BorderSide(color: Colors.grey.shade200, width: 1)),
         ),
         child: Row(
           children: [
@@ -540,22 +484,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Expanded(
               child: Text(
                 title,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: titleColor ?? Colors.black87,
-                ),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: titleColor ?? Colors.black87),
               ),
             ),
             if (trailingText != null)
               Expanded(
                 child: Text(
                   trailingText,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: const TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.w600),
                   textDirection: isLtr ? TextDirection.ltr : TextDirection.rtl,
                   textAlign: TextAlign.end,
                   maxLines: 1,
@@ -566,11 +502,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             if (trailingWidget == null && showArrow)
               const Padding(
                 padding: EdgeInsets.only(right: 8),
-                child: Icon(
-                  LucideIcons.chevronLeft,
-                  size: 18,
-                  color: Colors.grey,
-                ),
+                child: Icon(LucideIcons.chevronLeft, size: 18, color: Colors.grey),
               ),
           ],
         ),
@@ -578,72 +510,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // 💡 تم تعديل هذا الجزء ليقوم بنقلك لشاشة طرق الدفع
   Widget _buildPaymentMethodItem() {
     return InkWell(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const PaymentMethodsScreen(),
-        ),
-      ),
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentMethodsScreen())),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: Colors.grey.shade200, width: 1),
-          ),
-        ),
+        decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey.shade200, width: 1))),
         child: Row(
           children: [
-            const Icon(
-              LucideIcons.creditCard,
-              size: 20,
-              color: Colors.blueGrey,
-            ),
+            const Icon(LucideIcons.creditCard, size: 20, color: Colors.blueGrey),
             const SizedBox(width: 15),
-            const Text(
-              'طريقة الدفع',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
+            const Text('طريقة الدفع', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87)),
             const SizedBox(width: 10),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: Colors.green.shade50,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.green.shade200),
-              ),
-              child: const Text(
-                'COD',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
-                ),
-              ),
+              decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.green.shade200)),
+              child: const Text('COD', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.green)),
             ),
             const Spacer(),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: Colors.orange.shade50,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.orange.shade200),
-              ),
-              child: const Text(
-                'Visa قريباً',
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.orange,
-                ),
-              ),
-            ),
+            _buildSoonBadge(),
             const SizedBox(width: 8),
             const Icon(LucideIcons.chevronLeft, size: 18, color: Colors.grey),
           ],
