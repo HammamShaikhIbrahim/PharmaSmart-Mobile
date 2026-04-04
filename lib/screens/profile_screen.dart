@@ -189,10 +189,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             slivers: [
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 10,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -208,9 +205,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(height: 30),
 
-                      // 💡 التصميم المركزي الجديد للصورة والاسم (مستوحى من التطبيقات المشهورة)
                       _buildCenteredProfileHeader(),
-                      
                       const SizedBox(height: 40),
 
                       // 1. المعلومات الشخصية
@@ -328,9 +323,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // =====================================
-  // 💡 تصميم رأس الصفحة الجديد (في المنتصف)
-  // =====================================
   Widget _buildCenteredProfileHeader() {
     return Center(
       child: Column(
@@ -339,7 +331,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Stack(
             alignment: Alignment.bottomRight,
             children: [
-              // الدائرة الكبيرة للصورة
               Container(
                 width: 110,
                 height: 110,
@@ -358,35 +349,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
               ),
-              // زر التعديل الدائري الصغير
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: InkWell(
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfileScreen())).then((_) => _fetchProfileData()),
-                  borderRadius: BorderRadius.circular(50),
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: kPrimary,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 3),
-                      boxShadow: [BoxShadow(color: kPrimary.withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 3))],
-                    ),
-                    child: const Icon(LucideIcons.edit3, color: Colors.white, size: 18),
+              InkWell(
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfileScreen())).then((_) => _fetchProfileData()),
+                borderRadius: BorderRadius.circular(50),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: kPrimary,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 3),
+                    boxShadow: [BoxShadow(color: kPrimary.withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 3))],
                   ),
+                  child: const Icon(LucideIcons.edit3, color: Colors.white, size: 18),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 15),
-          // الاسم بالخط العريض
           Text(
             '$_fname $_lname',
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.black87),
           ),
           const SizedBox(height: 5),
-          // الإيميل في بطاقة صغيرة أنيقة
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
@@ -397,10 +381,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(LucideIcons.phone, size: 14, color: Colors.grey.shade600),
+                // 💡 تم التبديل إلى الإيميل بدلاً من الهاتف
+                Icon(LucideIcons.mail, size: 14, color: Colors.grey.shade600),
                 const SizedBox(width: 6),
                 Text(
-                  _phone,
+                  _email,
                   style: const TextStyle(fontSize: 13, color: Colors.black54, fontWeight: FontWeight.w900),
                   textDirection: TextDirection.ltr,
                 ),

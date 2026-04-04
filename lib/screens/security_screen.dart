@@ -219,35 +219,32 @@ class _SecurityScreenState extends State<SecurityScreen> {
                     ),
                     const SizedBox(height: 30),
 
-                    // 💡 القسم الأول: البريد الإلكتروني منفصل تماماً والخط باللون الأسود
-                    _buildSectionHeader('البريد الإلكتروني', LucideIcons.mail, Colors.blue),
+                    // 💡 القسم الأول: البريد الإلكتروني ورقم الهاتف (قابلين للتعديل الآن)
+                    _buildSectionHeader('بيانات الاتصال والأمان', LucideIcons.mail, Colors.blue),
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: _cardDecoration(),
-                      child: _buildCleanField(
-                        'البريد الإلكتروني',
-                        LucideIcons.mail,
-                        _emailController,
-                        isReadOnly: true,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // 💡 القسم الثاني: رقم الهاتف منفصل تماماً
-                    _buildSectionHeader('رقم الهاتف', LucideIcons.phone, Colors.green),
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: _cardDecoration(),
-                      child: _buildCleanField(
-                        'رقم الهاتف',
-                        LucideIcons.phone,
-                        _phoneController,
-                        isPhone: true, 
+                      child: Column(
+                        children: [
+                          _buildCleanField(
+                            'البريد الإلكتروني',
+                            LucideIcons.mail,
+                            _emailController,
+                            // 💡 تم إزالة isReadOnly لتصبح الإيميل قابلة للتعديل
+                          ),
+                          const Divider(color: Color(0xFFF0F0F0), height: 30),
+                          _buildCleanField(
+                            'رقم الهاتف',
+                            LucideIcons.phone,
+                            _phoneController,
+                            isPhone: true,
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 30),
 
-                    // 💡 القسم الثالث: تغيير كلمة المرور
+                    // 💡 القسم الثاني: تغيير كلمة المرور
                     _buildSectionHeader('تغيير كلمة المرور', LucideIcons.key, Colors.orange),
                     Container(
                       padding: const EdgeInsets.all(20),
@@ -312,7 +309,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
                     ),
                     const SizedBox(height: 40),
 
-                    // 💡 القسم الرابع: خيارات الأمان (حذف الحساب)
+                    // 💡 القسم الثالث: خيارات الأمان (حذف الحساب)
                     _buildSectionHeader('خيارات الأمان', LucideIcons.alertTriangle, Colors.redAccent),
                     InkWell(
                       onTap: _deleteAccountDialog,
@@ -386,7 +383,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
     TextEditingController controller, {
     bool isPassword = false,
     bool isHidden = false,
-    bool isReadOnly = false,
     bool isPhone = false,
     VoidCallback? onToggle,
   }) {
@@ -400,20 +396,15 @@ class _SecurityScreenState extends State<SecurityScreen> {
         TextField(
           controller: controller,
           obscureText: isHidden,
-          readOnly: isReadOnly,
           textAlign: isPhone ? TextAlign.left : TextAlign.right,
           keyboardType: isPhone ? TextInputType.phone : TextInputType.text,
-          // 💡 التعديل هنا: الخط أسود عريض حتى لو كان الحقل للقراءة فقط
           style: const TextStyle(
             color: Colors.black87,
             fontWeight: FontWeight.bold,
             fontSize: 15,
           ),
           decoration: InputDecoration(
-            // 💡 إضافة خلفية رمادية خفيفة جداً لتمييز أنه غير قابل للتعديل
-            filled: isReadOnly,
-            fillColor: isReadOnly ? Colors.grey.shade50 : Colors.transparent,
-            prefixIcon: Icon(icon, size: 20, color: isReadOnly ? Colors.grey : primaryColor),
+            prefixIcon: Icon(icon, size: 20, color: primaryColor),
             prefixIconConstraints: const BoxConstraints(minWidth: 40),
             suffixIcon: isPassword
                 ? IconButton(

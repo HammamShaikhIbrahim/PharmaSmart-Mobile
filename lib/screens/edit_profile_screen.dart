@@ -142,12 +142,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     ).show();
   }
 
-  String get _initials {
-    return _fnameController.text.isNotEmpty
-        ? _fnameController.text[0].toUpperCase()
-        : 'م';
-  }
-
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -175,34 +169,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    Center(
-                      child: Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: primaryColor.withOpacity(0.1),
-                          border: Border.all(color: Colors.white, width: 4),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 10,
-                            ),
-                          ],
-                        ),
-                        child: Center(
-                          child: Text(
-                            _initials,
-                            style: TextStyle(
-                              fontSize: 40,
-                              fontWeight: FontWeight.bold,
-                              color: primaryColor,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 40),
+                    // 💡 تمت إزالة دائرة الحرف الأول من هنا تماماً
+                    const SizedBox(height: 20),
 
                     Container(
                       padding: const EdgeInsets.all(20),
