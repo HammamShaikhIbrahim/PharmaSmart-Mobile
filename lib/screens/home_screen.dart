@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // 💡 إضافة المكتبة
 
 import '../config/api_config.dart';
 import 'pharmacy_list_screen.dart';
@@ -33,7 +34,10 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedCatIndex = -1;
   Position? _userPos;
 
-  bool _hasNewNotifications = true; // 💡 للتحكم بالنقطة الحمراء
+  bool _hasNewNotifications = true;
+  
+  // 💡 متغير لحفظ الاسم وتحديثه ديناميكياً
+  String _currentUserName = '';
 
   final Color primaryColor = const Color(0xFF0A7A48);
   final Color bgColor = const Color(0xFFF2FBF5);
@@ -44,6 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _currentUserName = widget.userName ?? '';
     _initData();
   }
 
@@ -55,8 +60,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _initData() async {
+    await _loadDynamicName(); // 💡 تحديث الاسم فور فتح الشاشة
     await _getUserLocation();
     await _fetchData();
+  }
+
+  // 💡 دالة جديدة لجلب الاسم المحدث من الذاكرة دائماً
+  Future<void> _loadDynamicName() async {
+    if (!widget.isGuest) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        _currentUserName = prefs.getString('userName') ?? _currentUserName;
+      });
+    }
   }
 
   Future<void> _getUserLocation() async {
@@ -184,7 +200,6 @@ class _HomeScreenState extends State<HomeScreen> {
             BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10),
           ],
         ),
-        // 💡 استخدام اللوجو الخاص بك في الرسالة
         child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
       ),
       title: 'ميزة $featureName',
@@ -220,6 +235,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 💡 تحديث الاسم عند بناء الشاشة للضمان
+    _loadDynamicName();
+
     return Scaffold(
       backgroundColor: bgColor,
       body: _isLoading
@@ -281,7 +299,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 Text(
-                  widget.isGuest ? "زائرنا العزيز" : "${widget.userName}",
+                  widget.isGuest ? "زائرنا العزيز" : _currentUserName, // 💡 استخدام الاسم المحدث
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
@@ -520,7 +538,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 primaryColor,
                 () => _showComingSoonMsg(
                   "المحادثات المباشرة",
-                ), // 💡 تم توحيد الاسم
+                ), 
               ),
             ),
           ],
@@ -725,12 +743,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       markers: _pharmacies.map((p) {
                         double lat =
                             double.tryParse(p['Latitude']?.toString() ?? '0') ??
-                            0;
+                                0;
                         double lng =
                             double.tryParse(
                               p['Longitude']?.toString() ?? '0',
                             ) ??
-                            0;
+                                0;
                         return Marker(
                           point: LatLng(lat, lng),
                           width: 45,
@@ -808,6 +826,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         const SizedBox(height: 20),
+        
+        // 💡 التعديل هنا: تصميم الزر كباقي التطبيق وتغيير النص
         ElevatedButton(
           onPressed: () async {
             final selectedLocation = await Navigator.push(
@@ -826,27 +846,26 @@ class _HomeScreenState extends State<HomeScreen> {
             }
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: primaryColor,
-            elevation: 3,
-            shadowColor: Colors.black26,
+            backgroundColor: primaryColor, // اللون الأخضر الأساسي
+            foregroundColor: Colors.white, // لون النص والأيقونة
+            elevation: 5,
+            shadowColor: primaryColor.withOpacity(0.4),
             minimumSize: const Size(double.infinity, 55),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-              side: BorderSide(color: primaryColor.withOpacity(0.3)),
+              borderRadius: BorderRadius.circular(16),
             ),
           ),
-          child: Row(
+          child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               FaIcon(
                 FontAwesomeIcons.houseMedical,
-                color: primaryColor,
+                color: Colors.white,
                 size: 18,
               ),
-              const SizedBox(width: 10),
-              const Text(
-                "استكشاف الصيدليات والمتاجر",
+              SizedBox(width: 10),
+              Text(
+                "استكشاف الصيدليات",
                 style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
               ),
             ],
