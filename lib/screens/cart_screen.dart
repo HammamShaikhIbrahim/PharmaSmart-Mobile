@@ -14,6 +14,7 @@ import '../config/api_config.dart';
 import 'map_picker_screen.dart';
 import 'main_screen.dart'; 
 import '../widgets/pharma_ui.dart'; 
+import 'pharmacy_store_screen.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -33,6 +34,8 @@ class _CartScreenState extends State<CartScreen> {
 
   int _selectedAddressOption = 0; 
   List<Map<String, dynamic>> _customAddresses = [];
+  
+  String _primaryAddressText = 'جاري جلب العنوان...';
 
   double? _deliveryLat;
   double? _deliveryLng;
@@ -44,10 +47,34 @@ class _CartScreenState extends State<CartScreen> {
   void initState() {
     super.initState();
     _loadCustomAddresses();
+    _fetchPrimaryAddress();
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _cart.markCartAsViewed();
     });
+  }
+
+  Future<void> _fetchPrimaryAddress() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('userId');
+    if (userId != null) {
+      try {
+        final res = await http.get(Uri.parse("${ApiConfig.baseUrl}get_profile.php?user_id=$userId"));
+        if (res.statusCode == 200) {
+          final data = jsonDecode(res.body);
+          if (data['status'] == 'success') {
+            setState(() {
+              _primaryAddressText = data['data']['Address'] ?? 'عنوان غير محدد';
+            });
+          }
+        }
+      } catch (e) {
+        debugPrint("Error fetching primary address: $e");
+        setState(() {
+          _primaryAddressText = 'العنوان المسجل في الملف الشخصي';
+        });
+      }
+    }
   }
 
   Future<void> _loadCustomAddresses() async {
@@ -158,7 +185,6 @@ class _CartScreenState extends State<CartScreen> {
           backgroundColor: Colors.white,
           elevation: 0,
           centerTitle: true,
-          // 💡 العداد غير موجود هنا بناءً على طلبك
           title: const Text(
             "سلة المشتريات",
             style: TextStyle(
@@ -216,7 +242,6 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  // 💡 تصميم كرت الصيدلية الجديد المفصل والأنيق
   Widget _buildPharmacyHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -234,7 +259,6 @@ class _CartScreenState extends State<CartScreen> {
       ),
       child: Column(
         children: [
-          // 1. الجزء العلوي: اسم الصيدلية
           Row(
             children: [
               Container(
@@ -249,7 +273,7 @@ class _CartScreenState extends State<CartScreen> {
                   size: 20,
                 ),
               ),
-              const SizedBox(width: 15),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -276,6 +300,46 @@ class _CartScreenState extends State<CartScreen> {
                   ],
                 ),
               ),
+              if (_cart.currentPharmacistId != null)
+                GestureDetector(
+                  // 💡 التعديل هنا: عند العودة من صفحة المتجر، يتم إجبار السلة على عمل Refresh لتحديث المنتجات
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PharmacyStoreScreen(
+                          pharmacyId: _cart.currentPharmacistId!,
+                          pharmacyName: _cart.currentPharmacyName ?? 'الصيدلية',
+                        ),
+                      ),
+                    ).then((_) {
+                      // 💡 هذا السطر يقوم بتحديث الشاشة بعد العودة لتظهر الأدوية الجديدة فوراً
+                      setState(() {});
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: primaryColor.withOpacity(0.2)),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(LucideIcons.plus, size: 14, color: primaryColor),
+                        const SizedBox(width: 4),
+                        Text(
+                          'إضافة',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: primaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
             ],
           ),
           
@@ -284,10 +348,8 @@ class _CartScreenState extends State<CartScreen> {
             child: Divider(color: Color(0xFFF0F0F0), height: 1),
           ),
 
-          // 2. الجزء السفلي: الإحصائيات (الأصناف والقطع)
           Row(
             children: [
-              // مربع الأصناف المختلفة
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -320,7 +382,6 @@ class _CartScreenState extends State<CartScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              // مربع إجمالي القطع
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -701,7 +762,7 @@ class _CartScreenState extends State<CartScreen> {
 
           _buildAddressOptionRadio(
             title: 'العنوان الأساسي',
-            subtitle: 'المسجل في الملف الشخصي',
+            subtitle: _primaryAddressText,
             value: 0,
             icon: LucideIcons.home,
           ),
@@ -851,7 +912,7 @@ class _CartScreenState extends State<CartScreen> {
                       color: Colors.black87
                     ),
                   ),
-                  if (subtitle != null)
+                  if (subtitle != null && subtitle.isNotEmpty)
                     Text(
                       subtitle,
                       style: const TextStyle(
@@ -894,7 +955,6 @@ class _CartScreenState extends State<CartScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // 💡 تم تعديل الكلمة هنا لتعكس عدد القطع بدقة
               Text(
                 'المجموع الفرعي (${_cart.totalItemsQuantity} قطع)',
                 style: TextStyle(
@@ -1069,7 +1129,7 @@ class _CartScreenState extends State<CartScreen> {
 
     if (_selectedAddressOption == 0) {
       useSavedLoc = true;
-      finalAddressDesc = "العنوان الأساسي (من الملف الشخصي)";
+      finalAddressDesc = _primaryAddressText; 
     } else if (_selectedAddressOption == -1) {
       useSavedLoc = false;
       if (_addressDescController.text.trim().isEmpty) {

@@ -81,12 +81,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() => _loading = false);
   }
 
-  String get _initials {
-    final f = _fname.isNotEmpty ? _fname[0] : '';
-    final l = _lname.isNotEmpty ? _lname[0] : '';
-    return '$f$l'.toUpperCase();
-  }
-
   void _showComingSoon(String title, String desc) {
     AwesomeDialog(
       context: context,
@@ -99,45 +93,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ).show();
   }
 
+  // 💡 التعديل هنا: استخدام AwesomeDialog لتسجيل الخروج لتكون احترافية
   Future<void> _logout() async {
-    final ok = await showDialog<bool>(
+    AwesomeDialog(
       context: context,
-      builder: (c) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
-          'تسجيل الخروج',
-          textAlign: TextAlign.right,
-          style: TextStyle(color: kPrimary, fontWeight: FontWeight.bold),
-        ),
-        content: const Text(
-          'هل أنت متأكد أنك تريد الخروج من حسابك؟',
-          textAlign: TextAlign.right,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(c, false),
-            child: const Text('إلغاء', style: TextStyle(color: Colors.grey)),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(c, true),
-            child: const Text(
-              'خروج',
-              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    if (ok == true && mounted) {
-      final p = await SharedPreferences.getInstance();
-      await p.clear();
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-        (_) => false,
-      );
-    }
+      dialogType: DialogType.warning,
+      headerAnimationLoop: false,
+      title: 'تسجيل الخروج',
+      desc: 'هل أنت متأكد أنك تريد الخروج من حسابك؟',
+      btnCancelOnPress: () {},
+      btnCancelText: 'إلغاء',
+      btnCancelColor: Colors.grey.shade400,
+      btnOkOnPress: () async {
+        final p = await SharedPreferences.getInstance();
+        await p.clear();
+        if (!mounted) return;
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (_) => false,
+        );
+      },
+      btnOkText: 'خروج',
+      btnOkColor: Colors.redAccent,
+    ).show();
   }
 
   @override
@@ -189,7 +168,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             slivers: [
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -300,15 +282,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(height: 25),
 
                       // 4. تسجيل الخروج
+                      // 💡 التعديل هنا: تصميم الزر كرت مركزي احترافي
                       _buildGlassCard([
-                        _buildListItem(
-                          icon: LucideIcons.logOut,
-                          title: 'تسجيل الخروج',
-                          titleColor: Colors.redAccent,
-                          iconColor: Colors.redAccent,
-                          showArrow: false,
-                          isLast: true,
+                        InkWell(
                           onTap: _logout,
+                          borderRadius: BorderRadius.circular(24),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 18),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(LucideIcons.logOut, color: Colors.redAccent, size: 22),
+                                SizedBox(width: 10),
+                                Text(
+                                  'تسجيل الخروج',
+                                  style: TextStyle(
+                                    color: Colors.redAccent,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ]),
                       const SizedBox(height: 40),
@@ -322,6 +319,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+
+  // =====================================
+  // Widgets التصميم
+  // =====================================
 
   Widget _buildCenteredProfileHeader() {
     return Center(
@@ -342,10 +343,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 15, offset: const Offset(0, 8)),
                   ],
                 ),
-                child: Center(
-                  child: Text(
-                    _initials,
-                    style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: kPrimary),
+                child: const Center(
+                  // 💡 التعديل هنا: أيقونة موحدة بدلاً من الحروف
+                  child: Icon(
+                    LucideIcons.user,
+                    size: 50,
+                    color: kPrimary,
                   ),
                 ),
               ),
@@ -381,7 +384,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // 💡 تم التبديل إلى الإيميل بدلاً من الهاتف
                 Icon(LucideIcons.mail, size: 14, color: Colors.grey.shade600),
                 const SizedBox(width: 6),
                 Text(
@@ -483,7 +485,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-            if (trailingWidget != null) trailingWidget,
+            ?trailingWidget,
             if (trailingWidget == null && showArrow)
               const Padding(
                 padding: EdgeInsets.only(right: 8),
@@ -495,6 +497,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  // 💡 التعديل هنا: إبقاء COD وإزالة (قريباً) مع تعديل الـ Spacer
   Widget _buildPaymentMethodItem() {
     return InkWell(
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentMethodsScreen())),
@@ -506,14 +509,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const Icon(LucideIcons.creditCard, size: 20, color: Colors.blueGrey),
             const SizedBox(width: 15),
             const Text('طريقة الدفع', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87)),
-            const SizedBox(width: 10),
+            const Spacer(), // 💡 وضعنا المسافة الفارغة هنا لدفع الباقي لليسار
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.green.shade200)),
               child: const Text('COD', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.green)),
             ),
-            const Spacer(),
-            _buildSoonBadge(),
             const SizedBox(width: 8),
             const Icon(LucideIcons.chevronLeft, size: 18, color: Colors.grey),
           ],

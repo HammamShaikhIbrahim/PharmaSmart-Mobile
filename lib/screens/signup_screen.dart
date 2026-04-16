@@ -40,8 +40,9 @@ class _SignupScreenState extends State<SignupScreen> {
     if (_fnameController.text.isEmpty ||
         _lnameController.text.isEmpty ||
         _emailController.text.isEmpty ||
-        _passwordController.text.isEmpty) {
-      _showError("تنبيه", "الرجاء تعبئة جميع الحقول الأساسية");
+        _passwordController.text.isEmpty ||
+        _dobController.text.isEmpty) {
+      _showError("تنبيه", "الرجاء تعبئة جميع الحقول الأساسية بما فيها تاريخ الميلاد");
       return;
     }
 
@@ -161,17 +162,33 @@ class _SignupScreenState extends State<SignupScreen> {
         ),
         body: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // الهيدر
-              FaIcon(
-                FontAwesomeIcons.clipboardUser,
-                size: 60,
-                color: primaryColor,
+              // 💡 التعديل هنا: هيدر متطابق 100% مع شاشة الـ Login
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: primaryColor.withOpacity(0.2),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: FaIcon(
+                    FontAwesomeIcons.clipboardUser,
+                    size: 50, // نفس حجم الأيقونة في تسجيل الدخول
+                    color: primaryColor,
+                  ),
+                ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 30),
               const Text(
                 'إنشاء ملف صحي',
                 textAlign: TextAlign.center,
@@ -181,16 +198,17 @@ class _SignupScreenState extends State<SignupScreen> {
                   color: Colors.black87,
                 ),
               ),
+              const SizedBox(height: 5),
               const Text(
                 'يرجى تعبئة البيانات بدقة لضمان أفضل خدمة',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 14,
                   color: Colors.grey,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 40),
 
               // كارت البيانات الأساسية
               _buildSectionTitle(
@@ -232,6 +250,23 @@ class _SignupScreenState extends State<SignupScreen> {
                   type: TextInputType.phone,
                 ),
                 const SizedBox(height: 15),
+                
+                TextField(
+                  controller: _dobController,
+                  readOnly: true,
+                  onTap: () => _selectDate(context),
+                  style: const TextStyle(
+                    color: Colors.black87,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                  decoration: _inputDecoration(
+                    'تاريخ الميلاد',
+                    LucideIcons.calendar,
+                  ),
+                ),
+                const SizedBox(height: 15),
+
                 _buildPasswordField(),
               ]),
               const SizedBox(height: 25),
@@ -321,18 +356,13 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               _buildCardContainer([
                 TextField(
-                  controller: _dobController,
-                  readOnly: true,
-                  onTap: () => _selectDate(context),
-                  decoration: _inputDecoration(
-                    'تاريخ الميلاد',
-                    LucideIcons.calendar,
-                  ),
-                ),
-                const SizedBox(height: 15),
-                TextField(
                   controller: _medicalHistoryController,
                   maxLines: 4,
+                  style: const TextStyle(
+                    color: Colors.black87,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
                   decoration: InputDecoration(
                     hintText: 'هل تعاني من حساسية معينة أو أمراض مزمنة؟...',
                     hintStyle: const TextStyle(
@@ -354,7 +384,7 @@ class _SignupScreenState extends State<SignupScreen> {
               ]),
               const SizedBox(height: 35),
 
-              // زر التسجيل
+              // 💡 زر التسجيل (تم ضبط الظل والأبعاد ليتطابق مع زر اللوجن)
               ElevatedButton(
                 onPressed: _isLoading ? null : _registerUser,
                 style: ElevatedButton.styleFrom(
@@ -425,6 +455,7 @@ class _SignupScreenState extends State<SignupScreen> {
             offset: const Offset(0, 5),
           ),
         ],
+        border: Border.all(color: Colors.grey.shade100),
       ),
       child: Column(children: children),
     );
@@ -439,6 +470,11 @@ class _SignupScreenState extends State<SignupScreen> {
     return TextField(
       controller: controller,
       keyboardType: type,
+      style: const TextStyle(
+        color: Colors.black87,
+        fontWeight: FontWeight.bold,
+        fontSize: 15,
+      ),
       decoration: _inputDecoration(label, icon),
     );
   }
@@ -447,6 +483,11 @@ class _SignupScreenState extends State<SignupScreen> {
     return TextField(
       controller: _passwordController,
       obscureText: _isPasswordHidden,
+      style: const TextStyle(
+        color: Colors.black87,
+        fontWeight: FontWeight.bold,
+        fontSize: 15,
+      ),
       decoration: InputDecoration(
         hintText: 'كلمة المرور',
         prefixIcon: Icon(LucideIcons.lock, color: primaryColor, size: 20),
@@ -461,6 +502,11 @@ class _SignupScreenState extends State<SignupScreen> {
         ),
         filled: true,
         fillColor: Colors.grey.shade50,
+        hintStyle: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.bold,
+          color: Colors.grey,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,

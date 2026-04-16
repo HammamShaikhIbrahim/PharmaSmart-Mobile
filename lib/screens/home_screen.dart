@@ -7,7 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:awesome_dialog/awesome_dialog.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // 💡 إضافة المكتبة
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/api_config.dart';
 import 'pharmacy_list_screen.dart';
@@ -28,6 +28,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  // =========================================================
+  // 💡 نظام الذاكرة المؤقتة (RAM Cache) لمنع التحميل المتكرر
+  // =========================================================
+  static bool _hasLoadedOnce = false;
+  static List _cachedCategories = [];
+  static List _cachedPharmacies = [];
+  static Position? _cachedUserPos;
+
   bool _isLoading = true;
   List _categories = [];
   List _pharmacies = [];
@@ -35,8 +43,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Position? _userPos;
 
   bool _hasNewNotifications = true;
-  
-  // 💡 متغير لحفظ الاسم وتحديثه ديناميكياً
   String _currentUserName = '';
 
   final Color primaryColor = const Color(0xFF0A7A48);
@@ -49,7 +55,22 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _currentUserName = widget.userName ?? '';
-    _initData();
+    
+    // 💡 التحقق: هل هذه أول مرة يفتح فيها الصفحة أم أنه عاد من السلة؟
+    if (_hasLoadedOnce && _cachedUserPos != null) {
+      // تحميل فوري من الذاكرة (بدون شاشة تحميل)
+      _categories = _cachedCategories;
+      _pharmacies = _cachedPharmacies;
+      _userPos = _cachedUserPos;
+      _isLoading = false;
+      
+      // تحديث الاسم والتأكد من البيانات بصمت في الخلفية
+      _loadDynamicName();
+      _fetchDataSilently();
+    } else {
+      // أول مرة يفتح التطبيق: إظهار شريط التحميل وجلب الـ GPS
+      _initData();
+    }
   }
 
   @override
@@ -59,13 +80,40 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
+  // أول تحميل للتطبيق
   Future<void> _initData() async {
-    await _loadDynamicName(); // 💡 تحديث الاسم فور فتح الشاشة
+    await _loadDynamicName();
     await _getUserLocation();
     await _fetchData();
+    
+    // 💡 حفظ البيانات في الذاكرة المؤقتة للمرات القادمة
+    _cachedCategories = _categories;
+    _cachedPharmacies = _pharmacies;
+    _cachedUserPos = _userPos;
+    _hasLoadedOnce = true;
   }
 
-  // 💡 دالة جديدة لجلب الاسم المحدث من الذاكرة دائماً
+  // 💡 تحديث البيانات في الخلفية بصمت دون إزعاج المستخدم
+  Future<void> _fetchDataSilently() async {
+    try {
+      final res = await http.get(Uri.parse("${ApiConfig.baseUrl}home_data.php"));
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        if (mounted) {
+          setState(() {
+            _categories = data['categories'];
+            _pharmacies = data['pharmacies'];
+          });
+          // تحديث الكاش
+          _cachedCategories = _categories;
+          _cachedPharmacies = _pharmacies;
+        }
+      }
+    } catch (e) {
+      // تجاهل الأخطاء في التحديث الصامت
+    }
+  }
+
   Future<void> _loadDynamicName() async {
     if (!widget.isGuest) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -156,6 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       setState(() {
         _userPos = position;
+        _cachedUserPos = position; // تحديث الكاش
       });
 
       _mapController.move(LatLng(position.latitude, position.longitude), 16.0);
@@ -235,9 +284,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // 💡 تحديث الاسم عند بناء الشاشة للضمان
-    _loadDynamicName();
-
     return Scaffold(
       backgroundColor: bgColor,
       body: _isLoading
@@ -299,7 +345,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 Text(
-                  widget.isGuest ? "زائرنا العزيز" : _currentUserName, // 💡 استخدام الاسم المحدث
+                  widget.isGuest ? "زائرنا العزيز" : _currentUserName,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
@@ -648,7 +694,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         userPos: _userPos,
                       ),
                     ),
-                  );
+                  ).then((_) {
+                    // تفريغ التحديد عند العودة
+                    setState(() => _selectedCatIndex = -1);
+                  });
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
@@ -826,8 +875,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         const SizedBox(height: 20),
-        
-        // 💡 التعديل هنا: تصميم الزر كباقي التطبيق وتغيير النص
         ElevatedButton(
           onPressed: () async {
             final selectedLocation = await Navigator.push(
@@ -846,8 +893,8 @@ class _HomeScreenState extends State<HomeScreen> {
             }
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: primaryColor, // اللون الأخضر الأساسي
-            foregroundColor: Colors.white, // لون النص والأيقونة
+            backgroundColor: primaryColor,
+            foregroundColor: Colors.white,
             elevation: 5,
             shadowColor: primaryColor.withOpacity(0.4),
             minimumSize: const Size(double.infinity, 55),
