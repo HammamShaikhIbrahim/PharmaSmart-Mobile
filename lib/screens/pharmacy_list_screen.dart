@@ -4,8 +4,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:latlong2/latlong.dart';
+
 import '../config/api_config.dart';
 import 'pharmacy_store_screen.dart';
+import 'pharmacy_profile_screen.dart'; 
 import '../widgets/pharma_ui.dart';
 
 class PharmacyListScreen extends StatefulWidget {
@@ -18,7 +20,10 @@ class PharmacyListScreen extends StatefulWidget {
 
 class _PharmacyListScreenState extends State<PharmacyListScreen> {
   List<Map<String, dynamic>> _pharmacies = [];
+  List<Map<String, dynamic>> _filteredPharmacies = []; 
   bool _loading = true;
+
+  final TextEditingController _searchController = TextEditingController();
 
   final Color primaryColor = const Color(0xFF0A7A48);
   final Color bgColor = const Color(0xFFF2FBF5);
@@ -27,6 +32,12 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
   void initState() {
     super.initState();
     _fetchAndSortPharmacies();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchAndSortPharmacies() async {
@@ -46,8 +57,7 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
           double lat = double.tryParse(p['Latitude']?.toString() ?? '0') ?? 0;
           double lng = double.tryParse(p['Longitude']?.toString() ?? '0') ?? 0;
 
-          p['dist'] =
-              Geolocator.distanceBetween(
+          p['dist'] = Geolocator.distanceBetween(
                 widget.userPos.latitude,
                 widget.userPos.longitude,
                 lat,
@@ -63,6 +73,7 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
         if (mounted) {
           setState(() {
             _pharmacies = mutableList;
+            _filteredPharmacies = mutableList; 
             _loading = false;
           });
         }
@@ -71,6 +82,18 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
       debugPrint("❌ حدث خطأ أثناء جلب الصيدليات: $e");
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  // 💡 التعديل هنا: تخصيص البحث ليتم فقط عبر اسم الصيدلية
+  void _filterPharmacies(String query) {
+    final String lowerQuery = query.toLowerCase();
+    setState(() {
+      _filteredPharmacies = _pharmacies.where((p) {
+        final name = (p['PharmacyName'] ?? '').toString().toLowerCase();
+        
+        return name.contains(lowerQuery); // البحث بالاسم فقط
+      }).toList();
+    });
   }
 
   @override
@@ -89,18 +112,60 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
           backgroundColor: Colors.white,
           foregroundColor: Colors.black87,
         ),
-        body: _loading
-            ? PharmaUI.loader()
-            : _pharmacies.isEmpty
-            ? _buildEmptyState()
-            : ListView.builder(
-                padding: const EdgeInsets.all(15),
-                physics: const BouncingScrollPhysics(),
-                itemCount: _pharmacies.length,
-                itemBuilder: (context, index) {
-                  return _buildPharmacyCard(_pharmacies[index]);
-                },
+        body: Column(
+          children: [
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 15),
+              child: TextField(
+                controller: _searchController,
+                onChanged: _filterPharmacies,
+                decoration: InputDecoration(
+                  hintText: 'ابحث عن صيدلية بالاسم...', // 💡 تم تعديل النص ليعكس أن البحث بالاسم فقط
+                  hintStyle: TextStyle(
+                    color: Colors.grey.shade400,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  prefixIcon: Icon(LucideIcons.search, color: primaryColor),
+                  filled: true,
+                  fillColor: Colors.grey[100],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                ),
               ),
+            ),
+            
+            Container(
+              height: 10,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.black.withOpacity(0.03), Colors.transparent],
+                ),
+              ),
+            ),
+
+            Expanded(
+              child: _loading
+                  ? PharmaUI.loader()
+                  : _filteredPharmacies.isEmpty
+                      ? _buildEmptyState()
+                      : ListView.builder(
+                          padding: const EdgeInsets.fromLTRB(15, 10, 15, 20),
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: _filteredPharmacies.length,
+                          itemBuilder: (context, index) {
+                            return _buildPharmacyCard(_filteredPharmacies[index]);
+                          },
+                        ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -108,8 +173,7 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
   Widget _buildPharmacyCard(Map<String, dynamic> p) {
     final String name = p['PharmacyName'] ?? 'صيدلية غير معروفة';
     final String location = p['Location'] ?? 'العنوان غير متوفر';
-    final String hours =
-        (p['WorkingHours'] != null &&
+    final String hours = (p['WorkingHours'] != null &&
             p['WorkingHours'].toString().trim().isNotEmpty)
         ? p['WorkingHours']
         : 'ساعات العمل غير محددة';
@@ -327,23 +391,49 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
                       ),
                     ),
                     const SizedBox(width: 8),
+
+                    OutlinedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (c) => PharmacyProfileScreen(
+                              pharmacyData: p,
+                              userPos: widget.userPos,
+                            ),
+                          ),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.all(10),
+                        minimumSize: Size.zero,
+                        side: BorderSide(color: primaryColor.withOpacity(0.5)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Icon(
+                        LucideIcons.info, 
+                        color: primaryColor,
+                        size: 18,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+
                     OutlinedButton(
                       onPressed: () {
                         double lat =
                             double.tryParse(p['Latitude']?.toString() ?? '0') ??
-                            0;
-                        double lng =
-                            double.tryParse(
+                                0;
+                        double lng = double.tryParse(
                               p['Longitude']?.toString() ?? '0',
                             ) ??
                             0;
                         Navigator.pop(context, LatLng(lat, lng));
                       },
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 10,
-                        ),
+                        padding: const EdgeInsets.all(10),
+                        minimumSize: Size.zero,
                         side: BorderSide(color: primaryColor.withOpacity(0.5)),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -365,10 +455,9 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
     );
   }
 
-  // 💡 اللوجو الخاص بالتطبيق كبديل في حال عدم وجود صورة للصيدلية
   Widget _buildFallbackLogo() {
     return Opacity(
-      opacity: 0.3, // شفافية ليدل أنه افتراضي
+      opacity: 0.3,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
@@ -378,9 +467,9 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
 
   Widget _buildEmptyState() {
     return PharmaUI.emptyState(
-      icon: LucideIcons.store,
-      title: 'لا توجد صيدليات قريبة',
-      subtitle: 'لم يتم العثور على أي صيدلية في هذا القسم.',
+      icon: LucideIcons.searchX,
+      title: 'لا توجد نتائج',
+      subtitle: 'لم يتم العثور على أي صيدلية بهذا الاسم.',
     );
   }
 }

@@ -22,20 +22,41 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   bool _isSaving = false;
   String _userId = '';
 
+  // 💡 متغيرات لحفظ القيم الأصلية لمقارنتها بالتعديلات
+  String _originalFname = '';
+  String _originalLname = '';
+  bool _hasChanges = false;
+
   final Color primaryColor = const Color(0xFF0A7A48);
-  final Color bgColor = const Color(0xFFF2FBF5); 
+  final Color bgColor = const Color(0xFFF2FBF5);
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    
+    // 💡 إضافة مستمعات للحقول لتفعيل الزر فقط عند التغيير
+    _fnameController.addListener(_checkIfChanged);
+    _lnameController.addListener(_checkIfChanged);
   }
 
   @override
   void dispose() {
+    _fnameController.removeListener(_checkIfChanged);
+    _lnameController.removeListener(_checkIfChanged);
     _fnameController.dispose();
     _lnameController.dispose();
     super.dispose();
+  }
+
+  // 💡 دالة فحص التغييرات
+  void _checkIfChanged() {
+    if (_fnameController.text.trim() != _originalFname ||
+        _lnameController.text.trim() != _originalLname) {
+      if (!_hasChanges) setState(() => _hasChanges = true);
+    } else {
+      if (_hasChanges) setState(() => _hasChanges = false);
+    }
   }
 
   Future<void> _loadUserData() async {
@@ -55,9 +76,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         final data = jsonDecode(res.body);
         if (data['status'] == 'success') {
           setState(() {
-            _fnameController.text = data['data']['Fname'] ?? '';
-            _lnameController.text = data['data']['Lname'] ?? '';
+            _originalFname = data['data']['Fname'] ?? '';
+            _originalLname = data['data']['Lname'] ?? '';
+            
+            _fnameController.text = _originalFname;
+            _lnameController.text = _originalLname;
+            
             _isLoading = false;
+            _hasChanges = false; // تهيئة الحالة بعد التحميل
           });
         }
       }
@@ -114,7 +140,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             btnOkText: 'ممتاز',
             dismissOnTouchOutside: false,
             btnOkOnPress: () {
-              Navigator.pop(context, true); 
+              Navigator.pop(context, true);
             },
           ).show();
         } else {
@@ -147,7 +173,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: bgColor, 
+        backgroundColor: bgColor,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -169,9 +195,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    // 💡 تمت إزالة دائرة الحرف الأول من هنا تماماً
                     const SizedBox(height: 20),
-
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
@@ -206,18 +230,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                     const SizedBox(height: 30),
 
+                    // 💡 زر الحفظ يعتمد على قيمة _hasChanges
                     SizedBox(
                       width: double.infinity,
                       height: 55,
                       child: ElevatedButton(
-                        onPressed: _isSaving ? null : _updateProfile,
+                        onPressed: (_hasChanges && !_isSaving) ? _updateProfile : null,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryColor,
+                          backgroundColor: _hasChanges ? primaryColor : Colors.grey.shade300,
+                          disabledBackgroundColor: Colors.grey.shade300, // اللون الرمادي عند التعطيل
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          elevation: 5,
-                          shadowColor: primaryColor.withOpacity(0.3),
+                          elevation: _hasChanges ? 5 : 0,
+                          shadowColor: _hasChanges ? primaryColor.withOpacity(0.3) : Colors.transparent,
                         ),
                         child: _isSaving
                             ? const SizedBox(
@@ -228,10 +254,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   strokeWidth: 3,
                                 ),
                               )
-                            : const Text(
+                            : Text(
                                 'حفظ التغييرات',
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: _hasChanges ? Colors.white : Colors.grey.shade500, // لون النص رمادي غامق عند التعطيل
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),

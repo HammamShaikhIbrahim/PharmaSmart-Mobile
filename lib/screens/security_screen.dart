@@ -16,7 +16,7 @@ class SecurityScreen extends StatefulWidget {
 
 class _SecurityScreenState extends State<SecurityScreen> {
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController(); 
+  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _oldPassController = TextEditingController();
   final TextEditingController _newPassController = TextEditingController();
   final TextEditingController _confirmPassController = TextEditingController();
@@ -28,6 +28,11 @@ class _SecurityScreenState extends State<SecurityScreen> {
   bool _hideConfirm = true;
   String _userId = '';
 
+  // 💡 متغيرات لحفظ القيم الأصلية
+  String _originalEmail = '';
+  String _originalPhone = '';
+  bool _hasChanges = false;
+
   final Color primaryColor = const Color(0xFF0A7A48);
   final Color bgColor = const Color(0xFFF2FBF5);
 
@@ -35,10 +40,21 @@ class _SecurityScreenState extends State<SecurityScreen> {
   void initState() {
     super.initState();
     _loadCurrentData();
+
+    // 💡 إضافة مستمعات للحقول لتفعيل الزر عند أي تغيير
+    _emailController.addListener(_checkIfChanged);
+    _phoneController.addListener(_checkIfChanged);
+    _newPassController.addListener(_checkIfChanged);
+    _confirmPassController.addListener(_checkIfChanged);
   }
 
   @override
   void dispose() {
+    _emailController.removeListener(_checkIfChanged);
+    _phoneController.removeListener(_checkIfChanged);
+    _newPassController.removeListener(_checkIfChanged);
+    _confirmPassController.removeListener(_checkIfChanged);
+
     _emailController.dispose();
     _phoneController.dispose();
     _oldPassController.dispose();
@@ -47,32 +63,45 @@ class _SecurityScreenState extends State<SecurityScreen> {
     super.dispose();
   }
 
+  // 💡 دالة فحص التغييرات
+  void _checkIfChanged() {
+    if (_emailController.text.trim() != _originalEmail ||
+        _phoneController.text.trim() != _originalPhone ||
+        _newPassController.text.isNotEmpty ||
+        _confirmPassController.text.isNotEmpty) {
+      if (!_hasChanges) setState(() => _hasChanges = true);
+    } else {
+      if (_hasChanges) setState(() => _hasChanges = false);
+    }
+  }
+
   Future<void> _loadCurrentData() async {
     final prefs = await SharedPreferences.getInstance();
     _userId = prefs.getString('userId') ?? '';
-    
+
     try {
       final res = await http.get(Uri.parse("${ApiConfig.baseUrl}get_profile.php?user_id=$_userId"));
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         if (data['status'] == 'success') {
-          _emailController.text = data['data']['Email'] ?? '';
-          _phoneController.text = data['data']['Phone'] ?? '';
+          _originalEmail = data['data']['Email'] ?? '';
+          _originalPhone = data['data']['Phone'] ?? '';
+
+          _emailController.text = _originalEmail;
+          _phoneController.text = _originalPhone;
         }
       }
     } catch (e) {
       debugPrint(e.toString());
     }
 
-    setState(() => _isLoading = false);
+    setState(() {
+      _isLoading = false;
+      _hasChanges = false;
+    });
   }
 
-  Future<void> _updateSecurity() async {
-    if (_oldPassController.text.isEmpty) {
-      _showWarning('تنبيه', 'يجب إدخال كلمة المرور الحالية لتتمكن من التعديل.');
-      return;
-    }
-
+  void _onSaveClicked() {
     if (_newPassController.text.isNotEmpty) {
       if (_newPassController.text != _confirmPassController.text) {
         _showWarning('عدم تطابق', 'كلمة المرور الجديدة غير مطابقة لتأكيد كلمة المرور.');
@@ -80,6 +109,82 @@ class _SecurityScreenState extends State<SecurityScreen> {
       }
     }
 
+    _showPasswordPrompt();
+  }
+
+  void _showPasswordPrompt() {
+    _oldPassController.clear();
+    bool hideOldPass = true; 
+
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.infoReverse,
+      animType: AnimType.scale,
+      body: StatefulBuilder(builder: (context, setStateDialog) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+          child: Column(
+            children: [
+              const Text(
+                'تأكيد الهوية',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.black87),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'يرجى إدخال كلمة المرور الحالية لتأكيد حفظ التعديلات وحماية حسابك.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: _oldPassController,
+                obscureText: hideOldPass,
+                textAlign: TextAlign.right,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                decoration: InputDecoration(
+                  hintText: 'كلمة المرور الحالية',
+                  hintStyle: const TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.bold),
+                  prefixIcon: Icon(LucideIcons.unlock, color: primaryColor, size: 20),
+                  suffixIcon: IconButton(
+                    icon: Icon(hideOldPass ? LucideIcons.eyeOff : LucideIcons.eye, color: Colors.grey, size: 18),
+                    onPressed: () {
+                      setStateDialog(() {
+                        hideOldPass = !hideOldPass;
+                      });
+                    },
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(color: primaryColor),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
+      btnCancelOnPress: () {},
+      btnCancelText: 'إلغاء',
+      btnCancelColor: Colors.grey.shade400,
+      btnOkOnPress: () {
+        if (_oldPassController.text.isEmpty) {
+          _showWarning('تنبيه', 'لم تقم بإدخال كلمة المرور!');
+        } else {
+          _executeSecurityUpdate(); 
+        }
+      },
+      btnOkText: 'تأكيد وحفظ',
+      btnOkColor: primaryColor,
+    ).show();
+  }
+
+  Future<void> _executeSecurityUpdate() async {
     setState(() => _isSaving = true);
 
     try {
@@ -107,7 +212,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
             btnOkColor: primaryColor,
             btnOkText: 'ممتاز',
             dismissOnTouchOutside: false,
-            btnOkOnPress: () => Navigator.pop(context, true), 
+            btnOkOnPress: () => Navigator.pop(context, true),
           ).show();
         } else {
           _showError(data['message'] ?? 'فشل التحديث');
@@ -154,6 +259,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
       desc: 'هل أنت متأكد أنك تريد حذف حسابك نهائياً؟ ستفقد جميع بياناتك وطلباتك السابقة.',
       btnCancelOnPress: () {},
       btnCancelText: 'إلغاء',
+      btnCancelColor: Colors.grey.shade400,
       btnOkColor: Colors.redAccent,
       btnOkText: 'نعم، أريد الحذف',
       btnOkOnPress: () {
@@ -219,7 +325,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
                     ),
                     const SizedBox(height: 30),
 
-                    // 💡 القسم الأول: البريد الإلكتروني ورقم الهاتف (قابلين للتعديل الآن)
                     _buildSectionHeader('بيانات الاتصال والأمان', LucideIcons.mail, Colors.blue),
                     Container(
                       padding: const EdgeInsets.all(20),
@@ -230,7 +335,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
                             'البريد الإلكتروني',
                             LucideIcons.mail,
                             _emailController,
-                            // 💡 تم إزالة isReadOnly لتصبح الإيميل قابلة للتعديل
                           ),
                           const Divider(color: Color(0xFFF0F0F0), height: 30),
                           _buildCleanField(
@@ -244,22 +348,12 @@ class _SecurityScreenState extends State<SecurityScreen> {
                     ),
                     const SizedBox(height: 30),
 
-                    // 💡 القسم الثاني: تغيير كلمة المرور
                     _buildSectionHeader('تغيير كلمة المرور', LucideIcons.key, Colors.orange),
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: _cardDecoration(),
                       child: Column(
                         children: [
-                          _buildCleanField(
-                            'كلمة المرور الحالية',
-                            LucideIcons.unlock,
-                            _oldPassController,
-                            isPassword: true,
-                            isHidden: _hideOld,
-                            onToggle: () => setState(() => _hideOld = !_hideOld),
-                          ),
-                          const Divider(color: Color(0xFFF0F0F0), height: 30),
                           _buildCleanField(
                             'كلمة المرور الجديدة (اتركه فارغاً إذا لا تريد تغييره)',
                             LucideIcons.lock,
@@ -282,18 +376,20 @@ class _SecurityScreenState extends State<SecurityScreen> {
                     ),
                     const SizedBox(height: 20),
 
+                    // 💡 زر الحفظ يعتمد على حالة _hasChanges
                     SizedBox(
                       width: double.infinity,
                       height: 55,
                       child: ElevatedButton(
-                        onPressed: _isSaving ? null : _updateSecurity,
+                        onPressed: (_hasChanges && !_isSaving) ? _onSaveClicked : null,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryColor,
+                          backgroundColor: _hasChanges ? primaryColor : Colors.grey.shade300,
+                          disabledBackgroundColor: Colors.grey.shade300,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          elevation: 5,
-                          shadowColor: primaryColor.withOpacity(0.3),
+                          elevation: _hasChanges ? 5 : 0,
+                          shadowColor: _hasChanges ? primaryColor.withOpacity(0.3) : Colors.transparent,
                         ),
                         child: _isSaving
                             ? const SizedBox(
@@ -301,15 +397,18 @@ class _SecurityScreenState extends State<SecurityScreen> {
                                 height: 24,
                                 child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
                               )
-                            : const Text(
+                            : Text(
                                 'حفظ التحديثات',
-                                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                  color: _hasChanges ? Colors.white : Colors.grey.shade500,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                       ),
                     ),
                     const SizedBox(height: 40),
 
-                    // 💡 القسم الثالث: خيارات الأمان (حذف الحساب)
                     _buildSectionHeader('خيارات الأمان', LucideIcons.alertTriangle, Colors.redAccent),
                     InkWell(
                       onTap: _deleteAccountDialog,
