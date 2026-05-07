@@ -1,6 +1,12 @@
+// ==========================================
+// استيراد المكتبات الأساسية | Importing core libraries
+// ==========================================
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
+// ==========================================
+// شاشة طرق الدفع | Payment Methods Screen
+// ==========================================
 class PaymentMethodsScreen extends StatelessWidget {
   const PaymentMethodsScreen({super.key});
 
@@ -9,10 +15,13 @@ class PaymentMethodsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ==========================================
+    // بناء واجهة المستخدم | Build UI
+    // ==========================================
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: bgColor, // 💡 نفس لون خلفية التطبيق الموحد
+        backgroundColor: bgColor, 
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -33,7 +42,9 @@ class PaymentMethodsScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // الهيدر والأيقونة
+              // ==========================================
+              // الهيدر والأيقونة | Header & Icon
+              // ==========================================
               Center(
                 child: Container(
                   width: 90,
@@ -85,7 +96,9 @@ class PaymentMethodsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 15),
 
-              // 💡 بطاقة الدفع عند الاستلام (المفعلة)
+              // ==========================================
+              // بطاقة الدفع عند الاستلام (المفعلة) | Cash on Delivery Card (Active)
+              // ==========================================
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -139,9 +152,11 @@ class PaymentMethodsScreen extends StatelessWidget {
                   ],
                 ),
               ),
+              const SizedBox(height: 15),
 
-
-              // 💡 بطاقة البطاقات الائتمانية (قريباً)
+              // ==========================================
+              // بطاقة البطاقات الائتمانية (قريباً) | Credit Cards Card (Soon)
+              // ==========================================
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(

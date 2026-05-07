@@ -1,3 +1,6 @@
+// ==========================================
+// استيراد المكتبات الأساسية | Importing core libraries
+// ==========================================
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -6,6 +9,9 @@ import '../config/api_config.dart';
 import 'pharmacy_store_screen.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 
+// ==========================================
+// شاشة ملف الصيدلية التعريفي | Pharmacy Profile Screen
+// ==========================================
 class PharmacyProfileScreen extends StatelessWidget {
   final dynamic pharmacyData;
   final Position? userPos;
@@ -16,6 +22,9 @@ class PharmacyProfileScreen extends StatelessWidget {
     this.userPos,
   });
 
+  // ==========================================
+  // دالة إجراء اتصال هاتفي | Function to make a phone call
+  // ==========================================
   Future<void> _makePhoneCall(String phoneNumber) async {
     final Uri launchUri = Uri(scheme: 'tel', path: phoneNumber);
     if (await canLaunchUrl(launchUri)) {
@@ -25,6 +34,9 @@ class PharmacyProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ==========================================
+    // تجهيز بيانات الصيدلية | Preparing pharmacy data
+    // ==========================================
     final String name = pharmacyData['PharmacyName'] ?? 'صيدلية غير معروفة';
     final String doctor =
         "${pharmacyData['Fname'] ?? ''} ${pharmacyData['Lname'] ?? ''}".trim();
@@ -61,8 +73,11 @@ class PharmacyProfileScreen extends StatelessWidget {
         "${ApiConfig.baseUrl.replaceAll('api/', '')}uploads/logos/$logoName";
 
     final Color primaryColor = const Color(0xFF0A7A48);
-    final Color bgColor = const Color(0xFFF2FBF5); // 💡 ثيم التطبيق الموحد
+    final Color bgColor = const Color(0xFFF2FBF5); 
 
+    // ==========================================
+    // بناء واجهة المستخدم | Build UI
+    // ==========================================
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -84,6 +99,9 @@ class PharmacyProfileScreen extends StatelessWidget {
           ),
         ),
 
+        // ==========================================
+        // زر تصفح أدوية الصيدلية العائم | Floating button to browse pharmacy medicines
+        // ==========================================
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -127,7 +145,9 @@ class PharmacyProfileScreen extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              // 💡 كرت المعلومات الأساسي (نظيف ومتناسق)
+              // ==========================================
+              // كرت المعلومات الأساسي | Basic information card
+              // ==========================================
               Container(
                 padding: const EdgeInsets.all(25),
                 decoration: BoxDecoration(
@@ -144,7 +164,7 @@ class PharmacyProfileScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    // اللوجو
+                    // اللوجو | Logo
                     Container(
                       width: 100,
                       height: 100,
@@ -189,6 +209,7 @@ class PharmacyProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 15),
 
+                    // المسافة | Distance
                     if (dist > 0)
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -224,7 +245,9 @@ class PharmacyProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 25),
 
-              // 💡 أزرار التواصل (تصميم جديد)
+              // ==========================================
+              // أزرار التواصل | Communication buttons
+              // ==========================================
               Row(
                 children: [
                   Expanded(
@@ -248,11 +271,10 @@ class PharmacyProfileScreen extends StatelessWidget {
                   const SizedBox(width: 15),
                   Expanded(
                     child: _buildActionBtn(
-                      LucideIcons.messageCircle, // أيقونة المحادثة الموحدة
+                      LucideIcons.messageCircle, 
                       "استشارة طبية",
                       Colors.orange.shade600,
                       () {
-                        // 💡 استدعاء الدالة الفخمة الموحدة
                         _showComingSoonMsg(context, "المحادثات المباشرة");
                       },
                     ),
@@ -261,7 +283,9 @@ class PharmacyProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 25),
 
-              // 💡 تفاصيل العمل
+              // ==========================================
+              // تفاصيل العمل | Working details
+              // ==========================================
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -307,7 +331,9 @@ class PharmacyProfileScreen extends StatelessWidget {
     );
   }
 
-  // 💡 اللوجو الخاص بك كبديل هنا أيضاً
+  // ==========================================
+  // اللوجو البديل | Fallback logo
+  // ==========================================
   Widget _buildFallbackLogo() {
     return Opacity(
       opacity: 0.4,
@@ -318,7 +344,9 @@ class PharmacyProfileScreen extends StatelessWidget {
     );
   }
 
-  // 💡 الدالة الموحدة لإظهار رسالة "قريباً" بنفس التصميم الفخم
+  // ==========================================
+  // رسالة "قريباً" | "Coming Soon" message
+  // ==========================================
   void _showComingSoonMsg(BuildContext context, String featureName) {
     AwesomeDialog(
       context: context,
@@ -349,6 +377,9 @@ class PharmacyProfileScreen extends StatelessWidget {
     ).show();
   }
 
+  // ==========================================
+  // زر إجراء (تواصل/اتصال) | Action button (contact/call)
+  // ==========================================
   Widget _buildActionBtn(
     IconData icon,
     String label,
@@ -390,6 +421,9 @@ class PharmacyProfileScreen extends StatelessWidget {
     );
   }
 
+  // ==========================================
+  // سطر معلومات (عنوان، هاتف، إلخ) | Information tile
+  // ==========================================
   Widget _buildInfoTile(
     IconData icon,
     String title,

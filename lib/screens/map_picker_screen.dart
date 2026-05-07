@@ -1,5 +1,5 @@
 // ==========================================
-// 1. استدعاء المكتبات الأساسية للتطبيق
+// استيراد المكتبات الأساسية | Importing core libraries
 // ==========================================
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -8,7 +8,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:geolocator/geolocator.dart';
 
 // ==========================================
-// 2. إنشاء كلاس الشاشة
+// شاشة التقاط الموقع الجغرافي | Map Picker Screen
 // ==========================================
 class MapPickerScreen extends StatefulWidget {
   const MapPickerScreen({super.key});
@@ -18,20 +18,18 @@ class MapPickerScreen extends StatefulWidget {
 }
 
 class _MapPickerScreenState extends State<MapPickerScreen> {
-  // 💡 المتغير أصبح Nullable (يعني فارغ في البداية، ولا يوجد دبوس)
+  // ==========================================
+  // المتغيرات وتحديد المركز الافتراضي | Variables & default center
+  // ==========================================
   LatLng? _selectedLocation;
-
-  // 💡 نقطة مركز فلسطين لتظهر الخريطة كاملة عند الفتح
   final LatLng _palestineCenter = const LatLng(31.90, 35.20);
-
   final MapController _mapController = MapController();
 
-  // 💡 الألوان الرسمية للتطبيق
   final Color primaryColor = const Color(0xFF0A7A48);
   final Color bgColor = const Color(0xFFF2FBF5);
 
   // ==========================================
-  // 3. دالة جلب الموقع التلقائي عبر الـ GPS
+  // دالة جلب الموقع التلقائي عبر الـ GPS | Fetch current GPS location
   // ==========================================
   Future<void> _getCurrentLocation() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -72,7 +70,6 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
       return;
     }
 
-    // جلب الموقع بدقة عالية مع رسالة تحميل
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -91,12 +88,11 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
       _selectedLocation = LatLng(position.latitude, position.longitude);
     });
 
-    // تقريب الكاميرا على موقع المريض بدقة
     _mapController.move(_selectedLocation!, 15.0);
   }
 
   // ==========================================
-  // 4. دوال التكبير والتصغير
+  // دوال التكبير والتصغير | Zoom In & Out Functions
   // ==========================================
   void _zoomIn() {
     final double currentZoom = _mapController.camera.zoom;
@@ -114,13 +110,13 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
     );
   }
 
-  // ==========================================
-  // 5. بناء واجهة الشاشة العصرية
-  // ==========================================
   @override
   Widget build(BuildContext context) {
+    // ==========================================
+    // بناء واجهة الخريطة | Build Map UI
+    // ==========================================
     return Directionality(
-      textDirection: TextDirection.rtl, // دعم اللغة العربية
+      textDirection: TextDirection.rtl, 
       child: Scaffold(
         backgroundColor: bgColor,
 
@@ -144,19 +140,17 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
 
         body: Stack(
           children: [
-            // ------------------------------------------
-            // أ) الخريطة التفاعلية
-            // ------------------------------------------
+            // ==========================================
+            // الخريطة التفاعلية والطبقات | Interactive map and layers
+            // ==========================================
             FlutterMap(
               mapController: _mapController,
               options: MapOptions(
-                // 💡 تبدأ الكاميرا من مركز فلسطين وبتقريب بعيد ليظهر البلد كاملاً
                 initialCenter: _palestineCenter,
                 initialZoom: 8.0,
                 onTap: (tapPosition, point) {
                   setState(() {
-                    _selectedLocation =
-                        point; // 💡 يظهر الدبوس هنا فقط بعد الضغط
+                    _selectedLocation = point; 
                   });
                 },
               ),
@@ -167,8 +161,6 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                   userAgentPackageName: 'com.pharmasmart.app',
                 ),
 
-                // طبقة رسم الدبوس مع ظل ليعطي انطباع الفخامة
-                // 💡 طبقة رسم الدبوس الاحترافي الدقيق
                 if (_selectedLocation != null)
                   MarkerLayer(
                     markers: [
@@ -176,16 +168,13 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                         point: _selectedLocation!,
                         width: 60,
                         height: 60,
-                        // 1. نجعل ارتكاز المربع في المركز تماماً ليتطابق مع نقطة الضغط
                         alignment: Alignment.center,
                         child: Directionality(
-                          // 2. إجبار الدبوس على اللغة الإنجليزية لمنع إزاحته بسبب الـ RTL
                           textDirection: TextDirection.ltr,
                           child: Stack(
                             alignment: Alignment.center,
                             clipBehavior: Clip.none,
                             children: [
-                              // 3. نقطة الارتكاز (التي ستوضع بالضبط مكان ضغطة إصبعك)
                               Container(
                                 width: 14,
                                 height: 14,
@@ -204,13 +193,10 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                                   ],
                                 ),
                               ),
-                              // 4. دبوس الخريطة المرفوع للأعلى ليلامس النقطة برأسه المدبب
                               const Positioned(
-                                bottom:
-                                    30, // رفعه للأعلى ليقف فوق النقطة تماماً
+                                bottom: 30, 
                                 child: Icon(
-                                  Icons
-                                      .location_on, // أيقونة Material الأدق هندسياً
+                                  Icons.location_on, 
                                   color: Color(0xFF0A7A48),
                                   size: 45,
                                   shadows: [
@@ -231,9 +217,9 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
               ],
             ),
 
-            // ------------------------------------------
-            // ب) رسالة توضيحية علوية (تصميم زجاجي)
-            // ------------------------------------------
+            // ==========================================
+            // رسالة إرشادية علوية | Top instructional message
+            // ==========================================
             Positioned(
               top: 15,
               left: 20,
@@ -274,11 +260,11 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
               ),
             ),
 
-            // ------------------------------------------
-            // ج) أزرار التحكم الجانبية (Zoom & GPS)
-            // ------------------------------------------
+            // ==========================================
+            // أزرار التحكم بالخريطة (Zoom & GPS) | Map control buttons
+            // ==========================================
             Positioned(
-              bottom: 120, // مرتفعة عن الزر السفلي
+              bottom: 120, 
               right: 20,
               child: Column(
                 children: [
@@ -322,9 +308,9 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
           ],
         ),
 
-        // ------------------------------------------
-        // د) زر التأكيد في الأسفل (رمادي إذا لم يحدد موقع، أخضر إذا حدد)
-        // ------------------------------------------
+        // ==========================================
+        // زر التأكيد السفلي | Bottom confirmation button
+        // ==========================================
         bottomNavigationBar: Container(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
           decoration: BoxDecoration(
@@ -340,7 +326,6 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
           ),
           child: SafeArea(
             child: ElevatedButton(
-              // 💡 إذا لم يحدد موقع سيكون الزر غير قابل للضغط (null)
               onPressed: _selectedLocation == null
                   ? null
                   : () {
@@ -348,8 +333,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                     },
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
-                disabledBackgroundColor:
-                    Colors.grey.shade300, // لون رمادي عند التعطيل
+                disabledBackgroundColor: Colors.grey.shade300, 
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16.0),
@@ -390,7 +374,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
   }
 
   // ==========================================
-  // تصميم الأزرار الجانبية المصغرة
+  // تصميم الأزرار الجانبية | Design of floating buttons
   // ==========================================
   Widget _buildFloatingBtn({
     required IconData icon,

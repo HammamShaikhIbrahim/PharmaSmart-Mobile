@@ -1,3 +1,6 @@
+// ==========================================
+// استيراد المكتبات الأساسية | Importing core libraries
+// ==========================================
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
@@ -7,9 +10,12 @@ import 'package:latlong2/latlong.dart';
 
 import '../config/api_config.dart';
 import 'pharmacy_store_screen.dart';
-import 'pharmacy_profile_screen.dart'; 
+import 'pharmacy_profile_screen.dart';
 import '../widgets/pharma_ui.dart';
 
+// ==========================================
+// شاشة قائمة الصيدليات | Pharmacy List Screen
+// ==========================================
 class PharmacyListScreen extends StatefulWidget {
   final Position userPos;
   const PharmacyListScreen({super.key, required this.userPos});
@@ -19,8 +25,11 @@ class PharmacyListScreen extends StatefulWidget {
 }
 
 class _PharmacyListScreenState extends State<PharmacyListScreen> {
+  // ==========================================
+  // تعريف متغيرات التحكم والحالة | Defining controllers and state variables
+  // ==========================================
   List<Map<String, dynamic>> _pharmacies = [];
-  List<Map<String, dynamic>> _filteredPharmacies = []; 
+  List<Map<String, dynamic>> _filteredPharmacies = [];
   bool _loading = true;
 
   final TextEditingController _searchController = TextEditingController();
@@ -40,6 +49,9 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
     super.dispose();
   }
 
+  // ==========================================
+  // جلب وترتيب الصيدليات بناءً على المسافة | Fetch and sort pharmacies by distance
+  // ==========================================
   Future<void> _fetchAndSortPharmacies() async {
     try {
       final res = await http.get(
@@ -73,7 +85,7 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
         if (mounted) {
           setState(() {
             _pharmacies = mutableList;
-            _filteredPharmacies = mutableList; 
+            _filteredPharmacies = mutableList;
             _loading = false;
           });
         }
@@ -84,20 +96,24 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
     }
   }
 
-  // 💡 التعديل هنا: تخصيص البحث ليتم فقط عبر اسم الصيدلية
+  // ==========================================
+  // فلترة قائمة الصيدليات بالاسم | Filter pharmacies by name
+  // ==========================================
   void _filterPharmacies(String query) {
     final String lowerQuery = query.toLowerCase();
     setState(() {
       _filteredPharmacies = _pharmacies.where((p) {
         final name = (p['PharmacyName'] ?? '').toString().toLowerCase();
-        
-        return name.contains(lowerQuery); // البحث بالاسم فقط
+        return name.contains(lowerQuery); 
       }).toList();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    // ==========================================
+    // بناء واجهة المستخدم | Build UI
+    // ==========================================
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -121,7 +137,7 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
                 controller: _searchController,
                 onChanged: _filterPharmacies,
                 decoration: InputDecoration(
-                  hintText: 'ابحث عن صيدلية بالاسم...', // 💡 تم تعديل النص ليعكس أن البحث بالاسم فقط
+                  hintText: 'ابحث عن صيدلية بالاسم...', 
                   hintStyle: TextStyle(
                     color: Colors.grey.shade400,
                     fontSize: 13,
@@ -138,7 +154,6 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
                 ),
               ),
             ),
-            
             Container(
               height: 10,
               decoration: BoxDecoration(
@@ -170,6 +185,9 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
     );
   }
 
+  // ==========================================
+  // بناء كارت الصيدلية | Build pharmacy card
+  // ==========================================
   Widget _buildPharmacyCard(Map<String, dynamic> p) {
     final String name = p['PharmacyName'] ?? 'صيدلية غير معروفة';
     final String location = p['Location'] ?? 'العنوان غير متوفر';
@@ -413,7 +431,7 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
                         ),
                       ),
                       child: Icon(
-                        LucideIcons.info, 
+                        LucideIcons.info,
                         color: primaryColor,
                         size: 18,
                       ),
@@ -455,6 +473,9 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
     );
   }
 
+  // ==========================================
+  // تصميم شعار بديل للصيدلية | Fallback logo design
+  // ==========================================
   Widget _buildFallbackLogo() {
     return Opacity(
       opacity: 0.3,
@@ -465,6 +486,9 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
     );
   }
 
+  // ==========================================
+  // واجهة في حال عدم وجود صيدليات | Empty state UI
+  // ==========================================
   Widget _buildEmptyState() {
     return PharmaUI.emptyState(
       icon: LucideIcons.searchX,

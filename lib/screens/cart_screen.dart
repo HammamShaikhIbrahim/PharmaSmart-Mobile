@@ -1,3 +1,6 @@
+// ==========================================
+// استيراد المكتبات الأساسية | Importing core libraries
+// ==========================================
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -12,10 +15,13 @@ import 'package:latlong2/latlong.dart';
 import '../services/cart_service.dart';
 import '../config/api_config.dart';
 import 'map_picker_screen.dart';
-import 'main_screen.dart'; 
-import '../widgets/pharma_ui.dart'; 
+import 'main_screen.dart';
+import '../widgets/pharma_ui.dart';
 import 'pharmacy_store_screen.dart';
 
+// ==========================================
+// شاشة سلة المشتريات | Cart Screen
+// ==========================================
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
 
@@ -24,6 +30,9 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
+  // ==========================================
+  // تعريف المتغيرات الأساسية | Defining core variables
+  // ==========================================
   final CartService _cart = CartService();
   bool _isSubmitting = false;
 
@@ -32,9 +41,8 @@ class _CartScreenState extends State<CartScreen> {
 
   final TextEditingController _addressDescController = TextEditingController();
 
-  int _selectedAddressOption = 0; 
+  int _selectedAddressOption = 0;
   List<Map<String, dynamic>> _customAddresses = [];
-  
   String _primaryAddressText = 'جاري جلب العنوان...';
 
   double? _deliveryLat;
@@ -46,14 +54,19 @@ class _CartScreenState extends State<CartScreen> {
   @override
   void initState() {
     super.initState();
+    // ==========================================
+    // تهيئة الصفحة وجلب العناوين | Initialize page and fetch addresses
+    // ==========================================
     _loadCustomAddresses();
     _fetchPrimaryAddress();
-    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _cart.markCartAsViewed();
     });
   }
 
+  // ==========================================
+  // جلب العنوان الأساسي للمريض | Fetch patient's primary address
+  // ==========================================
   Future<void> _fetchPrimaryAddress() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('userId');
@@ -77,6 +90,9 @@ class _CartScreenState extends State<CartScreen> {
     }
   }
 
+  // ==========================================
+  // جلب العناوين المخصصة المحفوظة | Fetch saved custom addresses
+  // ==========================================
   Future<void> _loadCustomAddresses() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('userId');
@@ -94,6 +110,9 @@ class _CartScreenState extends State<CartScreen> {
     super.dispose();
   }
 
+  // ==========================================
+  // دالة اختيار صورة الوصفة الطبية | Function to pick prescription image
+  // ==========================================
   Future<void> _pickImage(ImageSource source) async {
     try {
       final XFile? pickedFile = await _picker.pickImage(
@@ -111,6 +130,9 @@ class _CartScreenState extends State<CartScreen> {
     }
   }
 
+  // ==========================================
+  // نافذة اختيار مصدر الصورة | Image source selection dialog
+  // ==========================================
   void _showImageSourceDialog() {
     showModalBottomSheet(
       context: context,
@@ -177,6 +199,9 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ==========================================
+    // بناء واجهة السلة الرئيسية | Build main cart UI
+    // ==========================================
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -211,6 +236,9 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+  // ==========================================
+  // واجهة السلة الفارغة | Empty cart UI
+  // ==========================================
   Widget _buildEmptyCart() {
     return PharmaUI.emptyState(
       icon: LucideIcons.shoppingCart,
@@ -220,6 +248,9 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+  // ==========================================
+  // عرض محتويات السلة | Display cart contents
+  // ==========================================
   Widget _buildCartContent() {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -242,6 +273,9 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+  // ==========================================
+  // رأس معلومات الصيدلية | Pharmacy info header
+  // ==========================================
   Widget _buildPharmacyHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -302,7 +336,6 @@ class _CartScreenState extends State<CartScreen> {
               ),
               if (_cart.currentPharmacistId != null)
                 GestureDetector(
-                  // 💡 التعديل هنا: عند العودة من صفحة المتجر، يتم إجبار السلة على عمل Refresh لتحديث المنتجات
                   onTap: () {
                     Navigator.push(
                       context,
@@ -313,7 +346,6 @@ class _CartScreenState extends State<CartScreen> {
                         ),
                       ),
                     ).then((_) {
-                      // 💡 هذا السطر يقوم بتحديث الشاشة بعد العودة لتظهر الأدوية الجديدة فوراً
                       setState(() {});
                     });
                   },
@@ -342,12 +374,10 @@ class _CartScreenState extends State<CartScreen> {
                 ),
             ],
           ),
-          
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 15),
             child: Divider(color: Color(0xFFF0F0F0), height: 1),
           ),
-
           Row(
             children: [
               Expanded(
@@ -420,6 +450,9 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+  // ==========================================
+  // كارت الدواء داخل السلة | Cart item card
+  // ==========================================
   Widget _buildCartItemCard(CartItem item) {
     final String imageUrl =
         "${ApiConfig.baseUrl.replaceAll('api/', '')}uploads/medicines/${item.image}";
@@ -595,6 +628,9 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+  // ==========================================
+  // قسم إرفاق الوصفة الطبية (Rx) | Prescription attachment section
+  // ==========================================
   Widget _buildRxUploadSection() {
     bool isMandatory = _cart.hasControlledMedicine;
 
@@ -724,6 +760,9 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+  // ==========================================
+  // قسم اختيار عنوان التوصيل | Delivery address selection section
+  // ==========================================
   Widget _buildDeliverySection() {
     bool hasMapAddress = _deliveryLat != null;
 
@@ -907,8 +946,8 @@ class _CartScreenState extends State<CartScreen> {
                   Text(
                     title,
                     style: const TextStyle(
-                      fontWeight: FontWeight.bold, 
-                      fontSize: 13, 
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
                       color: Colors.black87
                     ),
                   ),
@@ -916,8 +955,8 @@ class _CartScreenState extends State<CartScreen> {
                     Text(
                       subtitle,
                       style: const TextStyle(
-                        fontSize: 11, 
-                        color: Colors.grey, 
+                        fontSize: 11,
+                        color: Colors.grey,
                         fontWeight: FontWeight.bold
                       ),
                       maxLines: 1,
@@ -932,6 +971,9 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+  // ==========================================
+  // ملخص فاتورة الطلب | Order price summary
+  // ==========================================
   Widget _buildPriceSummary() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -1000,6 +1042,9 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+  // ==========================================
+  // شريط إرسال الطلب السفلي | Bottom bar for order submission
+  // ==========================================
   Widget _buildBottomBar() {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 15, 20, 25),
@@ -1109,6 +1154,9 @@ class _CartScreenState extends State<CartScreen> {
     ).show();
   }
 
+  // ==========================================
+  // إرسال الطلب لقاعدة البيانات | Submit order to database
+  // ==========================================
   Future<void> _submitOrder() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isGuest = prefs.getBool('isGuest') ?? false;
@@ -1129,7 +1177,7 @@ class _CartScreenState extends State<CartScreen> {
 
     if (_selectedAddressOption == 0) {
       useSavedLoc = true;
-      finalAddressDesc = _primaryAddressText; 
+      finalAddressDesc = _primaryAddressText;
     } else if (_selectedAddressOption == -1) {
       useSavedLoc = false;
       if (_addressDescController.text.trim().isEmpty) {

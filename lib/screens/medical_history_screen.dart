@@ -1,3 +1,6 @@
+// ==========================================
+// استيراد المكتبات الأساسية | Importing core libraries
+// ==========================================
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,6 +10,9 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 
 import '../config/api_config.dart';
 
+// ==========================================
+// شاشة السجل المرضي | Medical History Screen
+// ==========================================
 class MedicalHistoryScreen extends StatefulWidget {
   final String currentHistory;
 
@@ -17,6 +23,9 @@ class MedicalHistoryScreen extends StatefulWidget {
 }
 
 class _MedicalHistoryScreenState extends State<MedicalHistoryScreen> {
+  // ==========================================
+  // تعريف متغيرات التحكم والحالة | Defining controllers and state
+  // ==========================================
   late TextEditingController _historyController;
   bool _isSaving = false;
 
@@ -35,6 +44,9 @@ class _MedicalHistoryScreenState extends State<MedicalHistoryScreen> {
     super.dispose();
   }
 
+  // ==========================================
+  // دالة حفظ السجل المرضي في السيرفر | Save history to server
+  // ==========================================
   Future<void> _updateHistory() async {
     setState(() => _isSaving = true);
 
@@ -97,6 +109,9 @@ class _MedicalHistoryScreenState extends State<MedicalHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ==========================================
+    // بناء واجهة المستخدم | Build UI
+    // ==========================================
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -121,7 +136,9 @@ class _MedicalHistoryScreenState extends State<MedicalHistoryScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // الهيدر والأيقونة
+              // ==========================================
+              // الهيدر والتعليمات | Header & Instructions
+              // ==========================================
               Center(
                 child: Container(
                   width: 90,
@@ -163,7 +180,9 @@ class _MedicalHistoryScreenState extends State<MedicalHistoryScreen> {
               ),
               const SizedBox(height: 30),
 
-              // حقل الإدخال
+              // ==========================================
+              // حقل الإدخال المتعدد | Multiline input field
+              // ==========================================
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -199,19 +218,21 @@ class _MedicalHistoryScreenState extends State<MedicalHistoryScreen> {
               ),
               const SizedBox(height: 30),
 
-              // زر الحفظ (تم تعديله ليتطابق مع باقي أزرار التطبيق)
+              // ==========================================
+              // زر الحفظ | Save Button
+              // ==========================================
               SizedBox(
                 width: double.infinity,
                 height: 55,
                 child: ElevatedButton(
                   onPressed: _isSaving ? null : _updateHistory,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor, // 💡 اللون الأخضر الموحد
+                    backgroundColor: primaryColor, 
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                     elevation: 5,
-                    shadowColor: primaryColor.withOpacity(0.3), // 💡 ظل متناسق
+                    shadowColor: primaryColor.withOpacity(0.3), 
                   ),
                   child: _isSaving
                       ? const SizedBox(

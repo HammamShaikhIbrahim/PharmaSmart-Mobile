@@ -1,3 +1,6 @@
+// ==========================================
+// استيراد المكتبات الأساسية | Importing core libraries
+// ==========================================
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -7,6 +10,9 @@ import 'cart_screen.dart';
 import 'profile_screen.dart';
 import '../services/cart_service.dart';
 
+// ==========================================
+// الشاشة الرئيسية (شريط التنقل السفلي) | Main Screen (Bottom Navigation)
+// ==========================================
 class MainScreen extends StatefulWidget {
   final bool isGuest;
   final String? userName;
@@ -17,9 +23,15 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  // ==========================================
+  // المتغيرات والخدمات | Variables & Services
+  // ==========================================
   int _currentIndex = 0;
   final CartService _cartService = CartService();
 
+  // ==========================================
+  // دالة تحديد الشاشة المعروضة بناءً على الفهرس | Screen selector based on index
+  // ==========================================
   Widget _getSelectedScreen(int index) {
     switch (index) {
       case 0:
@@ -38,6 +50,9 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  // ==========================================
+  // التحكم بزر الرجوع لمنع الخروج الخطأ | Handle back button to prevent accidental exit
+  // ==========================================
   Future<bool> _onWillPop() async {
     if (_currentIndex != 0) {
       setState(() => _currentIndex = 0);
@@ -48,6 +63,9 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ==========================================
+    // بناء واجهة التنقل | Build Navigation UI
+    // ==========================================
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
@@ -79,7 +97,6 @@ class _MainScreenState extends State<MainScreen> {
                       label: 'طلباتي',
                     ),
                     BottomNavigationBarItem(
-                      // 💡 النقطة الحمراء: تظهر إذا كانت السلة غير فارغة + المستخدم ليس في صفحة السلة حالياً
                       icon: Badge(
                         isLabelVisible: _currentIndex != 2 && _cartService.items.isNotEmpty,
                         smallSize: 10,

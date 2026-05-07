@@ -1,3 +1,6 @@
+// ==========================================
+// استيراد المكتبات الأساسية | Importing core libraries
+// ==========================================
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,6 +10,9 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 
 import 'map_picker_screen.dart';
 
+// ==========================================
+// شاشة العناوين المحفوظة | Saved Addresses Screen
+// ==========================================
 class SavedAddressesScreen extends StatefulWidget {
   const SavedAddressesScreen({super.key});
 
@@ -15,14 +21,15 @@ class SavedAddressesScreen extends StatefulWidget {
 }
 
 class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
-  // متغيرات الإضافة
+  // ==========================================
+  // تعريف متغيرات التحكم والحالة | Defining controllers and state variables
+  // ==========================================
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
   double? _latitude;
   double? _longitude;
   bool _isSaving = false;
 
-  // متغيرات القائمة
   List<Map<String, dynamic>> _customAddresses = [];
   bool _isLoading = true;
 
@@ -43,7 +50,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
   }
 
   // =====================================
-  // 💡 دوال إضافة العنوان الجديد
+  // فتح خريطة التقاط الموقع | Open Map Picker
   // =====================================
   Future<void> _openMapPicker() async {
     final LatLng? pickedLocation = await Navigator.push(
@@ -58,6 +65,9 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
     }
   }
 
+  // =====================================
+  // حفظ العنوان المخصص الجديد | Save new custom address
+  // =====================================
   Future<void> _saveAddress() async {
     if (_titleController.text.trim().isEmpty || _descController.text.trim().isEmpty) {
       _showError('تنبيه', 'الرجاء إدخال اسم العنوان والوصف.');
@@ -73,7 +83,6 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
     try {
       final prefs = await SharedPreferences.getInstance();
       String? userId = prefs.getString('userId');
-      
       if (userId == null) return;
 
       List<String> savedAddresses = prefs.getStringList('custom_addresses_$userId') ?? [];
@@ -86,17 +95,14 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
         'lng': _longitude,
       };
 
-      // 💡 إضافة العنوان الجديد في بداية القائمة (رقم 0) ليكون في الأعلى دائماً
       savedAddresses.insert(0, jsonEncode(newAddress));
       await prefs.setStringList('custom_addresses_$userId', savedAddresses);
 
-      // تفريغ الحقول بعد الحفظ بنجاح
       _titleController.clear();
       _descController.clear();
       _latitude = null;
       _longitude = null;
 
-      // إعادة تحميل القائمة
       await _loadAddresses();
 
       if (!mounted) return;
@@ -109,7 +115,6 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
         btnOkText: 'حسناً',
         btnOkOnPress: () {},
       ).show();
-      
     } catch (e) {
       _showError('خطأ', 'حدث خطأ أثناء حفظ العنوان.');
     } finally {
@@ -118,12 +123,11 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
   }
 
   // =====================================
-  // 💡 دوال جلب وحذف العناوين
+  // جلب العناوين المحفوظة | Fetch saved addresses
   // =====================================
   Future<void> _loadAddresses() async {
     final prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('userId');
-    
     if (userId != null) {
       List<String> savedList = prefs.getStringList('custom_addresses_$userId') ?? [];
       setState(() {
@@ -135,6 +139,9 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
     }
   }
 
+  // =====================================
+  // حذف عنوان محفوظ | Delete saved address
+  // =====================================
   Future<void> _deleteAddress(int index) async {
     AwesomeDialog(
       context: context,
@@ -172,6 +179,9 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ==========================================
+    // بناء واجهة المستخدم | Build UI
+    // ==========================================
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -195,7 +205,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // =====================================
-                    // 1. قسم إضافة عنوان جديد
+                    // قسم إضافة عنوان جديد | Add new address section
                     // =====================================
                     const Row(
                       children: [
@@ -235,7 +245,6 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                       ),
                     ),
                     const SizedBox(height: 15),
-                    
                     GestureDetector(
                       onTap: _openMapPicker,
                       child: Container(
@@ -270,6 +279,15 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                                       color: _latitude != null ? Colors.green : Colors.black87,
                                     ),
                                   ),
+                                  if (_latitude != null)
+                                    Text(
+                                      'إحداثيات: ${_latitude!.toStringAsFixed(4)} , ${_longitude!.toStringAsFixed(4)}',
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                 ],
                               ),
                             ),
@@ -277,7 +295,6 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                         ),
                       ),
                     ),
-                    
                     const SizedBox(height: 15),
                     SizedBox(
                       width: double.infinity,
@@ -299,7 +316,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                     const SizedBox(height: 40),
 
                     // =====================================
-                    // 2. قسم العناوين المحفوظة سابقاً
+                    // قسم العناوين المحفوظة سابقاً | Saved addresses section
                     // =====================================
                     const Row(
                       children: [

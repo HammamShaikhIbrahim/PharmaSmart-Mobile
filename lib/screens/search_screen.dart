@@ -1,3 +1,6 @@
+// ==========================================
+// استيراد المكتبات الأساسية | Importing core libraries
+// ==========================================
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -6,9 +9,12 @@ import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import '../config/api_config.dart';
 import 'medicine_details_screen.dart';
-import '../services/cart_helper.dart'; // 💡 استدعاء السلة
+import '../services/cart_helper.dart'; 
 import '../widgets/pharma_ui.dart';
 
+// ==========================================
+// شاشة البحث والأدوية | Search and Medicines Screen
+// ==========================================
 class SearchScreen extends StatefulWidget {
   final int? initialCategoryId;
   final String? categoryName;
@@ -26,6 +32,9 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
+  // ==========================================
+  // تعريف متغيرات التحكم والحالة | Defining controllers and state variables
+  // ==========================================
   final TextEditingController _searchController = TextEditingController();
 
   List<dynamic> _results = [];
@@ -48,6 +57,9 @@ class _SearchScreenState extends State<SearchScreen> {
     _fetchResults();
   }
 
+  // ==========================================
+  // جلب التصنيفات من السيرفر | Fetch categories from server
+  // ==========================================
   Future<void> _fetchCategories() async {
     try {
       final res = await http.get(
@@ -68,6 +80,9 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
+  // ==========================================
+  // جلب نتائج البحث من السيرفر | Fetch search results from server
+  // ==========================================
   Future<void> _fetchResults({String query = ''}) async {
     setState(() {
       _isLoading = true;
@@ -96,6 +111,9 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ==========================================
+    // بناء واجهة المستخدم | Build UI
+    // ==========================================
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -123,6 +141,9 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
         body: Column(
           children: [
+            // ==========================================
+            // شريط البحث وخيارات الترتيب | Search bar and sort options
+            // ==========================================
             Container(
               color: Colors.white,
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 15),
@@ -222,6 +243,10 @@ class _SearchScreenState extends State<SearchScreen> {
                 ],
               ),
             ),
+            
+            // ==========================================
+            // قائمة التصنيفات | Categories list
+            // ==========================================
             if (!_isLoadingCategories && _categories.isNotEmpty)
               Container(
                 height: 50,
@@ -252,6 +277,10 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ),
             ),
+            
+            // ==========================================
+            // نتائج البحث | Search results
+            // ==========================================
             Expanded(
               child: _isLoading
                   ? Center(child: PharmaUI.loader())
@@ -307,7 +336,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   // ==========================================
-  // 💡 تصميم الكارت المطابق تماماً لمتجر الصيدلية
+  // تصميم الكارت المطابق لمتجر الصيدلية | Modern medicine card design
   // ==========================================
   Widget _buildModernResultCard(dynamic item) {
     final String imageUrl =
@@ -347,7 +376,6 @@ class _SearchScreenState extends State<SearchScreen> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 1. النصوص على اليمين (RTL)
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -435,7 +463,6 @@ class _SearchScreenState extends State<SearchScreen> {
                             ),
                             textDirection: TextDirection.ltr,
                           ),
-
                           if (showDistance)
                             Row(
                               children: [
@@ -472,8 +499,6 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 ),
                 const SizedBox(width: 15),
-
-                // 2. الصورة على اليسار (RTL)
                 Stack(
                   children: [
                     Container(
@@ -527,8 +552,6 @@ class _SearchScreenState extends State<SearchScreen> {
               ],
             ),
             const SizedBox(height: 16),
-
-            // 💡 زر إضافة للسلة
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -536,7 +559,6 @@ class _SearchScreenState extends State<SearchScreen> {
                   try {
                     CartHelper.addToCart(
                       context: context,
-                      // 💡 التعديل الجذري هنا (أصبح يأخذ الـ StockID الحقيقي القادم من الداتابيز)
                       stockId: int.parse(item['StockID'].toString()),
                       systemMedId: int.parse(item['SystemMedID'].toString()),
                       medicineName: item['MedName'],
