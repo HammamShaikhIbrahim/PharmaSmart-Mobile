@@ -1,3 +1,6 @@
+// ==========================================
+// استيراد المكتبات الأساسية | Importing core libraries
+// ==========================================
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,6 +18,9 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
+  // ==========================================
+  // متغيرات التحكم في الحقول | Text field controllers variables
+  // ==========================================
   final TextEditingController _fnameController = TextEditingController();
   final TextEditingController _lnameController = TextEditingController();
 
@@ -22,7 +28,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   bool _isSaving = false;
   String _userId = '';
 
-  // 💡 متغيرات لحفظ القيم الأصلية لمقارنتها بالتعديلات
   String _originalFname = '';
   String _originalLname = '';
   bool _hasChanges = false;
@@ -34,8 +39,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void initState() {
     super.initState();
     _loadUserData();
-    
-    // 💡 إضافة مستمعات للحقول لتفعيل الزر فقط عند التغيير
     _fnameController.addListener(_checkIfChanged);
     _lnameController.addListener(_checkIfChanged);
   }
@@ -49,7 +52,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  // 💡 دالة فحص التغييرات
+  // ==========================================
+  // التحقق من وجود تعديلات لتفعيل زر الحفظ | Check for changes to enable save button
+  // ==========================================
   void _checkIfChanged() {
     if (_fnameController.text.trim() != _originalFname ||
         _lnameController.text.trim() != _originalLname) {
@@ -59,6 +64,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  // ==========================================
+  // جلب بيانات المستخدم الحالية | Fetch current user data
+  // ==========================================
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     _userId = prefs.getString('userId') ?? '';
@@ -78,12 +86,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           setState(() {
             _originalFname = data['data']['Fname'] ?? '';
             _originalLname = data['data']['Lname'] ?? '';
-            
             _fnameController.text = _originalFname;
             _lnameController.text = _originalLname;
-            
             _isLoading = false;
-            _hasChanges = false; // تهيئة الحالة بعد التحميل
+            _hasChanges = false; 
           });
         }
       }
@@ -93,6 +99,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  // ==========================================
+  // تحديث بيانات المستخدم في قاعدة البيانات | Update user data in database
+  // ==========================================
   Future<void> _updateProfile() async {
     if (_fnameController.text.trim().isEmpty ||
         _lnameController.text.trim().isEmpty) {
@@ -170,6 +179,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ==========================================
+    // بناء واجهة تعديل الملف الشخصي | Build edit profile UI
+    // ==========================================
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -212,6 +224,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                       child: Column(
                         children: [
+                          // ==========================================
+                          // حقول إدخال البيانات | Data input fields
+                          // ==========================================
                           _buildCleanTextField(
                             'الاسم الأول',
                             'أدخل اسمك الأول',
@@ -230,7 +245,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                     const SizedBox(height: 30),
 
-                    // 💡 زر الحفظ يعتمد على قيمة _hasChanges
                     SizedBox(
                       width: double.infinity,
                       height: 55,
@@ -238,7 +252,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         onPressed: (_hasChanges && !_isSaving) ? _updateProfile : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _hasChanges ? primaryColor : Colors.grey.shade300,
-                          disabledBackgroundColor: Colors.grey.shade300, // اللون الرمادي عند التعطيل
+                          disabledBackgroundColor: Colors.grey.shade300, 
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -257,7 +271,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             : Text(
                                 'حفظ التغييرات',
                                 style: TextStyle(
-                                  color: _hasChanges ? Colors.white : Colors.grey.shade500, // لون النص رمادي غامق عند التعطيل
+                                  color: _hasChanges ? Colors.white : Colors.grey.shade500, 
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),

@@ -1,3 +1,6 @@
+// ==========================================
+// استيراد المكتبات الأساسية | Importing core libraries
+// ==========================================
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -9,6 +12,9 @@ import 'package:latlong2/latlong.dart';
 import '../config/api_config.dart';
 import 'map_picker_screen.dart';
 
+// ==========================================
+// شاشة تسجيل الحساب الجديد | Sign Up Screen
+// ==========================================
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
 
@@ -17,6 +23,9 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
+  // ==========================================
+  // تعريف متغيرات التحكم والحالة | Defining controllers and state variables
+  // ==========================================
   final TextEditingController _fnameController = TextEditingController();
   final TextEditingController _lnameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -36,6 +45,9 @@ class _SignupScreenState extends State<SignupScreen> {
   final Color primaryColor = const Color(0xFF0A7A48);
   final Color bgColor = const Color(0xFFF2FBF5);
 
+  // ==========================================
+  // إرسال بيانات التسجيل للسيرفر | Send registration data to server
+  // ==========================================
   Future<void> _registerUser() async {
     if (_fnameController.text.isEmpty ||
         _lnameController.text.isEmpty ||
@@ -110,6 +122,9 @@ class _SignupScreenState extends State<SignupScreen> {
     ).show();
   }
 
+  // ==========================================
+  // نافذة اختيار تاريخ الميلاد | Date picker for DOB
+  // ==========================================
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -133,6 +148,9 @@ class _SignupScreenState extends State<SignupScreen> {
     }
   }
 
+  // ==========================================
+  // فتح خريطة التقاط الموقع | Open map picker
+  // ==========================================
   Future<void> _openMapPicker() async {
     final LatLng? pickedLocation = await Navigator.push(
       context,
@@ -148,6 +166,9 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ==========================================
+    // بناء واجهة المستخدم | Build UI
+    // ==========================================
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -166,7 +187,6 @@ class _SignupScreenState extends State<SignupScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // 💡 التعديل هنا: هيدر متطابق 100% مع شاشة الـ Login
               Center(
                 child: Container(
                   padding: const EdgeInsets.all(20),
@@ -183,7 +203,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   child: FaIcon(
                     FontAwesomeIcons.clipboardUser,
-                    size: 50, // نفس حجم الأيقونة في تسجيل الدخول
+                    size: 50, 
                     color: primaryColor,
                   ),
                 ),
@@ -210,7 +230,6 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               const SizedBox(height: 40),
 
-              // كارت البيانات الأساسية
               _buildSectionTitle(
                 'معلومات الحساب الأساسية',
                 LucideIcons.userCircle,
@@ -250,7 +269,6 @@ class _SignupScreenState extends State<SignupScreen> {
                   type: TextInputType.phone,
                 ),
                 const SizedBox(height: 15),
-                
                 TextField(
                   controller: _dobController,
                   readOnly: true,
@@ -271,7 +289,6 @@ class _SignupScreenState extends State<SignupScreen> {
               ]),
               const SizedBox(height: 25),
 
-              // كارت العنوان
               _buildSectionTitle('العنوان وتحديد الموقع', LucideIcons.map),
               _buildCardContainer([
                 _buildTextField(
@@ -281,7 +298,6 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
                 const SizedBox(height: 15),
 
-                // زر تحديد الموقع الذكي
                 GestureDetector(
                   onTap: _openMapPicker,
                   child: Container(
@@ -322,7 +338,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                   fontSize: 13,
                                   color: _latitude != null
                                       ? Colors.green
-                                      : primaryColor,
+                                      : Colors.black87,
                                 ),
                               ),
                               if (_latitude != null)
@@ -349,7 +365,6 @@ class _SignupScreenState extends State<SignupScreen> {
               ]),
               const SizedBox(height: 25),
 
-              // كارت التاريخ المرضي
               _buildSectionTitle(
                 'التاريخ المرضي (اختياري)',
                 LucideIcons.activity,
@@ -384,7 +399,6 @@ class _SignupScreenState extends State<SignupScreen> {
               ]),
               const SizedBox(height: 35),
 
-              // 💡 زر التسجيل (تم ضبط الظل والأبعاد ليتطابق مع زر اللوجن)
               ElevatedButton(
                 onPressed: _isLoading ? null : _registerUser,
                 style: ElevatedButton.styleFrom(

@@ -1,3 +1,6 @@
+// ==========================================
+// استيراد المكتبات الأساسية | Importing core libraries
+// ==========================================
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -7,19 +10,25 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../config/api_config.dart';
 import '../widgets/pharma_ui.dart';
 
+// ==========================================
+// شاشة طلباتي | My Orders Screen
+// ==========================================
 class MyOrdersScreen extends StatefulWidget {
-  final bool isFromBottomNav; // 💡 أضفنا هذا المتغير السحري
+  final bool isFromBottomNav; 
 
   const MyOrdersScreen({
     super.key,
     this.isFromBottomNav = false,
-  }); // افتراضياً False
+  }); 
 
   @override
   State<MyOrdersScreen> createState() => _MyOrdersScreenState();
 }
 
 class _MyOrdersScreenState extends State<MyOrdersScreen> {
+  // ==========================================
+  // تعريف متغيرات التحكم والحالة | Defining controllers and state variables
+  // ==========================================
   bool _isLoading = true;
   List<dynamic> _orders = [];
 
@@ -32,7 +41,9 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     _fetchOrders();
   }
 
-  // ... (أبقِ دالة _fetchOrders كما هي بالضبط)
+  // ==========================================
+  // دالة جلب الطلبات السابقة من السيرفر | Fetch previous orders from server
+  // ==========================================
   Future<void> _fetchOrders() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('userId');
@@ -64,6 +75,9 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ==========================================
+    // بناء واجهة المستخدم | Build UI
+    // ==========================================
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -79,7 +93,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             ),
           ),
           centerTitle: true,
-          // 💡 هنا يتم إخفاء سهم الرجوع إذا كانت الشاشة من ضمن الشريط السفلي
+          // إخفاء سهم الرجوع إذا كانت الشاشة من ضمن الشريط السفلي
           leading: widget.isFromBottomNav
               ? const SizedBox()
               : IconButton(
@@ -105,6 +119,9 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     );
   }
 
+  // ==========================================
+  // بناء كارت الطلب | Build order card
+  // ==========================================
   Widget _buildOrderCard(dynamic order) {
     final String status = order['Status'];
     final String pharmacyName = order['PharmacyName'] ?? 'صيدلية';
@@ -158,7 +175,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // الهيدر (معلومات الصيدلية والحالة)
+          // ההيدر (معلومات الصيدلية والحالة)
           Padding(
             padding: const EdgeInsets.all(15),
             child: Row(
@@ -232,7 +249,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
           const Divider(height: 1, color: Color(0xFFF0F0F0)),
 
-          // 💡 سبب الرفض إن وُجد
+          // سبب الرفض إن وُجد
           if (status == 'Rejected' && rejectionReason.isNotEmpty)
             Container(
               width: double.infinity,
@@ -385,6 +402,9 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     );
   }
 
+  // ==========================================
+  // بناء واجهة في حال عدم وجود طلبات | Build empty state UI
+  // ==========================================
   Widget _buildEmptyState() {
     return PharmaUI.emptyState(
       icon: LucideIcons.packageOpen,

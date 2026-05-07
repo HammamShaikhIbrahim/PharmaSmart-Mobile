@@ -1,12 +1,17 @@
+// ==========================================
+// استيراد المكتبات الأساسية | Importing core libraries
+// ==========================================
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:awesome_dialog/awesome_dialog.dart';
-
 import '../config/api_config.dart';
 
+// ==========================================
+// شاشة الخصوصية والأمان | Security Screen
+// ==========================================
 class SecurityScreen extends StatefulWidget {
   const SecurityScreen({super.key});
 
@@ -15,6 +20,9 @@ class SecurityScreen extends StatefulWidget {
 }
 
 class _SecurityScreenState extends State<SecurityScreen> {
+  // ==========================================
+  // تعريف متغيرات التحكم والحالة | Defining controllers and state variables
+  // ==========================================
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _oldPassController = TextEditingController();
@@ -23,12 +31,10 @@ class _SecurityScreenState extends State<SecurityScreen> {
 
   bool _isLoading = true;
   bool _isSaving = false;
-  bool _hideOld = true;
   bool _hideNew = true;
   bool _hideConfirm = true;
   String _userId = '';
 
-  // 💡 متغيرات لحفظ القيم الأصلية
   String _originalEmail = '';
   String _originalPhone = '';
   bool _hasChanges = false;
@@ -40,8 +46,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
   void initState() {
     super.initState();
     _loadCurrentData();
-
-    // 💡 إضافة مستمعات للحقول لتفعيل الزر عند أي تغيير
     _emailController.addListener(_checkIfChanged);
     _phoneController.addListener(_checkIfChanged);
     _newPassController.addListener(_checkIfChanged);
@@ -54,7 +58,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
     _phoneController.removeListener(_checkIfChanged);
     _newPassController.removeListener(_checkIfChanged);
     _confirmPassController.removeListener(_checkIfChanged);
-
     _emailController.dispose();
     _phoneController.dispose();
     _oldPassController.dispose();
@@ -63,7 +66,9 @@ class _SecurityScreenState extends State<SecurityScreen> {
     super.dispose();
   }
 
-  // 💡 دالة فحص التغييرات
+  // ==========================================
+  // فحص التغييرات لتفعيل زر الحفظ | Check for changes to enable save button
+  // ==========================================
   void _checkIfChanged() {
     if (_emailController.text.trim() != _originalEmail ||
         _phoneController.text.trim() != _originalPhone ||
@@ -75,6 +80,9 @@ class _SecurityScreenState extends State<SecurityScreen> {
     }
   }
 
+  // ==========================================
+  // جلب بيانات الأمان الحالية من السيرفر | Fetch current security data from server
+  // ==========================================
   Future<void> _loadCurrentData() async {
     final prefs = await SharedPreferences.getInstance();
     _userId = prefs.getString('userId') ?? '';
@@ -86,7 +94,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
         if (data['status'] == 'success') {
           _originalEmail = data['data']['Email'] ?? '';
           _originalPhone = data['data']['Phone'] ?? '';
-
           _emailController.text = _originalEmail;
           _phoneController.text = _originalPhone;
         }
@@ -108,13 +115,15 @@ class _SecurityScreenState extends State<SecurityScreen> {
         return;
       }
     }
-
     _showPasswordPrompt();
   }
 
+  // ==========================================
+  // نافذة إدخال كلمة المرور الحالية للتأكيد | Current password confirmation prompt
+  // ==========================================
   void _showPasswordPrompt() {
     _oldPassController.clear();
-    bool hideOldPass = true; 
+    bool hideOldPass = true;
 
     AwesomeDialog(
       context: context,
@@ -176,7 +185,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
         if (_oldPassController.text.isEmpty) {
           _showWarning('تنبيه', 'لم تقم بإدخال كلمة المرور!');
         } else {
-          _executeSecurityUpdate(); 
+          _executeSecurityUpdate();
         }
       },
       btnOkText: 'تأكيد وحفظ',
@@ -184,6 +193,9 @@ class _SecurityScreenState extends State<SecurityScreen> {
     ).show();
   }
 
+  // ==========================================
+  // إرسال البيانات المحدثة للسيرفر | Send updated security data to server
+  // ==========================================
   Future<void> _executeSecurityUpdate() async {
     setState(() => _isSaving = true);
 
@@ -277,6 +289,9 @@ class _SecurityScreenState extends State<SecurityScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ==========================================
+    // بناء واجهة المستخدم | Build UI
+    // ==========================================
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -376,7 +391,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // 💡 زر الحفظ يعتمد على حالة _hasChanges
                     SizedBox(
                       width: double.infinity,
                       height: 55,

@@ -1,3 +1,6 @@
+// ==========================================
+// استيراد المكتبات الأساسية | Importing core libraries
+// ==========================================
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart'; // 💡 الأيقونات الطبية
@@ -6,6 +9,9 @@ import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
 import '../services/cart_helper.dart';
 
+// ==========================================
+// شاشة تفاصيل الدواء | Medicine Details Screen
+// ==========================================
 class MedicineDetailsScreen extends StatefulWidget {
   final int medicineId;
   final String medicineName;
@@ -21,6 +27,9 @@ class MedicineDetailsScreen extends StatefulWidget {
 }
 
 class _MedicineDetailsScreenState extends State<MedicineDetailsScreen> {
+  // ==========================================
+  // تعريف متغيرات التحكم والحالة | Defining controllers and state variables
+  // ==========================================
   bool _isLoading = true;
   dynamic _details;
   List<dynamic> _pharmacies = [];
@@ -34,6 +43,9 @@ class _MedicineDetailsScreenState extends State<MedicineDetailsScreen> {
     _fetchDetails();
   }
 
+  // ==========================================
+  // دالة جلب تفاصيل الدواء من السيرفر | Fetch medicine details from server
+  // ==========================================
   Future<void> _fetchDetails() async {
     try {
       final response = await http.get(
@@ -62,6 +74,9 @@ class _MedicineDetailsScreenState extends State<MedicineDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ==========================================
+    // بناء واجهة المستخدم | Build UI
+    // ==========================================
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -71,10 +86,14 @@ class _MedicineDetailsScreenState extends State<MedicineDetailsScreen> {
             : CustomScrollView(
                 physics: const BouncingScrollPhysics(),
                 slivers: [
-                  // 1. الهيدر الذي يحتوي على صورة الدواء
+                  // ==========================================
+                  // 1. الهيدر الذي يحتوي على صورة الدواء | Header with medicine image
+                  // ==========================================
                   SliverToBoxAdapter(child: _buildHeaderImage()),
 
-                  // 2. معلومات الدواء الأساسية
+                  // ==========================================
+                  // 2. معلومات الدواء الأساسية | Basic medicine information
+                  // ==========================================
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
@@ -109,7 +128,9 @@ class _MedicineDetailsScreenState extends State<MedicineDetailsScreen> {
                     ),
                   ),
 
-                  // 3. قائمة الصيدليات
+                  // ==========================================
+                  // 3. قائمة الصيدليات | List of pharmacies
+                  // ==========================================
                   _pharmacies.isEmpty
                       ? SliverToBoxAdapter(
                           child: Center(
@@ -151,7 +172,7 @@ class _MedicineDetailsScreenState extends State<MedicineDetailsScreen> {
   }
 
   // ==========================================
-  // 🎨 تصميم رأس الصفحة (صورة الدواء)
+  // 🎨 تصميم رأس الصفحة (صورة الدواء) | Header image design
   // ==========================================
   Widget _buildHeaderImage() {
     final String imageUrl =
@@ -229,7 +250,7 @@ class _MedicineDetailsScreenState extends State<MedicineDetailsScreen> {
   }
 
   // ==========================================
-  // 🎨 تصميم معلومات الدواء
+  // 🎨 تصميم معلومات الدواء | Medicine information design
   // ==========================================
   Widget _buildMedicineInfo() {
     return Column(
@@ -335,7 +356,7 @@ class _MedicineDetailsScreenState extends State<MedicineDetailsScreen> {
   }
 
   // ==========================================
-  // 🎨 كارت وصف الدواء
+  // 🎨 كارت وصف الدواء | Medicine description card
   // ==========================================
   Widget _buildDescriptionCard() {
     return Container(
@@ -386,7 +407,7 @@ class _MedicineDetailsScreenState extends State<MedicineDetailsScreen> {
   }
 
   // ==========================================
-  // 🎨 كارت الصيدلية (طريقة عرض عصرية)
+  // 🎨 كارت الصيدلية (طريقة عرض عصرية) | Pharmacy card (Modern view)
   // ==========================================
   Widget _buildModernPharmacyCard(dynamic ph) {
     final String pharmacyName = ph['PharmacyName'] ?? 'صيدلية';

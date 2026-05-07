@@ -1,33 +1,33 @@
+// ==========================================
+// عناصر الواجهة المشتركة | Reusable UI Components
+// ==========================================
 import 'package:flutter/material.dart';
 
 class PharmaUI {
   static const Color primaryColor = Color(0xFF0A7A48);
 
   // ==========================================
-  // 1. التحميل الفخم (اللوجو ثابت وحوله دائرة تدور)
+  // التحميل الفخم | Elegant Loader
   // ==========================================
   static Widget loader() {
     return Center(
       child: SizedBox(
-        width: 80, // حجم التحميل الكلي
+        width: 80,
         height: 80,
         child: Stack(
           alignment: Alignment.center,
           children: [
-            // 1. الدائرة الخارجية التي تدور (الخضراء)
             const SizedBox(
               width: 70,
               height: 70,
               child: CircularProgressIndicator(
                 color: primaryColor,
-                strokeWidth: 2.5, // خط نحيف وأنيق
+                strokeWidth: 2.5,
               ),
             ),
-
-            // 2. اللوجو الخاص بك (ثابت وبدون حركة نبض)
             Image.asset(
-              'assets/images/logo.png', // مسار اللوجو
-              width: 40, // حجم اللوجو داخل الدائرة
+              'assets/images/logo.png',
+              width: 40,
               height: 40,
               fit: BoxFit.contain,
               errorBuilder: (context, error, stackTrace) => const Icon(
@@ -43,7 +43,7 @@ class PharmaUI {
   }
 
   // ==========================================
-  // 2. الشاشة الفارغة الفخمة (علامة مائية للوجو + أيقونة)
+  // الشاشة الفارغة | Empty State UI
   // ==========================================
   static Widget emptyState({
     required IconData icon,
@@ -54,9 +54,8 @@ class PharmaUI {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // اللوجو كعلامة مائية شفافة في الخلفية
           Opacity(
-            opacity: 0.12, // 💡 شفافية ممتازة ليكون واضحاً كعلامة مائية
+            opacity: 0.12,
             child: Image.asset(
               'assets/images/logo.png',
               width: 250,
@@ -64,8 +63,6 @@ class PharmaUI {
               fit: BoxFit.contain,
             ),
           ),
-
-          // المحتوى الفعلي في المقدمة
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

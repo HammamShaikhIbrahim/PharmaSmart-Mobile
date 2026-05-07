@@ -1,15 +1,16 @@
+// ==========================================
+// دوال مساعدة للتعامل مع السلة | Cart Helper Functions
+// ==========================================
 import 'package:flutter/material.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import '../services/cart_service.dart';
 
-// ==========================================
-// دوال مساعدة للتعامل مع السلة من أي شاشة
-// ==========================================
-
 class CartHelper {
   static final CartService _cart = CartService();
 
-  /// إضافة دواء للسلة مع معالجة تعارض الصيدليات
+  // ==========================================
+  // إضافة دواء ومعالجة التعارض | Add to Cart & Handle Conflicts
+  // ==========================================
   static void addToCart({
     required BuildContext context,
     required int stockId,
@@ -93,7 +94,9 @@ class CartHelper {
         break;
 
       case 'pharmacy_conflict':
-        // إظهار حوار تنبيه بأن السلة تحتوي على أدوية من صيدلية أخرى
+        // ==========================================
+        // تنبيه تغيير الصيدلية | Pharmacy Switch Alert
+        // ==========================================
         AwesomeDialog(
           context: context,
           dialogType: DialogType.warning,

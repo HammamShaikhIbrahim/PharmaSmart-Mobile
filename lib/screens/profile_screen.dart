@@ -1,3 +1,6 @@
+// ==========================================
+// استيراد المكتبات الأساسية | Importing core libraries
+// ==========================================
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -19,6 +22,9 @@ import 'saved_addresses_screen.dart';
 
 const Color kPrimary = Color(0xFF0A7A48);
 
+// ==========================================
+// شاشة الملف الشخصي (حسابي) | Profile Screen
+// ==========================================
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -27,10 +33,12 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String _fname = '', _lname = '', _email = '', _phone = '';
+  // ==========================================
+  // تعريف متغيرات التحكم والحالة | Defining controllers and state variables
+  // ==========================================
+  String _fname = '', _lname = '', _email = '';
   String _dob = '', _address = '', _medicalHistory = '';
   bool _loading = true;
-  bool _darkMode = false;
   bool _isGuest = false;
 
   final Color bgColor = const Color(0xFFF2FBF5);
@@ -41,10 +49,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _fetchProfileData();
   }
 
+  // ==========================================
+  // جلب بيانات الحساب من السيرفر | Fetch profile data from server
+  // ==========================================
   Future<void> _fetchProfileData() async {
     final prefs = await SharedPreferences.getInstance();
     _isGuest = prefs.getBool('isGuest') ?? false;
-    _darkMode = prefs.getBool('dark_mode') ?? false;
 
     if (_isGuest) {
       setState(() => _loading = false);
@@ -64,7 +74,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _fname = data['data']['Fname'] ?? 'مستخدم';
               _lname = data['data']['Lname'] ?? '';
               _email = data['data']['Email'] ?? '';
-              _phone = data['data']['Phone'] ?? 'غير محدد';
               _dob = data['data']['DOB'] ?? 'غير محدد';
               _address = data['data']['Address'] ?? 'غير محدد';
               _medicalHistory = data['data']['MedicalHistory'] ?? '';
@@ -81,19 +90,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() => _loading = false);
   }
 
-  void _showComingSoon(String title, String desc) {
-    AwesomeDialog(
-      context: context,
-      dialogType: DialogType.info,
-      title: title,
-      desc: desc,
-      btnOkOnPress: () {},
-      btnOkColor: kPrimary,
-      btnOkText: 'حسناً',
-    ).show();
-  }
-
-  // 💡 التعديل هنا: استخدام AwesomeDialog لتسجيل الخروج لتكون احترافية
+  // ==========================================
+  // تسجيل الخروج | Logout function
+  // ==========================================
   Future<void> _logout() async {
     AwesomeDialog(
       context: context,
@@ -106,7 +105,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       btnCancelColor: Colors.grey.shade400,
       btnOkOnPress: () async {
         final p = await SharedPreferences.getInstance();
-        await p.clear();
+        
+        // 💡 التعديل الجذري هنا: لا نستخدم p.clear() حتى لا نمسح شاشة الترحيب
+        // نقوم فقط بحذف بيانات الدخول والجلسة الحالية
+        await p.remove('isLoggedIn');
+        await p.remove('isGuest');
+        await p.remove('userId');
+        await p.remove('userEmail');
+        await p.remove('userName');
+        
         if (!mounted) return;
         Navigator.pushAndRemoveUntil(
           context,
@@ -127,6 +134,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
 
+    // ==========================================
+    // واجهة الزائر | Guest Interface
+    // ==========================================
     if (_isGuest) {
       return Scaffold(
         backgroundColor: bgColor,
@@ -158,6 +168,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
 
+    // ==========================================
+    // واجهة المستخدم المسجل | Authenticated User Interface
+    // ==========================================
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -191,7 +204,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(height: 40),
 
                       // 1. المعلومات الشخصية
-                      _buildSectionTitle('المعلومات الشخصية', LucideIcons.contact, Colors.blueAccent),
+                      _buildSectionTitle(
+                        'المعلومات الشخصية',
+                        LucideIcons.contact,
+                        Colors.blueAccent,
+                      ),
                       _buildGlassCard([
                         _buildListItem(
                           icon: LucideIcons.calendar,
@@ -212,7 +229,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(height: 25),
 
                       // 2. نشاطي
-                      _buildSectionTitle('نشاطي', LucideIcons.activity, Colors.redAccent),
+                      _buildSectionTitle(
+                        'نشاطي',
+                        LucideIcons.activity,
+                        Colors.redAccent,
+                      ),
                       _buildGlassCard([
                         _buildListItem(
                           icon: LucideIcons.stethoscope,
@@ -220,20 +241,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           iconColor: Colors.red,
                           onTap: () => Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => MedicalHistoryScreen(currentHistory: _medicalHistory)),
-                          ).then((_) => _fetchProfileData()), 
+                            MaterialPageRoute(
+                              builder: (_) => MedicalHistoryScreen(
+                                currentHistory: _medicalHistory,
+                              ),
+                            ),
+                          ).then((_) => _fetchProfileData()),
                         ),
                         _buildListItem(
                           icon: LucideIcons.shoppingBag,
                           title: 'الطلبات السابقة',
                           iconColor: Colors.teal,
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (c) => const MyOrdersScreen())),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (c) => const MyOrdersScreen(),
+                            ),
+                          ),
                         ),
                         _buildListItem(
                           icon: LucideIcons.fileText,
                           title: 'وصفاتي الطبية',
                           iconColor: Colors.indigo,
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PrescriptionsScreen())),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const PrescriptionsScreen(),
+                            ),
+                          ),
                         ),
                         _buildPaymentMethodItem(),
                         _buildListItem(
@@ -241,13 +276,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           title: 'العناوين المحفوظة',
                           iconColor: Colors.purple,
                           isLast: true,
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SavedAddressesScreen())),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const SavedAddressesScreen(),
+                            ),
+                          ),
                         ),
                       ]),
                       const SizedBox(height: 25),
 
                       // 3. الإعدادات
-                      _buildSectionTitle('الإعدادات', LucideIcons.settings, Colors.grey.shade700),
+                      _buildSectionTitle(
+                        'الإعدادات',
+                        LucideIcons.settings,
+                        Colors.grey.shade700,
+                      ),
                       _buildGlassCard([
                         _buildListItem(
                           icon: LucideIcons.bell,
@@ -259,14 +303,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           icon: LucideIcons.shieldCheck,
                           title: 'الخصوصية والأمان',
                           iconColor: Colors.green.shade700,
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SecurityScreen())).then((_) => _fetchProfileData()), 
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const SecurityScreen(),
+                            ),
+                          ).then((_) => _fetchProfileData()),
                         ),
                         _buildListItem(
                           icon: LucideIcons.globe,
                           title: 'تغيير اللغة',
                           iconColor: Colors.lightBlue,
                           showArrow: false,
-                          onTap: null, 
+                          onTap: null,
                           trailingWidget: _buildSoonBadge(),
                         ),
                         _buildListItem(
@@ -274,15 +323,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           title: 'الوضع الليلي',
                           iconColor: Colors.indigo.shade900,
                           showArrow: false,
-                          isLast: true, 
-                          onTap: null, 
+                          isLast: true,
+                          onTap: null,
                           trailingWidget: _buildSoonBadge(),
                         ),
                       ]),
                       const SizedBox(height: 25),
 
                       // 4. تسجيل الخروج
-                      // 💡 التعديل هنا: تصميم الزر كرت مركزي احترافي
                       _buildGlassCard([
                         InkWell(
                           onTap: _logout,
@@ -293,7 +341,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(LucideIcons.logOut, color: Colors.redAccent, size: 22),
+                                Icon(
+                                  LucideIcons.logOut,
+                                  color: Colors.redAccent,
+                                  size: 22,
+                                ),
                                 SizedBox(width: 10),
                                 Text(
                                   'تسجيل الخروج',
@@ -321,7 +373,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   // =====================================
-  // Widgets التصميم
+  // عناصر الواجهة | UI Widgets
   // =====================================
 
   Widget _buildCenteredProfileHeader() {
@@ -340,20 +392,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: kPrimary.withOpacity(0.1),
                   border: Border.all(color: Colors.white, width: 4),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 15, offset: const Offset(0, 8)),
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 15,
+                      offset: const Offset(0, 8),
+                    ),
                   ],
                 ),
                 child: const Center(
-                  // 💡 التعديل هنا: أيقونة موحدة بدلاً من الحروف
-                  child: Icon(
-                    LucideIcons.user,
-                    size: 50,
-                    color: kPrimary,
-                  ),
+                  child: Icon(LucideIcons.user, size: 50, color: kPrimary),
                 ),
               ),
               InkWell(
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfileScreen())).then((_) => _fetchProfileData()),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const EditProfileScreen()),
+                ).then((_) => _fetchProfileData()),
                 borderRadius: BorderRadius.circular(50),
                 child: Container(
                   padding: const EdgeInsets.all(10),
@@ -361,9 +415,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: kPrimary,
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 3),
-                    boxShadow: [BoxShadow(color: kPrimary.withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 3))],
+                    boxShadow: [
+                      BoxShadow(
+                        color: kPrimary.withOpacity(0.4),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
                   ),
-                  child: const Icon(LucideIcons.edit3, color: Colors.white, size: 18),
+                  child: const Icon(
+                    LucideIcons.edit3,
+                    color: Colors.white,
+                    size: 18,
+                  ),
                 ),
               ),
             ],
@@ -371,7 +435,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 15),
           Text(
             '$_fname $_lname',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.black87),
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w900,
+              color: Colors.black87,
+            ),
           ),
           const SizedBox(height: 5),
           Container(
@@ -379,7 +447,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.grey.shade200)
+              border: Border.all(color: Colors.grey.shade200),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -388,7 +456,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(width: 6),
                 Text(
                   _email,
-                  style: const TextStyle(fontSize: 13, color: Colors.black54, fontWeight: FontWeight.w900),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Colors.black54,
+                    fontWeight: FontWeight.w900,
+                  ),
                   textDirection: TextDirection.ltr,
                 ),
               ],
@@ -409,7 +481,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       child: const Text(
         'قريباً',
-        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.orange),
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          color: Colors.orange,
+        ),
       ),
     );
   }
@@ -421,7 +497,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Icon(icon, size: 20, color: iconColor),
           const SizedBox(width: 8),
-          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.black87)),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w900,
+              color: Colors.black87,
+            ),
+          ),
         ],
       ),
     );
@@ -437,7 +520,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             color: Colors.white.withOpacity(0.7),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: Colors.white, width: 2),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 15, offset: const Offset(0, 5))],
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
+              ),
+            ],
           ),
           child: Column(children: children),
         ),
@@ -462,7 +551,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
-          border: isLast ? null : Border(bottom: BorderSide(color: Colors.grey.shade200, width: 1)),
+          border: isLast
+              ? null
+              : Border(
+                  bottom: BorderSide(color: Colors.grey.shade200, width: 1),
+                ),
         ),
         child: Row(
           children: [
@@ -471,25 +564,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Expanded(
               child: Text(
                 title,
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: titleColor ?? Colors.black87),
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: titleColor ?? Colors.black87,
+                ),
               ),
             ),
             if (trailingText != null)
               Expanded(
                 child: Text(
                   trailingText,
-                  style: const TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.w600,
+                  ),
                   textDirection: isLtr ? TextDirection.ltr : TextDirection.rtl,
                   textAlign: TextAlign.end,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-            ?trailingWidget,
+            if (trailingWidget != null) trailingWidget,
             if (trailingWidget == null && showArrow)
               const Padding(
                 padding: EdgeInsets.only(right: 8),
-                child: Icon(LucideIcons.chevronLeft, size: 18, color: Colors.grey),
+                child: Icon(
+                  LucideIcons.chevronLeft,
+                  size: 18,
+                  color: Colors.grey,
+                ),
               ),
           ],
         ),
@@ -497,23 +602,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // 💡 التعديل هنا: إبقاء COD وإزالة (قريباً) مع تعديل الـ Spacer
   Widget _buildPaymentMethodItem() {
     return InkWell(
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentMethodsScreen())),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const PaymentMethodsScreen()),
+      ),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey.shade200, width: 1))),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: Colors.grey.shade200, width: 1),
+          ),
+        ),
         child: Row(
           children: [
-            const Icon(LucideIcons.creditCard, size: 20, color: Colors.blueGrey),
+            const Icon(
+              LucideIcons.creditCard,
+              size: 20,
+              color: Colors.blueGrey,
+            ),
             const SizedBox(width: 15),
-            const Text('طريقة الدفع', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87)),
-            const Spacer(), // 💡 وضعنا المسافة الفارغة هنا لدفع الباقي لليسار
+            const Text(
+              'طريقة الدفع',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            const Spacer(), 
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.green.shade200)),
-              child: const Text('COD', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.green)),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.green.shade200),
+              ),
+              child: const Text(
+                'COD',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                ),
+              ),
             ),
             const SizedBox(width: 8),
             const Icon(LucideIcons.chevronLeft, size: 18, color: Colors.grey),

@@ -1,3 +1,6 @@
+// ==========================================
+// استيراد المكتبات الأساسية | Importing core libraries
+// ==========================================
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,6 +10,9 @@ import 'dart:convert';
 import '../config/api_config.dart';
 import '../widgets/pharma_ui.dart';
 
+// ==========================================
+// شاشة الوصفات الطبية | Prescriptions Screen
+// ==========================================
 class PrescriptionsScreen extends StatefulWidget {
   const PrescriptionsScreen({super.key});
 
@@ -15,6 +21,9 @@ class PrescriptionsScreen extends StatefulWidget {
 }
 
 class _PrescriptionsScreenState extends State<PrescriptionsScreen> {
+  // ==========================================
+  // تعريف متغيرات التحكم والحالة | Defining controllers and state variables
+  // ==========================================
   bool _isLoading = true;
   List<dynamic> _prescriptions = [];
 
@@ -27,6 +36,9 @@ class _PrescriptionsScreenState extends State<PrescriptionsScreen> {
     _fetchPrescriptions();
   }
 
+  // ==========================================
+  // جلب الوصفات الطبية من السيرفر | Fetch prescriptions from server
+  // ==========================================
   Future<void> _fetchPrescriptions() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('userId');
@@ -56,7 +68,9 @@ class _PrescriptionsScreenState extends State<PrescriptionsScreen> {
     }
   }
 
-  // دالة لتكبير الصورة عند الضغط عليها
+  // ==========================================
+  // عرض صورة الوصفة بملء الشاشة | Show full screen prescription image
+  // ==========================================
   void _showImageFullScreen(String imageUrl) {
     showDialog(
       context: context,
@@ -66,7 +80,7 @@ class _PrescriptionsScreenState extends State<PrescriptionsScreen> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            // أداة تمكنك من عمل زووم للصورة بإصبعين
+            // أداة للتكبير بالإصبعين
             InteractiveViewer(
               panEnabled: true,
               minScale: 0.5,
@@ -84,6 +98,7 @@ class _PrescriptionsScreenState extends State<PrescriptionsScreen> {
                 ),
               ),
             ),
+            // زر الإغلاق
             Positioned(
               top: 10,
               right: 10,
@@ -107,6 +122,9 @@ class _PrescriptionsScreenState extends State<PrescriptionsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ==========================================
+    // بناء واجهة المستخدم | Build UI
+    // ==========================================
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -136,7 +154,7 @@ class _PrescriptionsScreenState extends State<PrescriptionsScreen> {
                     itemBuilder: (context, index) {
                       final item = _prescriptions[index];
                       
-                      // بناء الرابط بشكل آمن للعمل على الجوال بامتياز
+                      // بناء المسار الصحيح للصورة
                       String dbPath = item['ImagePath']?.toString() ?? '';
                       dbPath = dbPath.replaceAll('../', '').replaceFirst(RegExp(r'^/+'), '');
                       String baseClean = ApiConfig.baseUrl.replaceAll('api/', '');
@@ -144,10 +162,9 @@ class _PrescriptionsScreenState extends State<PrescriptionsScreen> {
                       final String imageUrl = "$baseClean$dbPath";
 
                       final bool isVerified = item['IsVerified'].toString() == "1";
-                      // 💡 جلب اسم الصيدلية من الـ API
                       final String pharmacyName = item['PharmacyName'] ?? 'صيدلية';
                       
-                      // استخراج التاريخ والوقت بنظام 24 ساعة
+                      // استخراج التاريخ والوقت
                       DateTime parsedDate = DateTime.tryParse(item['OrderDate'].toString()) ?? DateTime.now();
                       String orderDate = "${parsedDate.year}-${parsedDate.month.toString().padLeft(2, '0')}-${parsedDate.day.toString().padLeft(2, '0')}";
                       String orderTime = "${parsedDate.hour.toString().padLeft(2, '0')}:${parsedDate.minute.toString().padLeft(2, '0')}";
@@ -192,7 +209,7 @@ class _PrescriptionsScreenState extends State<PrescriptionsScreen> {
                                   ),
                                   const SizedBox(height: 8),
 
-                                  // 💡 اسم الصيدلية
+                                  // اسم الصيدلية
                                   Row(
                                     children: [
                                       Icon(LucideIcons.store, size: 14, color: primaryColor),
@@ -278,7 +295,7 @@ class _PrescriptionsScreenState extends State<PrescriptionsScreen> {
                             ),
                             const SizedBox(width: 15),
                             
-                            // 2. الصورة على اليسار مع تصميم الـ Overlay للتكبير
+                            // 2. الصورة على اليسار
                             GestureDetector(
                               onTap: () => _showImageFullScreen(imageUrl),
                               child: Container(
@@ -303,7 +320,7 @@ class _PrescriptionsScreenState extends State<PrescriptionsScreen> {
                                         ),
                                       ),
                                     ),
-                                    // الطبقة الشفافة التي تحتوي على أيقونة التكبير
+                                    // أيقونة التكبير
                                     Container(
                                       decoration: BoxDecoration(
                                         color: Colors.black.withOpacity(0.25),
@@ -330,7 +347,9 @@ class _PrescriptionsScreenState extends State<PrescriptionsScreen> {
     );
   }
 
-  // الإبقاء على الصفحة الفارغة الموحدة الفخمة
+  // ==========================================
+  // واجهة في حال عدم وجود بيانات | Empty state UI
+  // ==========================================
   Widget _buildEmptyState() {
     return PharmaUI.emptyState(
       icon: LucideIcons.fileText,

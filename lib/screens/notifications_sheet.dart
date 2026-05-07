@@ -1,3 +1,6 @@
+// ==========================================
+// استيراد المكتبات الأساسية | Importing core libraries
+// ==========================================
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,9 +9,15 @@ import 'dart:convert';
 import '../config/api_config.dart';
 import '../widgets/pharma_ui.dart';
 
+// ==========================================
+// شاشة الإشعارات | Notifications Sheet
+// ==========================================
 class NotificationsSheet extends StatefulWidget {
   const NotificationsSheet({super.key});
 
+  // ==========================================
+  // دالة ثابتة لفتح الشاشة كـ Bottom Sheet | Static method to show as Bottom Sheet
+  // ==========================================
   static void show(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -23,6 +32,9 @@ class NotificationsSheet extends StatefulWidget {
 }
 
 class _NotificationsSheetState extends State<NotificationsSheet> {
+  // ==========================================
+  // تعريف متغيرات التحكم والحالة | Defining controllers and state variables
+  // ==========================================
   bool _isLoading = true;
   bool _isGuest = false;
   final List<Map<String, dynamic>> _notifications = [];
@@ -59,6 +71,9 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
     _fetchNotifications();
   }
 
+  // ==========================================
+  // دالة جلب الإشعارات من السيرفر | Fetch notifications from server
+  // ==========================================
   Future<void> _fetchNotifications() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _isGuest = prefs.getBool('isGuest') ?? false;
@@ -120,7 +135,7 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
                   'تم رفض طلبك رقم #${order['OrderID']}. السبب: ${order['RejectionReason'] ?? "غير محدد"}';
             }
 
-            // 💡 جلب الوقت والتاريخ معاً
+            // جلب الوقت والتاريخ معاً
             String dateTimeStr = order['OrderDate'].toString();
             String displayTime = dateTimeStr.length >= 16
                 ? dateTimeStr.substring(0, 16)
@@ -145,6 +160,9 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
     }
   }
 
+  // ==========================================
+  // فلترة الإشعارات بناءً على التبويب المحدد | Filter notifications based on selected tab
+  // ==========================================
   List<Map<String, dynamic>> get filteredNotifications {
     if (_selectedTab == 'all') return _notifications;
     return _notifications.where((n) => n['type'] == _selectedTab).toList();
@@ -152,6 +170,9 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
 
   @override
   Widget build(BuildContext context) {
+    // ==========================================
+    // بناء واجهة المستخدم | Build UI
+    // ==========================================
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Container(
@@ -330,6 +351,9 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
     );
   }
 
+  // ==========================================
+  // تصميم كارت الإشعار | Notification card design
+  // ==========================================
   Widget _buildNotificationCard(Map<String, dynamic> notif) {
     Color iconBgColor;
     Color iconColor;
@@ -459,6 +483,9 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
     );
   }
 
+  // ==========================================
+  // بناء واجهة في حال عدم وجود بيانات | Build empty state UI
+  // ==========================================
   Widget _buildEmptyState() {
     return PharmaUI.emptyState(
       icon: LucideIcons.bellOff,
@@ -467,6 +494,9 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
     );
   }
 
+  // ==========================================
+  // بناء واجهة لرسالة الزائر | Build guest message UI
+  // ==========================================
   Widget _buildGuestMessage() {
     return PharmaUI.emptyState(
       icon: LucideIcons.userX,

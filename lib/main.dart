@@ -1,13 +1,24 @@
+// ==========================================
+// استيراد المكتبات الأساسية | Importing core libraries
+// ==========================================
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:geolocator/geolocator.dart'; // 💡 إضافة مكتبة الموقع هنا للطلب المبكر
 
 import 'screens/login_screen.dart';
 import 'screens/main_screen.dart';
+import 'screens/onboarding_screen.dart'; 
 
+// ==========================================
+// دالة التشغيل الرئيسية | Main execution function
+// ==========================================
 void main() {
   runApp(const PharmaSmartApp());
 }
 
+// ==========================================
+// إعدادات التطبيق الأساسية | Main App Configuration
+// ==========================================
 class PharmaSmartApp extends StatelessWidget {
   const PharmaSmartApp({super.key});
 
@@ -26,6 +37,9 @@ class PharmaSmartApp extends StatelessWidget {
   }
 }
 
+// ==========================================
+// شاشة البداية (السبلاش) | Splash Screen
+// ==========================================
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -34,64 +48,85 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  // للتحكم بحركة ظهور اللوجو
+  // ==========================================
+  // متغيرات التحكم بالحركة | Animation control variables
+  // ==========================================
   bool _startAnimation = false;
-
   final Color primaryColor = const Color(0xFF0A7A48);
 
   @override
   void initState() {
     super.initState();
-    // تشغيل الحركة بعد 100 جزء من الثانية لتبدو سلسة
+    // ==========================================
+    // تشغيل الحركة بسلاسة | Start animation smoothly
+    // ==========================================
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) setState(() => _startAnimation = true);
     });
 
-    _checkLoginStatus();
+    _checkStatusAndPermissions();
   }
 
-  Future<void> _checkLoginStatus() async {
-    // عرض الشاشة لمدة 3 ثوانٍ
-    await Future.delayed(const Duration(seconds: 4));
-
+  // ==========================================
+  // 💡 فحص حالة المستخدم وطلب إذن الموقع بصمت | Check status & silently request GPS
+  // ==========================================
+  Future<void> _checkStatusAndPermissions() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isFirstTime = prefs.getBool('isFirstTime') ?? true;
     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
     bool isGuest = prefs.getBool('isGuest') ?? false;
     String? userName = prefs.getString('userName');
 
+    // إذا لم تكن المرة الأولى، نطلب إذن الموقع هنا بهدوء أثناء تحميل السبلاش سكرين
+    if (!isFirstTime) {
+      try {
+        bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+        if (serviceEnabled) {
+          LocationPermission permission = await Geolocator.checkPermission();
+          if (permission == LocationPermission.denied) {
+            await Geolocator.requestPermission();
+          }
+        }
+      } catch (e) {
+        debugPrint("Silent GPS request failed: $e");
+      }
+    }
+
+    // الانتظار قليلاً ليتمكن المستخدم من رؤية اللوجو
+    await Future.delayed(const Duration(seconds: 3));
+
     if (!mounted) return;
 
-    // انتقال ناعم جداً للصفحة التالية (Fade In)
-    if (isLoggedIn || isGuest) {
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 800),
-          pageBuilder: (_, _, _) =>
-              MainScreen(isGuest: isGuest, userName: userName),
-          transitionsBuilder: (_, animation, _, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-        ),
-      );
+    // ==========================================
+    // التوجيه الذكي | Smart Routing
+    // ==========================================
+    Widget nextScreen;
+    if (isFirstTime) {
+      nextScreen = const OnboardingScreen();
+    } else if (isLoggedIn || isGuest) {
+      nextScreen = MainScreen(isGuest: isGuest, userName: userName);
     } else {
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 800),
-          pageBuilder: (_, _, _) => const LoginScreen(),
-          transitionsBuilder: (_, animation, _, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-        ),
-      );
+      nextScreen = const LoginScreen();
     }
+
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 800),
+        pageBuilder: (_, __, ___) => nextScreen,
+        transitionsBuilder: (_, animation, __, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    // ==========================================
+    // بناء واجهة المستخدم | Build UI
+    // ==========================================
     return Scaffold(
-      // 💡 1. خلفية متدرجة فخمة وناعمة جداً مأخوذة من لون اللوجو
       body: Container(
         width: double.infinity,
         decoration: const BoxDecoration(
@@ -99,9 +134,9 @@ class _SplashScreenState extends State<SplashScreen> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0xFFE8F5E9), // أخضر نعناعي فاتح جداً
-              Colors.white, // أبيض في المنتصف
-              Color(0xFFF2FBF5), // لون التطبيق الأساسي الفاتح
+              Color(0xFFE8F5E9), 
+              Colors.white, 
+              Color(0xFFF2FBF5), 
             ],
           ),
         ),
@@ -109,7 +144,7 @@ class _SplashScreenState extends State<SplashScreen> {
           alignment: Alignment.center,
           children: [
             // ==========================================
-            // 1. اللوجو الخاص بك (مع حركة الدخول)
+            // حركة اللوجو | Logo Animation
             // ==========================================
             AnimatedOpacity(
               duration: const Duration(milliseconds: 1500),
@@ -121,19 +156,17 @@ class _SplashScreenState extends State<SplashScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // اللوجو الفخم الخاص بك
                     Image.asset(
                       'assets/images/logo.png',
-                      width: 170, // 💡 صغرت الحجم شعرة بسيطة ليكون أرتب
+                      width: 170, 
                       height: 170,
                       fit: BoxFit.contain,
                     ),
                     const SizedBox(height: 25),
-
                     const Text(
                       'PharmaSmart',
                       style: TextStyle(
-                        color: Color(0xFF0A7A48), // أخضر يطابق اللوجو
+                        color: Color(0xFF0A7A48), 
                         fontSize: 30.0,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 1.2,
@@ -154,7 +187,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
 
             // ==========================================
-            // 2. مؤشر التحميل الأنيق في الأسفل
+            // مؤشر التحميل السفلي | Bottom Loading Indicator
             // ==========================================
             Positioned(
               bottom: 60,
@@ -163,7 +196,6 @@ class _SplashScreenState extends State<SplashScreen> {
                 opacity: _startAnimation ? 1.0 : 0.0,
                 child: Column(
                   children: [
-                    // 💡 استخدمنا دائرة تحميل أنيقة وبسيطة بدل تكرار اللوجو
                     const SizedBox(
                       width: 35,
                       height: 35,

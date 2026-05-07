@@ -1,3 +1,6 @@
+// ==========================================
+// استيراد المكتبات الأساسية | Importing core libraries
+// ==========================================
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -10,6 +13,9 @@ import '../config/api_config.dart';
 import 'signup_screen.dart';
 import 'main_screen.dart';
 
+// ==========================================
+// شاشة تسجيل الدخول | Login Screen
+// ==========================================
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -18,16 +24,22 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  // ==========================================
+  // تعريف متغيرات التحكم والحالة | Defining controllers and state variables
+  // ==========================================
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   bool _isPasswordHidden = true;
   bool _isLoading = false;
-  bool _rememberMe = true; // 💡 خيار تذكرني مفعل افتراضياً
+  bool _rememberMe = true; 
 
   final Color primaryColor = const Color(0xFF0A7A48);
   final Color bgColor = const Color(0xFFF2FBF5);
 
+  // ==========================================
+  // دالة تسجيل الدخول | User login function
+  // ==========================================
   Future<void> _loginUser() async {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       _showAwesomeError("تنبيه", "الرجاء إدخال البريد الإلكتروني وكلمة المرور");
@@ -50,7 +62,9 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['status'] == 'success') {
-          // 💡 حفظ البيانات في الذاكرة (SharedPreferences)
+          // ==========================================
+          // حفظ بيانات الجلسة | Save session data
+          // ==========================================
           SharedPreferences prefs = await SharedPreferences.getInstance();
           if (_rememberMe) {
             await prefs.setBool('isLoggedIn', true);
@@ -61,7 +75,6 @@ class _LoginScreenState extends State<LoginScreen> {
               "${data['user']['fname']} ${data['user']['lname']}",
             );
           }
-          // التأكد من إزالة وضع الزائر
           await prefs.setBool('isGuest', false);
 
           if (!mounted) return;
@@ -85,10 +98,13 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  // ==========================================
+  // دالة الدخول كزائر | Continue as guest function
+  // ==========================================
   Future<void> _continueAsGuest() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isGuest', true);
-    await prefs.setBool('isLoggedIn', false); // نلغي تسجيل الدخول السابق إن وجد
+    await prefs.setBool('isLoggedIn', false); 
 
     if (!mounted) return;
     Navigator.pushReplacement(
@@ -97,6 +113,9 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  // ==========================================
+  // دوال عرض رسائل التنبيه | Dialog functions
+  // ==========================================
   void _showAwesomeError(String title, String desc) {
     AwesomeDialog(
       context: context,
@@ -124,6 +143,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ==========================================
+    // بناء واجهة المستخدم | Build UI
+    // ==========================================
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -137,7 +159,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // الأيقونة العلوية الفخمة
+                  // ==========================================
+                  // شعار التطبيق | App Logo Header
+                  // ==========================================
                   Center(
                     child: Container(
                       padding: const EdgeInsets.all(20),
@@ -182,7 +206,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 40),
 
-                  // كارت الحقول
+                  // ==========================================
+                  // نموذج إدخال البيانات | Data input form
+                  // ==========================================
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
@@ -198,7 +224,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: Column(
                       children: [
-                        // حقل الإيميل
                         TextField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
@@ -225,7 +250,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 15),
-                        // حقل الباسوورد
                         TextField(
                           controller: _passwordController,
                           obscureText: _isPasswordHidden,
@@ -268,7 +292,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 15),
 
-                  // تذكرني و نسيت كلمة المرور
+                  // ==========================================
+                  // خيارات إضافية (تذكرني ونسيت كلمة المرور) | Additional options
+                  // ==========================================
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -313,7 +339,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // زر الدخول
+                  // ==========================================
+                  // زر تسجيل الدخول | Login Button
+                  // ==========================================
                   ElevatedButton(
                     onPressed: _isLoading ? null : _loginUser,
                     style: ElevatedButton.styleFrom(
@@ -345,7 +373,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 15),
 
-                  // زر الزائر
+                  // ==========================================
+                  // زر الدخول كزائر | Continue as guest Button
+                  // ==========================================
                   OutlinedButton.icon(
                     onPressed: _continueAsGuest,
                     icon: Icon(LucideIcons.user, color: primaryColor, size: 20),
@@ -369,7 +399,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 30),
 
-                  // إنشاء حساب
+                  // ==========================================
+                  // زر إنشاء حساب جديد | Create new account
+                  // ==========================================
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
