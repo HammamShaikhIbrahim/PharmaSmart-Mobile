@@ -586,7 +586,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-            if (trailingWidget != null) trailingWidget,
+            ?trailingWidget,
             if (trailingWidget == null && showArrow)
               const Padding(
                 padding: EdgeInsets.only(right: 8),
