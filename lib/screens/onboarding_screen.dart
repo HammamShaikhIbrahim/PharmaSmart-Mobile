@@ -91,8 +91,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       context,
       PageRouteBuilder(
         transitionDuration: const Duration(milliseconds: 800),
-        pageBuilder: (_, __, ___) => const LoginScreen(),
-        transitionsBuilder: (_, animation, __, child) {
+        pageBuilder: (_, _, _) => const LoginScreen(),
+        transitionsBuilder: (_, animation, _, child) {
           return FadeTransition(opacity: animation, child: child);
         },
       ),

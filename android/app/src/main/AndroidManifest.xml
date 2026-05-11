@@ -2,7 +2,7 @@
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <application
-        android:label="pharmasmart_adpp"
+        android:label="PharmaSmart"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true"> <!-- 💡 هذا هو السطر الذي أضفناه -->
