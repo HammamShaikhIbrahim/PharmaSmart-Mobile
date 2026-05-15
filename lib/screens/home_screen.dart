@@ -266,7 +266,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // ==========================================
-  // 💡 دالة لإنشاء قائمة الدبابيس
+  //  دالة لإنشاء قائمة الدبابيس
   // ==========================================
   List<Marker> _getMapMarkers() {
     List<Marker> markers = [];
