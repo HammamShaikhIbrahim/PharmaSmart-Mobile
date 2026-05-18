@@ -24,7 +24,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   // ==========================================
   final PageController _pageController = PageController(initialPage: 0);
   int _currentPage = 0;
-  bool _isRequestingLocation = false; //  متغير للتحكم بحالة التحميل أثناء طلب الموقع
+  bool _isRequestingLocation =
+      false; //  متغير للتحكم بحالة التحميل أثناء طلب الموقع
 
   final Color primaryColor = const Color(0xFF0A7A48);
   final Color bgColor = const Color(0xFFF2FBF5);
@@ -35,17 +36,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final List<Map<String, dynamic>> _pages = [
     {
       "title": "ابحث عن أدويتك بسهولة",
-      "desc": "استكشف آلاف الأدوية والمنتجات الطبية، وتعرف على الصيدليات القريبة التي توفرها بضغطة زر.",
+      "desc":
+          "استكشف آلاف الأدوية والمنتجات الطبية، وتعرف على الصيدليات القريبة التي توفرها بضغطة زر.",
       "icon": LucideIcons.search,
     },
     {
       "title": "اطلب ووفر وقتك",
-      "desc": "ارفع وصفتك الطبية، أضف أدويتك للسلة، وسنقوم بتجهيز طلبك فوراً للاستلام أو التوصيل.",
+      "desc":
+          "ارفع وصفتك الطبية، أضف أدويتك للسلة، وسنقوم بتجهيز طلبك فوراً للاستلام أو التوصيل.",
       "icon": LucideIcons.shoppingBag,
     },
     {
       "title": "تحديد أقرب صيدلية لك", //  تم تعديل النص ليتناسب مع طلب الموقع
-      "desc": "سنحتاج للوصول إلى موقعك الجغرافي لنعرض لك الصيدليات الأقرب إليك لضمان سرعة التوصيل.",
+      "desc":
+          "سنحتاج للوصول إلى موقعك الجغرافي لنعرض لك الصيدليات الأقرب إليك لضمان سرعة التوصيل.",
       "icon": LucideIcons.mapPin,
     },
   ];
@@ -141,7 +145,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   duration: const Duration(milliseconds: 300),
                   opacity: _currentPage == _pages.length - 1 ? 0.0 : 1.0,
                   child: TextButton(
-                    onPressed: _currentPage == _pages.length - 1 ? null : _finishOnboarding,
+                    onPressed: _currentPage == _pages.length - 1
+                        ? null
+                        : _finishOnboarding,
                     child: const Text(
                       "تخطي",
                       style: TextStyle(
@@ -172,14 +178,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       ),
                     ),
                     const SizedBox(height: 30),
-                    
+
                     // الزر السفلي
                     SizedBox(
                       width: double.infinity,
                       height: 55,
                       child: ElevatedButton(
-                        onPressed: _isRequestingLocation 
-                            ? null 
+                        onPressed: _isRequestingLocation
+                            ? null
                             : () {
                                 if (_currentPage == _pages.length - 1) {
                                   _requestLocationAndFinish(); //  استدعاء الدالة الجديدة هنا
@@ -202,10 +208,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             ? const SizedBox(
                                 height: 24,
                                 width: 24,
-                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 3,
+                                ),
                               )
                             : Text(
-                                _currentPage == _pages.length - 1 ? "الموافقة والبدء" : "التالي",
+                                _currentPage == _pages.length - 1
+                                    ? "الموافقة والبدء"
+                                    : "التالي",
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -227,7 +238,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   // ==========================================
   // تصميم محتوى كل صفحة | Page content design
   // ==========================================
-  Widget _buildPageContent({required String title, required String desc, required IconData icon}) {
+  Widget _buildPageContent({
+    required String title,
+    required String desc,
+    required IconData icon,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40),
       child: Column(
@@ -246,7 +261,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   offset: const Offset(0, 15),
                 ),
               ],
-              border: Border.all(color: primaryColor.withOpacity(0.1), width: 2),
+              border: Border.all(
+                color: primaryColor.withOpacity(0.1),
+                width: 2,
+              ),
             ),
             child: Stack(
               alignment: Alignment.center,
@@ -259,11 +277,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     shape: BoxShape.circle,
                   ),
                 ),
-                Icon(
-                  icon,
-                  size: 70,
-                  color: primaryColor,
-                ),
+                Icon(icon, size: 70, color: primaryColor),
               ],
             ),
           ),

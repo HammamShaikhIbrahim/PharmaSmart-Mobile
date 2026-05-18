@@ -105,7 +105,7 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
       btnCancelText: 'إلغاء',
       btnOkOnPress: () {
         CartService().clearCart();
-        setState(() {}); 
+        setState(() {});
       },
       btnOkText: 'مسح',
       btnOkColor: Colors.redAccent,
@@ -117,7 +117,9 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
     return AnimatedBuilder(
       animation: CartService(),
       builder: (context, child) {
-        bool hasItemsFromThisPharmacy = CartService().currentPharmacistId == widget.pharmacyId && CartService().items.isNotEmpty;
+        bool hasItemsFromThisPharmacy =
+            CartService().currentPharmacistId == widget.pharmacyId &&
+            CartService().items.isNotEmpty;
 
         return Directionality(
           textDirection: TextDirection.rtl,
@@ -155,12 +157,15 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
                 if (hasItemsFromThisPharmacy)
                   IconButton(
                     onPressed: _clearPharmacyCart,
-                    icon: const Icon(LucideIcons.trash2, color: Colors.redAccent),
+                    icon: const Icon(
+                      LucideIcons.trash2,
+                      color: Colors.redAccent,
+                    ),
                     tooltip: 'تفريغ السلة',
                   ),
               ],
             ),
-            
+
             bottomNavigationBar: hasItemsFromThisPharmacy
                 ? Container(
                     padding: const EdgeInsets.all(20),
@@ -179,7 +184,9 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const CartScreen()),
+                            MaterialPageRoute(
+                              builder: (context) => const CartScreen(),
+                            ),
                           ).then((_) => setState(() {}));
                         },
                         style: ElevatedButton.styleFrom(
@@ -204,7 +211,10 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
                             ),
                             const SizedBox(width: 10),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(8),
@@ -213,7 +223,7 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
                                 '${CartService().totalItemsQuantity}',
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontWeight: FontWeight.w900, 
+                                  fontWeight: FontWeight.w900,
                                 ),
                               ),
                             ),
@@ -265,7 +275,10 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [Colors.black.withOpacity(0.03), Colors.transparent],
+                      colors: [
+                        Colors.black.withOpacity(0.03),
+                        Colors.transparent,
+                      ],
                     ),
                   ),
                 ),
@@ -286,7 +299,7 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
             ),
           ),
         );
-      }
+      },
     );
   }
 
@@ -494,7 +507,7 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            
+
             //  استدعاء زر الإضافة المتحرك الجديد وتمرير اسم الدواء
             SizedBox(
               width: double.infinity,
@@ -513,10 +526,9 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
                       pharmacyName: widget.pharmacyName,
                       isControlled: isControlled,
                     );
-                    
+
                     //  إخفاء السناك بار الافتراضي الخاص بـ CartHelper حتى لا يظهر مرتين
                     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                    
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -550,17 +562,19 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
 class _AnimatedAddToCartButton extends StatefulWidget {
   final VoidCallback onAdd;
   final String medicineName;
-  
+
   const _AnimatedAddToCartButton({
     required this.onAdd,
     required this.medicineName,
   });
 
   @override
-  State<_AnimatedAddToCartButton> createState() => _AnimatedAddToCartButtonState();
+  State<_AnimatedAddToCartButton> createState() =>
+      _AnimatedAddToCartButtonState();
 }
 
-class _AnimatedAddToCartButtonState extends State<_AnimatedAddToCartButton> with SingleTickerProviderStateMixin {
+class _AnimatedAddToCartButtonState extends State<_AnimatedAddToCartButton>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _slideAnimation;
   late Animation<double> _fadeAnimation;
@@ -577,12 +591,18 @@ class _AnimatedAddToCartButtonState extends State<_AnimatedAddToCartButton> with
 
     // الحركة للأعلى (ترتفع 60 بكسل)
     _slideAnimation = Tween<double>(begin: 0, end: 65).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.3, curve: Curves.easeOutBack)),
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.3, curve: Curves.easeOutBack),
+      ),
     );
 
     // الاختفاء التدريجي البطيء في النهاية
     _fadeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.7, 1.0, curve: Curves.easeIn)),
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.7, 1.0, curve: Curves.easeIn),
+      ),
     );
   }
 
@@ -593,12 +613,12 @@ class _AnimatedAddToCartButtonState extends State<_AnimatedAddToCartButton> with
   }
 
   void _triggerAnimation() {
-    widget.onAdd(); 
-    
+    widget.onAdd();
+
     if (_isAnimating) {
       _controller.reset();
     }
-    
+
     setState(() {
       _isAnimating = true;
     });
@@ -633,11 +653,7 @@ class _AnimatedAddToCartButtonState extends State<_AnimatedAddToCartButton> with
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  LucideIcons.shoppingCart,
-                  color: Colors.white,
-                  size: 18,
-                ),
+                Icon(LucideIcons.shoppingCart, color: Colors.white, size: 18),
                 SizedBox(width: 8),
                 Text(
                   "إضافة للسلة",
@@ -651,7 +667,7 @@ class _AnimatedAddToCartButtonState extends State<_AnimatedAddToCartButton> with
             ),
           ),
         ),
-        
+
         //  رسالة التأكيد المنبثقة والمتحركة (Toast)
         if (_isAnimating)
           AnimatedBuilder(
@@ -665,7 +681,10 @@ class _AnimatedAddToCartButtonState extends State<_AnimatedAddToCartButton> with
                     constraints: BoxConstraints(
                       maxWidth: MediaQuery.of(context).size.width * 0.8,
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF0A7A48),
                       borderRadius: BorderRadius.circular(12),
@@ -674,13 +693,17 @@ class _AnimatedAddToCartButtonState extends State<_AnimatedAddToCartButton> with
                           color: Colors.black.withOpacity(0.2),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
-                        )
+                        ),
                       ],
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(LucideIcons.checkCircle2, color: Colors.white, size: 18),
+                        const Icon(
+                          LucideIcons.checkCircle2,
+                          color: Colors.white,
+                          size: 18,
+                        ),
                         const SizedBox(width: 8),
                         Flexible(
                           child: Text(

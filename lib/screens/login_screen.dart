@@ -32,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _isPasswordHidden = true;
   bool _isLoading = false;
-  bool _rememberMe = true; 
+  bool _rememberMe = true;
 
   final Color primaryColor = const Color(0xFF0A7A48);
   final Color bgColor = const Color(0xFFF2FBF5);
@@ -104,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _continueAsGuest() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isGuest', true);
-    await prefs.setBool('isLoggedIn', false); 
+    await prefs.setBool('isLoggedIn', false);
 
     if (!mounted) return;
     Navigator.pushReplacement(

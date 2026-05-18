@@ -69,7 +69,8 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
           double lat = double.tryParse(p['Latitude']?.toString() ?? '0') ?? 0;
           double lng = double.tryParse(p['Longitude']?.toString() ?? '0') ?? 0;
 
-          p['dist'] = Geolocator.distanceBetween(
+          p['dist'] =
+              Geolocator.distanceBetween(
                 widget.userPos.latitude,
                 widget.userPos.longitude,
                 lat,
@@ -104,7 +105,7 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
     setState(() {
       _filteredPharmacies = _pharmacies.where((p) {
         final name = (p['PharmacyName'] ?? '').toString().toLowerCase();
-        return name.contains(lowerQuery); 
+        return name.contains(lowerQuery);
       }).toList();
     });
   }
@@ -137,7 +138,7 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
                 controller: _searchController,
                 onChanged: _filterPharmacies,
                 decoration: InputDecoration(
-                  hintText: 'ابحث عن صيدلية بالاسم...', 
+                  hintText: 'ابحث عن صيدلية بالاسم...',
                   hintStyle: TextStyle(
                     color: Colors.grey.shade400,
                     fontSize: 13,
@@ -169,15 +170,15 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
               child: _loading
                   ? PharmaUI.loader()
                   : _filteredPharmacies.isEmpty
-                      ? _buildEmptyState()
-                      : ListView.builder(
-                          padding: const EdgeInsets.fromLTRB(15, 10, 15, 20),
-                          physics: const BouncingScrollPhysics(),
-                          itemCount: _filteredPharmacies.length,
-                          itemBuilder: (context, index) {
-                            return _buildPharmacyCard(_filteredPharmacies[index]);
-                          },
-                        ),
+                  ? _buildEmptyState()
+                  : ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(15, 10, 15, 20),
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: _filteredPharmacies.length,
+                      itemBuilder: (context, index) {
+                        return _buildPharmacyCard(_filteredPharmacies[index]);
+                      },
+                    ),
             ),
           ],
         ),
@@ -191,7 +192,8 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
   Widget _buildPharmacyCard(Map<String, dynamic> p) {
     final String name = p['PharmacyName'] ?? 'صيدلية غير معروفة';
     final String location = p['Location'] ?? 'العنوان غير متوفر';
-    final String hours = (p['WorkingHours'] != null &&
+    final String hours =
+        (p['WorkingHours'] != null &&
             p['WorkingHours'].toString().trim().isNotEmpty)
         ? p['WorkingHours']
         : 'ساعات العمل غير محددة';
@@ -442,8 +444,9 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
                       onPressed: () {
                         double lat =
                             double.tryParse(p['Latitude']?.toString() ?? '0') ??
-                                0;
-                        double lng = double.tryParse(
+                            0;
+                        double lng =
+                            double.tryParse(
                               p['Longitude']?.toString() ?? '0',
                             ) ??
                             0;

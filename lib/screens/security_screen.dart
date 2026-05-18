@@ -88,7 +88,9 @@ class _SecurityScreenState extends State<SecurityScreen> {
     _userId = prefs.getString('userId') ?? '';
 
     try {
-      final res = await http.get(Uri.parse("${ApiConfig.baseUrl}get_profile.php?user_id=$_userId"));
+      final res = await http.get(
+        Uri.parse("${ApiConfig.baseUrl}get_profile.php?user_id=$_userId"),
+      );
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         if (data['status'] == 'success') {
@@ -111,7 +113,10 @@ class _SecurityScreenState extends State<SecurityScreen> {
   void _onSaveClicked() {
     if (_newPassController.text.isNotEmpty) {
       if (_newPassController.text != _confirmPassController.text) {
-        _showWarning('عدم تطابق', 'كلمة المرور الجديدة غير مطابقة لتأكيد كلمة المرور.');
+        _showWarning(
+          'عدم تطابق',
+          'كلمة المرور الجديدة غير مطابقة لتأكيد كلمة المرور.',
+        );
         return;
       }
     }
@@ -129,55 +134,80 @@ class _SecurityScreenState extends State<SecurityScreen> {
       context: context,
       dialogType: DialogType.infoReverse,
       animType: AnimType.scale,
-      body: StatefulBuilder(builder: (context, setStateDialog) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-          child: Column(
-            children: [
-              const Text(
-                'تأكيد الهوية',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.black87),
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                'يرجى إدخال كلمة المرور الحالية لتأكيد حفظ التعديلات وحماية حسابك.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _oldPassController,
-                obscureText: hideOldPass,
-                textAlign: TextAlign.right,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                decoration: InputDecoration(
-                  hintText: 'كلمة المرور الحالية',
-                  hintStyle: const TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.bold),
-                  prefixIcon: Icon(LucideIcons.unlock, color: primaryColor, size: 20),
-                  suffixIcon: IconButton(
-                    icon: Icon(hideOldPass ? LucideIcons.eyeOff : LucideIcons.eye, color: Colors.grey, size: 18),
-                    onPressed: () {
-                      setStateDialog(() {
-                        hideOldPass = !hideOldPass;
-                      });
-                    },
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey.shade50,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: primaryColor),
+      body: StatefulBuilder(
+        builder: (context, setStateDialog) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            child: Column(
+              children: [
+                const Text(
+                  'تأكيد الهوية',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black87,
                   ),
                 ),
-              ),
-            ],
-          ),
-        );
-      }),
+                const SizedBox(height: 10),
+                const Text(
+                  'يرجى إدخال كلمة المرور الحالية لتأكيد حفظ التعديلات وحماية حسابك.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _oldPassController,
+                  obscureText: hideOldPass,
+                  textAlign: TextAlign.right,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'كلمة المرور الحالية',
+                    hintStyle: const TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    prefixIcon: Icon(
+                      LucideIcons.unlock,
+                      color: primaryColor,
+                      size: 20,
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        hideOldPass ? LucideIcons.eyeOff : LucideIcons.eye,
+                        color: Colors.grey,
+                        size: 18,
+                      ),
+                      onPressed: () {
+                        setStateDialog(() {
+                          hideOldPass = !hideOldPass;
+                        });
+                      },
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: primaryColor),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
       btnCancelOnPress: () {},
       btnCancelText: 'إلغاء',
       btnCancelColor: Colors.grey.shade400,
@@ -208,7 +238,9 @@ class _SecurityScreenState extends State<SecurityScreen> {
           "email": _emailController.text.trim(),
           "phone": _phoneController.text.trim(),
           "old_pass": _oldPassController.text,
-          "new_pass": _newPassController.text.isEmpty ? null : _newPassController.text,
+          "new_pass": _newPassController.text.isEmpty
+              ? null
+              : _newPassController.text,
         }),
       );
 
@@ -268,7 +300,8 @@ class _SecurityScreenState extends State<SecurityScreen> {
       context: context,
       dialogType: DialogType.warning,
       title: 'تحذير خطير!',
-      desc: 'هل أنت متأكد أنك تريد حذف حسابك نهائياً؟ ستفقد جميع بياناتك وطلباتك السابقة.',
+      desc:
+          'هل أنت متأكد أنك تريد حذف حسابك نهائياً؟ ستفقد جميع بياناتك وطلباتك السابقة.',
       btnCancelOnPress: () {},
       btnCancelText: 'إلغاء',
       btnCancelColor: Colors.grey.shade400,
@@ -279,7 +312,8 @@ class _SecurityScreenState extends State<SecurityScreen> {
           context: context,
           dialogType: DialogType.info,
           title: 'إجراء أمني',
-          desc: 'لأسباب أمنية وللحفاظ على سجلات الطلبات الطبية، يرجى التواصل مع الإدارة الفنية لحذف حسابك بشكل نهائي من قاعدة البيانات.',
+          desc:
+              'لأسباب أمنية وللحفاظ على سجلات الطلبات الطبية، يرجى التواصل مع الإدارة الفنية لحذف حسابك بشكل نهائي من قاعدة البيانات.',
           btnOkColor: primaryColor,
           btnOkText: 'حسناً',
         ).show();
@@ -334,13 +368,21 @@ class _SecurityScreenState extends State<SecurityScreen> {
                           ],
                         ),
                         child: Center(
-                          child: Icon(LucideIcons.shieldCheck, size: 40, color: primaryColor),
+                          child: Icon(
+                            LucideIcons.shieldCheck,
+                            size: 40,
+                            color: primaryColor,
+                          ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 30),
 
-                    _buildSectionHeader('بيانات الاتصال والأمان', LucideIcons.mail, Colors.blue),
+                    _buildSectionHeader(
+                      'بيانات الاتصال والأمان',
+                      LucideIcons.mail,
+                      Colors.blue,
+                    ),
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: _cardDecoration(),
@@ -363,7 +405,11 @@ class _SecurityScreenState extends State<SecurityScreen> {
                     ),
                     const SizedBox(height: 30),
 
-                    _buildSectionHeader('تغيير كلمة المرور', LucideIcons.key, Colors.orange),
+                    _buildSectionHeader(
+                      'تغيير كلمة المرور',
+                      LucideIcons.key,
+                      Colors.orange,
+                    ),
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: _cardDecoration(),
@@ -375,7 +421,8 @@ class _SecurityScreenState extends State<SecurityScreen> {
                             _newPassController,
                             isPassword: true,
                             isHidden: _hideNew,
-                            onToggle: () => setState(() => _hideNew = !_hideNew),
+                            onToggle: () =>
+                                setState(() => _hideNew = !_hideNew),
                           ),
                           const Divider(color: Color(0xFFF0F0F0), height: 30),
                           _buildCleanField(
@@ -384,7 +431,8 @@ class _SecurityScreenState extends State<SecurityScreen> {
                             _confirmPassController,
                             isPassword: true,
                             isHidden: _hideConfirm,
-                            onToggle: () => setState(() => _hideConfirm = !_hideConfirm),
+                            onToggle: () =>
+                                setState(() => _hideConfirm = !_hideConfirm),
                           ),
                         ],
                       ),
@@ -395,26 +443,37 @@ class _SecurityScreenState extends State<SecurityScreen> {
                       width: double.infinity,
                       height: 55,
                       child: ElevatedButton(
-                        onPressed: (_hasChanges && !_isSaving) ? _onSaveClicked : null,
+                        onPressed: (_hasChanges && !_isSaving)
+                            ? _onSaveClicked
+                            : null,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _hasChanges ? primaryColor : Colors.grey.shade300,
+                          backgroundColor: _hasChanges
+                              ? primaryColor
+                              : Colors.grey.shade300,
                           disabledBackgroundColor: Colors.grey.shade300,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
                           elevation: _hasChanges ? 5 : 0,
-                          shadowColor: _hasChanges ? primaryColor.withOpacity(0.3) : Colors.transparent,
+                          shadowColor: _hasChanges
+                              ? primaryColor.withOpacity(0.3)
+                              : Colors.transparent,
                         ),
                         child: _isSaving
                             ? const SizedBox(
                                 width: 24,
                                 height: 24,
-                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 3,
+                                ),
                               )
                             : Text(
                                 'حفظ التحديثات',
                                 style: TextStyle(
-                                  color: _hasChanges ? Colors.white : Colors.grey.shade500,
+                                  color: _hasChanges
+                                      ? Colors.white
+                                      : Colors.grey.shade500,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -423,11 +482,18 @@ class _SecurityScreenState extends State<SecurityScreen> {
                     ),
                     const SizedBox(height: 40),
 
-                    _buildSectionHeader('خيارات الأمان', LucideIcons.alertTriangle, Colors.redAccent),
+                    _buildSectionHeader(
+                      'خيارات الأمان',
+                      LucideIcons.alertTriangle,
+                      Colors.redAccent,
+                    ),
                     InkWell(
                       onTap: _deleteAccountDialog,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
                         decoration: _cardDecoration(),
                         child: Row(
                           children: [
@@ -437,7 +503,11 @@ class _SecurityScreenState extends State<SecurityScreen> {
                                 color: Colors.red.withOpacity(0.1),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(LucideIcons.trash2, color: Colors.redAccent, size: 20),
+                              child: const Icon(
+                                LucideIcons.trash2,
+                                color: Colors.redAccent,
+                                size: 20,
+                              ),
                             ),
                             const SizedBox(width: 15),
                             const Expanded(
@@ -446,12 +516,20 @@ class _SecurityScreenState extends State<SecurityScreen> {
                                 children: [
                                   Text(
                                     'حذف الحساب',
-                                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: Colors.redAccent),
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.redAccent,
+                                    ),
                                   ),
                                   SizedBox(height: 4),
                                   Text(
                                     'حذف حسابك نهائياً من النظام',
-                                    style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -472,7 +550,13 @@ class _SecurityScreenState extends State<SecurityScreen> {
     return BoxDecoration(
       color: Colors.white,
       borderRadius: BorderRadius.circular(24),
-      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.02),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ],
       border: Border.all(color: Colors.grey.shade100),
     );
   }
@@ -484,7 +568,14 @@ class _SecurityScreenState extends State<SecurityScreen> {
         children: [
           Icon(icon, size: 18, color: iconColor),
           const SizedBox(width: 8),
-          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.black87)),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w900,
+              color: Colors.black87,
+            ),
+          ),
         ],
       ),
     );
@@ -504,7 +595,11 @@ class _SecurityScreenState extends State<SecurityScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontSize: 12,
+            color: Colors.grey,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         TextField(
           controller: controller,
@@ -521,7 +616,11 @@ class _SecurityScreenState extends State<SecurityScreen> {
             prefixIconConstraints: const BoxConstraints(minWidth: 40),
             suffixIcon: isPassword
                 ? IconButton(
-                    icon: Icon(isHidden ? LucideIcons.eyeOff : LucideIcons.eye, size: 18, color: Colors.grey),
+                    icon: Icon(
+                      isHidden ? LucideIcons.eyeOff : LucideIcons.eye,
+                      size: 18,
+                      color: Colors.grey,
+                    ),
                     onPressed: onToggle,
                   )
                 : null,

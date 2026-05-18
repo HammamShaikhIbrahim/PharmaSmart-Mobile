@@ -207,7 +207,8 @@ class _MedicalHistoryScreenState extends State<MedicalHistoryScreen> {
                     height: 1.5,
                   ),
                   decoration: InputDecoration(
-                    hintText: 'مثال: السكري من النوع الثاني، حساسية من البنسلين...',
+                    hintText:
+                        'مثال: السكري من النوع الثاني، حساسية من البنسلين...',
                     hintStyle: TextStyle(
                       color: Colors.grey.shade400,
                       fontWeight: FontWeight.bold,
@@ -227,12 +228,12 @@ class _MedicalHistoryScreenState extends State<MedicalHistoryScreen> {
                 child: ElevatedButton(
                   onPressed: _isSaving ? null : _updateHistory,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor, 
+                    backgroundColor: primaryColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                     elevation: 5,
-                    shadowColor: primaryColor.withOpacity(0.3), 
+                    shadowColor: primaryColor.withOpacity(0.3),
                   ),
                   child: _isSaving
                       ? const SizedBox(

@@ -105,7 +105,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       btnCancelColor: Colors.grey.shade400,
       btnOkOnPress: () async {
         final p = await SharedPreferences.getInstance();
-        
+
         //  التعديل الجذري هنا: لا نستخدم p.clear() حتى لا نمسح شاشة الترحيب
         // نقوم فقط بحذف بيانات الدخول والجلسة الحالية
         await p.remove('isLoggedIn');
@@ -113,7 +113,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         await p.remove('userId');
         await p.remove('userEmail');
         await p.remove('userName');
-        
+
         if (!mounted) return;
         Navigator.pushAndRemoveUntil(
           context,
@@ -631,7 +631,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 color: Colors.black87,
               ),
             ),
-            const Spacer(), 
+            const Spacer(),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(

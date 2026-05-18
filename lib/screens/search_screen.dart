@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import '../config/api_config.dart';
 import 'medicine_details_screen.dart';
-import '../services/cart_helper.dart'; 
+import '../services/cart_helper.dart';
 import '../widgets/pharma_ui.dart';
 
 // ==========================================
@@ -243,7 +243,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 ],
               ),
             ),
-            
+
             // ==========================================
             // قائمة التصنيفات | Categories list
             // ==========================================
@@ -277,7 +277,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ),
             ),
-            
+
             // ==========================================
             // نتائج البحث | Search results
             // ==========================================
