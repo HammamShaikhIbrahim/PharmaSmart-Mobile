@@ -116,7 +116,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
     // بناء واجهة الخريطة | Build Map UI
     // ==========================================
     return Directionality(
-      textDirection: TextDirection.rtl, 
+      textDirection: TextDirection.rtl,
       child: Scaffold(
         backgroundColor: bgColor,
 
@@ -150,7 +150,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                 initialZoom: 8.0,
                 onTap: (tapPosition, point) {
                   setState(() {
-                    _selectedLocation = point; 
+                    _selectedLocation = point;
                   });
                 },
               ),
@@ -194,9 +194,9 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                                 ),
                               ),
                               const Positioned(
-                                bottom: 30, 
+                                bottom: 30,
                                 child: Icon(
-                                  Icons.location_on, 
+                                  Icons.location_on,
                                   color: Color(0xFF0A7A48),
                                   size: 45,
                                   shadows: [
@@ -264,7 +264,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
             // أزرار التحكم بالخريطة (Zoom & GPS) | Map control buttons
             // ==========================================
             Positioned(
-              bottom: 120, 
+              bottom: 120,
               right: 20,
               child: Column(
                 children: [
@@ -333,7 +333,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                     },
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
-                disabledBackgroundColor: Colors.grey.shade300, 
+                disabledBackgroundColor: Colors.grey.shade300,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16.0),

@@ -21,7 +21,7 @@ class PaymentMethodsScreen extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: bgColor, 
+        backgroundColor: bgColor,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -104,7 +104,10 @@ class PaymentMethodsScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: primaryColor.withOpacity(0.5), width: 1.5),
+                  border: Border.all(
+                    color: primaryColor.withOpacity(0.5),
+                    width: 1.5,
+                  ),
                   boxShadow: [
                     BoxShadow(
                       color: primaryColor.withOpacity(0.05),
@@ -121,7 +124,11 @@ class PaymentMethodsScreen extends StatelessWidget {
                         color: primaryColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(LucideIcons.banknote, color: primaryColor, size: 24),
+                      child: Icon(
+                        LucideIcons.banknote,
+                        color: primaryColor,
+                        size: 24,
+                      ),
                     ),
                     const SizedBox(width: 15),
                     const Expanded(
@@ -148,7 +155,11 @@ class PaymentMethodsScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const Icon(LucideIcons.checkCircle2, color: Color(0xFF0A7A48), size: 24),
+                    const Icon(
+                      LucideIcons.checkCircle2,
+                      color: Color(0xFF0A7A48),
+                      size: 24,
+                    ),
                   ],
                 ),
               ),
@@ -179,7 +190,11 @@ class PaymentMethodsScreen extends StatelessWidget {
                         color: Colors.orange.shade50,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(LucideIcons.creditCard, color: Colors.orange.shade400, size: 24),
+                      child: Icon(
+                        LucideIcons.creditCard,
+                        color: Colors.orange.shade400,
+                        size: 24,
+                      ),
                     ),
                     const SizedBox(width: 15),
                     const Expanded(
@@ -209,7 +224,10 @@ class PaymentMethodsScreen extends StatelessWidget {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.orange.shade50,
                         borderRadius: BorderRadius.circular(8),

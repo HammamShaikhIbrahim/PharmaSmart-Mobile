@@ -69,7 +69,8 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
   // حفظ العنوان المخصص الجديد | Save new custom address
   // =====================================
   Future<void> _saveAddress() async {
-    if (_titleController.text.trim().isEmpty || _descController.text.trim().isEmpty) {
+    if (_titleController.text.trim().isEmpty ||
+        _descController.text.trim().isEmpty) {
       _showError('تنبيه', 'الرجاء إدخال اسم العنوان والوصف.');
       return;
     }
@@ -85,7 +86,8 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
       String? userId = prefs.getString('userId');
       if (userId == null) return;
 
-      List<String> savedAddresses = prefs.getStringList('custom_addresses_$userId') ?? [];
+      List<String> savedAddresses =
+          prefs.getStringList('custom_addresses_$userId') ?? [];
 
       Map<String, dynamic> newAddress = {
         'id': DateTime.now().millisecondsSinceEpoch.toString(),
@@ -129,9 +131,12 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
     final prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('userId');
     if (userId != null) {
-      List<String> savedList = prefs.getStringList('custom_addresses_$userId') ?? [];
+      List<String> savedList =
+          prefs.getStringList('custom_addresses_$userId') ?? [];
       setState(() {
-        _customAddresses = savedList.map((item) => jsonDecode(item) as Map<String, dynamic>).toList();
+        _customAddresses = savedList
+            .map((item) => jsonDecode(item) as Map<String, dynamic>)
+            .toList();
         _isLoading = false;
       });
     } else {
@@ -155,7 +160,9 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
         String? userId = prefs.getString('userId');
         if (userId != null) {
           _customAddresses.removeAt(index);
-          List<String> stringList = _customAddresses.map((e) => jsonEncode(e)).toList();
+          List<String> stringList = _customAddresses
+              .map((e) => jsonEncode(e))
+              .toList();
           await prefs.setStringList('custom_addresses_$userId', stringList);
           setState(() {});
         }
@@ -193,7 +200,11 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
           centerTitle: true,
           title: const Text(
             'عناويني المحفوظة',
-            style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w900, fontSize: 18),
+            style: TextStyle(
+              color: Colors.black87,
+              fontWeight: FontWeight.w900,
+              fontSize: 18,
+            ),
           ),
         ),
         body: _isLoading
@@ -209,11 +220,19 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                     // =====================================
                     const Row(
                       children: [
-                        Icon(LucideIcons.plusCircle, color: Color(0xFF0A7A48), size: 20),
+                        Icon(
+                          LucideIcons.plusCircle,
+                          color: Color(0xFF0A7A48),
+                          size: 20,
+                        ),
                         SizedBox(width: 8),
                         Text(
                           'إضافة عنوان جديد',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.black87),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.black87,
+                          ),
                         ),
                       ],
                     ),
@@ -225,7 +244,11 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(color: Colors.grey.shade100),
                         boxShadow: [
-                          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.02),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
                         ],
                       ),
                       child: Column(
@@ -250,20 +273,32 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(15),
                         decoration: BoxDecoration(
-                          color: _latitude != null ? Colors.green.withOpacity(0.1) : Colors.white,
+                          color: _latitude != null
+                              ? Colors.green.withOpacity(0.1)
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: _latitude != null ? Colors.green : Colors.grey.shade200,
+                            color: _latitude != null
+                                ? Colors.green
+                                : Colors.grey.shade200,
                           ),
                           boxShadow: [
-                            BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.02),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
                           ],
                         ),
                         child: Row(
                           children: [
                             Icon(
-                              _latitude != null ? LucideIcons.checkCircle2 : LucideIcons.map,
-                              color: _latitude != null ? Colors.green : primaryColor,
+                              _latitude != null
+                                  ? LucideIcons.checkCircle2
+                                  : LucideIcons.map,
+                              color: _latitude != null
+                                  ? Colors.green
+                                  : primaryColor,
                               size: 24,
                             ),
                             const SizedBox(width: 15),
@@ -272,11 +307,15 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    _latitude != null ? 'تم تحديد الموقع بنجاح' : 'حدد الموقع على الخريطة (GPS)',
+                                    _latitude != null
+                                        ? 'تم تحديد الموقع بنجاح'
+                                        : 'حدد الموقع على الخريطة (GPS)',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 13,
-                                      color: _latitude != null ? Colors.green : Colors.black87,
+                                      color: _latitude != null
+                                          ? Colors.green
+                                          : Colors.black87,
                                     ),
                                   ),
                                   if (_latitude != null)
@@ -303,13 +342,24 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                         onPressed: _isSaving ? null : _saveAddress,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primaryColor,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                           elevation: 5,
                           shadowColor: primaryColor.withOpacity(0.3),
                         ),
                         child: _isSaving
-                            ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text('حفظ وإضافة', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                            ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                            : const Text(
+                                'حفظ وإضافة',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                       ),
                     ),
 
@@ -320,11 +370,19 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                     // =====================================
                     const Row(
                       children: [
-                        Icon(LucideIcons.bookmark, color: Colors.grey, size: 20),
+                        Icon(
+                          LucideIcons.bookmark,
+                          color: Colors.grey,
+                          size: 20,
+                        ),
                         SizedBox(width: 8),
                         Text(
                           'العناوين المحفوظة سابقاً',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.black87),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.black87,
+                          ),
                         ),
                       ],
                     ),
@@ -337,13 +395,26 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.grey.shade200, style: BorderStyle.solid),
+                          border: Border.all(
+                            color: Colors.grey.shade200,
+                            style: BorderStyle.solid,
+                          ),
                         ),
                         child: Column(
                           children: [
-                            Icon(LucideIcons.mapPinOff, size: 50, color: Colors.grey.shade300),
+                            Icon(
+                              LucideIcons.mapPinOff,
+                              size: 50,
+                              color: Colors.grey.shade300,
+                            ),
                             const SizedBox(height: 10),
-                            Text('لا توجد عناوين إضافية محفوظة', style: TextStyle(color: Colors.grey.shade500, fontWeight: FontWeight.bold)),
+                            Text(
+                              'لا توجد عناوين إضافية محفوظة',
+                              style: TextStyle(
+                                color: Colors.grey.shade500,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ],
                         ),
                       )
@@ -362,29 +433,58 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(color: Colors.grey.shade100),
                               boxShadow: [
-                                BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.02),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
                               ],
                             ),
                             child: Row(
                               children: [
                                 Container(
                                   padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), shape: BoxShape.circle),
-                                  child: const Icon(LucideIcons.mapPin, color: Colors.blue),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.withOpacity(0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    LucideIcons.mapPin,
+                                    color: Colors.blue,
+                                  ),
                                 ),
                                 const SizedBox(width: 15),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Text(address['title'], style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: Colors.black87)),
+                                      Text(
+                                        address['title'],
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w900,
+                                          fontSize: 15,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
                                       const SizedBox(height: 4),
-                                      Text(address['desc'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+                                      Text(
+                                        address['desc'],
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
                                 IconButton(
-                                  icon: const Icon(LucideIcons.trash2, color: Colors.redAccent, size: 20),
+                                  icon: const Icon(
+                                    LucideIcons.trash2,
+                                    color: Colors.redAccent,
+                                    size: 20,
+                                  ),
                                   onPressed: () => _deleteAddress(index),
                                 ),
                               ],
@@ -399,14 +499,29 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
     );
   }
 
-  Widget _buildTextField({required TextEditingController controller, required String label, required IconData icon}) {
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.bold)),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Colors.grey,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         TextField(
           controller: controller,
-          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 15),
+          style: const TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+          ),
           decoration: InputDecoration(
             prefixIcon: Icon(icon, size: 20, color: primaryColor),
             prefixIconConstraints: const BoxConstraints(minWidth: 40),

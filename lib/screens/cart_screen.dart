@@ -72,7 +72,9 @@ class _CartScreenState extends State<CartScreen> {
     String? userId = prefs.getString('userId');
     if (userId != null) {
       try {
-        final res = await http.get(Uri.parse("${ApiConfig.baseUrl}get_profile.php?user_id=$userId"));
+        final res = await http.get(
+          Uri.parse("${ApiConfig.baseUrl}get_profile.php?user_id=$userId"),
+        );
         if (res.statusCode == 200) {
           final data = jsonDecode(res.body);
           if (data['status'] == 'success') {
@@ -97,9 +99,12 @@ class _CartScreenState extends State<CartScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('userId');
     if (userId != null) {
-      List<String> savedList = prefs.getStringList('custom_addresses_$userId') ?? [];
+      List<String> savedList =
+          prefs.getStringList('custom_addresses_$userId') ?? [];
       setState(() {
-        _customAddresses = savedList.map((item) => jsonDecode(item) as Map<String, dynamic>).toList();
+        _customAddresses = savedList
+            .map((item) => jsonDecode(item) as Map<String, dynamic>)
+            .toList();
       });
     }
   }
@@ -350,7 +355,10 @@ class _CartScreenState extends State<CartScreen> {
                     });
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: primaryColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -886,7 +894,9 @@ class _CartScreenState extends State<CartScreen> {
                   color: hasMapAddress ? Colors.green : primaryColor,
                 ),
                 label: Text(
-                  hasMapAddress ? 'تم تحديد الموقع' : 'افتح الخريطة لتحديد الموقع',
+                  hasMapAddress
+                      ? 'تم تحديد الموقع'
+                      : 'افتح الخريطة لتحديد الموقع',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
@@ -896,7 +906,9 @@ class _CartScreenState extends State<CartScreen> {
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   side: BorderSide(
-                    color: hasMapAddress ? Colors.green : primaryColor.withOpacity(0.5),
+                    color: hasMapAddress
+                        ? Colors.green
+                        : primaryColor.withOpacity(0.5),
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -923,7 +935,9 @@ class _CartScreenState extends State<CartScreen> {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? primaryColor.withOpacity(0.05) : Colors.transparent,
+          color: isSelected
+              ? primaryColor.withOpacity(0.05)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? primaryColor : Colors.grey.shade200,
@@ -932,7 +946,9 @@ class _CartScreenState extends State<CartScreen> {
         child: Row(
           children: [
             Icon(
-              isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+              isSelected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_unchecked,
               color: isSelected ? primaryColor : Colors.grey,
               size: 20,
             ),
@@ -948,7 +964,7 @@ class _CartScreenState extends State<CartScreen> {
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
-                      color: Colors.black87
+                      color: Colors.black87,
                     ),
                   ),
                   if (subtitle != null && subtitle.isNotEmpty)
@@ -957,7 +973,7 @@ class _CartScreenState extends State<CartScreen> {
                       style: const TextStyle(
                         fontSize: 11,
                         color: Colors.grey,
-                        fontWeight: FontWeight.bold
+                        fontWeight: FontWeight.bold,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

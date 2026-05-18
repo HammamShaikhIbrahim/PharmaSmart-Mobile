@@ -89,7 +89,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             _fnameController.text = _originalFname;
             _lnameController.text = _originalLname;
             _isLoading = false;
-            _hasChanges = false; 
+            _hasChanges = false;
           });
         }
       }
@@ -249,15 +249,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       width: double.infinity,
                       height: 55,
                       child: ElevatedButton(
-                        onPressed: (_hasChanges && !_isSaving) ? _updateProfile : null,
+                        onPressed: (_hasChanges && !_isSaving)
+                            ? _updateProfile
+                            : null,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _hasChanges ? primaryColor : Colors.grey.shade300,
-                          disabledBackgroundColor: Colors.grey.shade300, 
+                          backgroundColor: _hasChanges
+                              ? primaryColor
+                              : Colors.grey.shade300,
+                          disabledBackgroundColor: Colors.grey.shade300,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
                           elevation: _hasChanges ? 5 : 0,
-                          shadowColor: _hasChanges ? primaryColor.withOpacity(0.3) : Colors.transparent,
+                          shadowColor: _hasChanges
+                              ? primaryColor.withOpacity(0.3)
+                              : Colors.transparent,
                         ),
                         child: _isSaving
                             ? const SizedBox(
@@ -271,7 +277,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             : Text(
                                 'حفظ التغييرات',
                                 style: TextStyle(
-                                  color: _hasChanges ? Colors.white : Colors.grey.shade500, 
+                                  color: _hasChanges
+                                      ? Colors.white
+                                      : Colors.grey.shade500,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),

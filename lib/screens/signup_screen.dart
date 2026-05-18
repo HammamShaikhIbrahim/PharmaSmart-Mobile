@@ -54,7 +54,10 @@ class _SignupScreenState extends State<SignupScreen> {
         _emailController.text.isEmpty ||
         _passwordController.text.isEmpty ||
         _dobController.text.isEmpty) {
-      _showError("تنبيه", "الرجاء تعبئة جميع الحقول الأساسية بما فيها تاريخ الميلاد");
+      _showError(
+        "تنبيه",
+        "الرجاء تعبئة جميع الحقول الأساسية بما فيها تاريخ الميلاد",
+      );
       return;
     }
 
@@ -203,7 +206,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   child: FaIcon(
                     FontAwesomeIcons.clipboardUser,
-                    size: 50, 
+                    size: 50,
                     color: primaryColor,
                   ),
                 ),

@@ -7,7 +7,7 @@ import 'package:geolocator/geolocator.dart'; //  إضافة مكتبة المو�
 
 import 'screens/login_screen.dart';
 import 'screens/main_screen.dart';
-import 'screens/onboarding_screen.dart'; 
+import 'screens/onboarding_screen.dart';
 
 // ==========================================
 // دالة التشغيل الرئيسية | Main execution function
@@ -133,11 +133,7 @@ class _SplashScreenState extends State<SplashScreen> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFE8F5E9), 
-              Colors.white, 
-              Color(0xFFF2FBF5), 
-            ],
+            colors: [Color(0xFFE8F5E9), Colors.white, Color(0xFFF2FBF5)],
           ),
         ),
         child: Stack(
@@ -158,7 +154,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   children: [
                     Image.asset(
                       'assets/images/logo.png',
-                      width: 170, 
+                      width: 170,
                       height: 170,
                       fit: BoxFit.contain,
                     ),
@@ -166,7 +162,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     const Text(
                       'PharmaSmart',
                       style: TextStyle(
-                        color: Color(0xFF0A7A48), 
+                        color: Color(0xFF0A7A48),
                         fontSize: 30.0,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 1.2,

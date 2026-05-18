@@ -37,10 +37,7 @@ class _MainScreenState extends State<MainScreen> {
       case 0:
         return HomeScreen(isGuest: widget.isGuest, userName: widget.userName);
       case 1:
-        return MyOrdersScreen(
-          key: UniqueKey(),
-          isFromBottomNav: true,
-        );
+        return MyOrdersScreen(key: UniqueKey(), isFromBottomNav: true);
       case 2:
         return CartScreen(key: UniqueKey());
       case 3:
@@ -98,7 +95,8 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                     BottomNavigationBarItem(
                       icon: Badge(
-                        isLabelVisible: _currentIndex != 2 && _cartService.items.isNotEmpty,
+                        isLabelVisible:
+                            _currentIndex != 2 && _cartService.items.isNotEmpty,
                         smallSize: 10,
                         backgroundColor: Colors.redAccent,
                         child: const Icon(LucideIcons.shoppingCart),

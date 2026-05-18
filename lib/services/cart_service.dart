@@ -48,8 +48,10 @@ class CartService extends ChangeNotifier {
   // العمليات الحسابية للسلة | Cart Calculations
   // ==========================================
   int get uniqueItemsCount => _items.length;
-  int get totalItemsQuantity => _items.fold(0, (sum, item) => sum + item.quantity);
-  double get totalAmount => _items.fold(0.0, (sum, item) => sum + item.totalPrice);
+  int get totalItemsQuantity =>
+      _items.fold(0, (sum, item) => sum + item.quantity);
+  double get totalAmount =>
+      _items.fold(0.0, (sum, item) => sum + item.totalPrice);
   bool get hasControlledMedicine => _items.any((item) => item.isControlled);
   bool get hasNewItems => _hasNewItems;
 
@@ -72,7 +74,7 @@ class CartService extends ChangeNotifier {
     _currentPharmacistId = pharmacistId;
     _currentPharmacyName = pharmacyName;
     final existingIndex = _items.indexWhere((item) => item.stockId == stockId);
-    
+
     if (existingIndex != -1) {
       _items[existingIndex].quantity++;
       notifyListeners();

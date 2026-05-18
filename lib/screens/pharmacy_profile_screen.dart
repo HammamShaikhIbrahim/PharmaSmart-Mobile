@@ -73,7 +73,7 @@ class PharmacyProfileScreen extends StatelessWidget {
         "${ApiConfig.baseUrl.replaceAll('api/', '')}uploads/logos/$logoName";
 
     final Color primaryColor = const Color(0xFF0A7A48);
-    final Color bgColor = const Color(0xFFF2FBF5); 
+    final Color bgColor = const Color(0xFFF2FBF5);
 
     // ==========================================
     // بناء واجهة المستخدم | Build UI
@@ -271,7 +271,7 @@ class PharmacyProfileScreen extends StatelessWidget {
                   const SizedBox(width: 15),
                   Expanded(
                     child: _buildActionBtn(
-                      LucideIcons.messageCircle, 
+                      LucideIcons.messageCircle,
                       "استشارة طبية",
                       Colors.orange.shade600,
                       () {
