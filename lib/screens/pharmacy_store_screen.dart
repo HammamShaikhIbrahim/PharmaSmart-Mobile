@@ -495,7 +495,7 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
             ),
             const SizedBox(height: 16),
             
-            // 💡 استدعاء زر الإضافة المتحرك الجديد وتمرير اسم الدواء
+            //  استدعاء زر الإضافة المتحرك الجديد وتمرير اسم الدواء
             SizedBox(
               width: double.infinity,
               child: _AnimatedAddToCartButton(
@@ -514,7 +514,7 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
                       isControlled: isControlled,
                     );
                     
-                    // 💡 إخفاء السناك بار الافتراضي الخاص بـ CartHelper حتى لا يظهر مرتين
+                    //  إخفاء السناك بار الافتراضي الخاص بـ CartHelper حتى لا يظهر مرتين
                     ScaffoldMessenger.of(context).hideCurrentSnackBar();
                     
                   } catch (e) {
@@ -545,7 +545,7 @@ class _PharmacyStoreScreenState extends State<PharmacyStoreScreen> {
 }
 
 // ==========================================
-// 💡 كلاس مخصص لزر الإضافة مع حركة الـ Toast العائمة
+//  كلاس مخصص لزر الإضافة مع حركة الـ Toast العائمة
 // ==========================================
 class _AnimatedAddToCartButton extends StatefulWidget {
   final VoidCallback onAdd;
@@ -652,7 +652,7 @@ class _AnimatedAddToCartButtonState extends State<_AnimatedAddToCartButton> with
           ),
         ),
         
-        // 💡 رسالة التأكيد المنبثقة والمتحركة (Toast)
+        //  رسالة التأكيد المنبثقة والمتحركة (Toast)
         if (_isAnimating)
           AnimatedBuilder(
             animation: _controller,

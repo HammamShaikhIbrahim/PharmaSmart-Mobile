@@ -106,7 +106,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       btnOkOnPress: () async {
         final p = await SharedPreferences.getInstance();
         
-        // 💡 التعديل الجذري هنا: لا نستخدم p.clear() حتى لا نمسح شاشة الترحيب
+        //  التعديل الجذري هنا: لا نستخدم p.clear() حتى لا نمسح شاشة الترحيب
         // نقوم فقط بحذف بيانات الدخول والجلسة الحالية
         await p.remove('isLoggedIn');
         await p.remove('isGuest');

@@ -91,7 +91,7 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
         }
       }
     } catch (e) {
-      debugPrint("❌ حدث خطأ أثناء جلب الصيدليات: $e");
+      debugPrint(" حدث خطأ أثناء جلب الصيدليات: $e");
       if (mounted) setState(() => _loading = false);
     }
   }

@@ -3,7 +3,7 @@
 // ==========================================
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart'; // 💡 الأيقونات الطبية
+import 'package:font_awesome_flutter/font_awesome_flutter.dart'; //  الأيقونات الطبية
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
@@ -172,7 +172,7 @@ class _MedicineDetailsScreenState extends State<MedicineDetailsScreen> {
   }
 
   // ==========================================
-  // 🎨 تصميم رأس الصفحة (صورة الدواء) | Header image design
+  // تصميم رأس الصفحة (صورة الدواء) | Header image design
   // ==========================================
   Widget _buildHeaderImage() {
     final String imageUrl =
@@ -250,7 +250,7 @@ class _MedicineDetailsScreenState extends State<MedicineDetailsScreen> {
   }
 
   // ==========================================
-  // 🎨 تصميم معلومات الدواء | Medicine information design
+  // تصميم معلومات الدواء | Medicine information design
   // ==========================================
   Widget _buildMedicineInfo() {
     return Column(
@@ -356,7 +356,7 @@ class _MedicineDetailsScreenState extends State<MedicineDetailsScreen> {
   }
 
   // ==========================================
-  // 🎨 كارت وصف الدواء | Medicine description card
+  // كارت وصف الدواء | Medicine description card
   // ==========================================
   Widget _buildDescriptionCard() {
     return Container(
@@ -407,7 +407,7 @@ class _MedicineDetailsScreenState extends State<MedicineDetailsScreen> {
   }
 
   // ==========================================
-  // 🎨 كارت الصيدلية (طريقة عرض عصرية) | Pharmacy card (Modern view)
+  // كارت الصيدلية (طريقة عرض عصرية) | Pharmacy card (Modern view)
   // ==========================================
   Widget _buildModernPharmacyCard(dynamic ph) {
     final String pharmacyName = ph['PharmacyName'] ?? 'صيدلية';
@@ -539,7 +539,7 @@ class _MedicineDetailsScreenState extends State<MedicineDetailsScreen> {
                     isControlled: _details['IsControlled'].toString() == "1",
                   );
                 } catch (e) {
-                  debugPrint("❌ خطأ في الإضافة للسلة: $e");
+                  debugPrint(" خطأ في الإضافة للسلة: $e");
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('خطأ: $e'),

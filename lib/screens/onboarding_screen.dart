@@ -4,7 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:geolocator/geolocator.dart'; // 💡 إضافة مكتبة الموقع
+import 'package:geolocator/geolocator.dart'; //  إضافة مكتبة الموقع
 
 import 'login_screen.dart';
 
@@ -24,7 +24,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   // ==========================================
   final PageController _pageController = PageController(initialPage: 0);
   int _currentPage = 0;
-  bool _isRequestingLocation = false; // 💡 متغير للتحكم بحالة التحميل أثناء طلب الموقع
+  bool _isRequestingLocation = false; //  متغير للتحكم بحالة التحميل أثناء طلب الموقع
 
   final Color primaryColor = const Color(0xFF0A7A48);
   final Color bgColor = const Color(0xFFF2FBF5);
@@ -44,7 +44,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       "icon": LucideIcons.shoppingBag,
     },
     {
-      "title": "تحديد أقرب صيدلية لك", // 💡 تم تعديل النص ليتناسب مع طلب الموقع
+      "title": "تحديد أقرب صيدلية لك", //  تم تعديل النص ليتناسب مع طلب الموقع
       "desc": "سنحتاج للوصول إلى موقعك الجغرافي لنعرض لك الصيدليات الأقرب إليك لضمان سرعة التوصيل.",
       "icon": LucideIcons.mapPin,
     },
@@ -57,7 +57,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   // ==========================================
-  // 💡 طلب إذن الموقع والانتهاء من الترحيب | Request location and finish onboarding
+  //  طلب إذن الموقع والانتهاء من الترحيب | Request location and finish onboarding
   // ==========================================
   Future<void> _requestLocationAndFinish() async {
     setState(() => _isRequestingLocation = true);
@@ -182,7 +182,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             ? null 
                             : () {
                                 if (_currentPage == _pages.length - 1) {
-                                  _requestLocationAndFinish(); // 💡 استدعاء الدالة الجديدة هنا
+                                  _requestLocationAndFinish(); //  استدعاء الدالة الجديدة هنا
                                 } else {
                                   _pageController.nextPage(
                                     duration: const Duration(milliseconds: 500),

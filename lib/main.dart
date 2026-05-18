@@ -3,7 +3,7 @@
 // ==========================================
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:geolocator/geolocator.dart'; // 💡 إضافة مكتبة الموقع هنا للطلب المبكر
+import 'package:geolocator/geolocator.dart'; //  إضافة مكتبة الموقع هنا للطلب المبكر
 
 import 'screens/login_screen.dart';
 import 'screens/main_screen.dart';
@@ -68,7 +68,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   // ==========================================
-  // 💡 فحص حالة المستخدم وطلب إذن الموقع بصمت | Check status & silently request GPS
+  //  فحص حالة المستخدم وطلب إذن الموقع بصمت | Check status & silently request GPS
   // ==========================================
   Future<void> _checkStatusAndPermissions() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
