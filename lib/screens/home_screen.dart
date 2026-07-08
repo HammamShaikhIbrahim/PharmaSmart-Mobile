@@ -4,7 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:convert';
@@ -48,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List _pharmacies = [];
   int _selectedCatIndex = -1;
   Position? _userPos;
-  
+
   bool _showUserPin = false;
 
   bool _hasNewNotifications = true;
@@ -87,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _initData() async {
     await _loadDynamicName();
-    await _getUserLocationSilent(); 
+    await _getUserLocationSilent();
     await _fetchData();
     _cachedCategories = _categories;
     _cachedPharmacies = _pharmacies;
@@ -97,7 +97,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _fetchDataSilently() async {
     try {
-      final res = await http.get(Uri.parse("${ApiConfig.baseUrl}home_data.php"));
+      final res = await http.get(
+        Uri.parse("${ApiConfig.baseUrl}home_data.php"),
+      );
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         if (mounted) {
@@ -126,8 +128,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _getUserLocationSilent() async {
     try {
       LocationPermission permission = await Geolocator.checkPermission();
-      
-      if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
+
+      if (permission == LocationPermission.whileInUse ||
+          permission == LocationPermission.always) {
         _userPos = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.bestForNavigation,
           timeLimit: const Duration(seconds: 5),
@@ -156,7 +159,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!serviceEnabled) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('الرجاء تفعيل خدمة الموقع (GPS) في هاتفك أولاً')),
+        const SnackBar(
+          content: Text('الرجاء تفعيل خدمة الموقع (GPS) في هاتفك أولاً'),
+        ),
       );
       return;
     }
@@ -176,7 +181,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if (permission == LocationPermission.deniedForever) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('صلاحيات الموقع معطلة نهائياً من إعدادات الهاتف')),
+        const SnackBar(
+          content: Text('صلاحيات الموقع معطلة نهائياً من إعدادات الهاتف'),
+        ),
       );
       return;
     }
@@ -200,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _userPos = position;
         _cachedUserPos = position;
         _showUserPin = true;
-        _showUserPinCache = true; 
+        _showUserPinCache = true;
       });
 
       _mapController.move(LatLng(position.latitude, position.longitude), 16.0);
@@ -214,7 +221,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _fetchData() async {
     try {
-      final res = await http.get(Uri.parse("${ApiConfig.baseUrl}home_data.php"));
+      final res = await http.get(
+        Uri.parse("${ApiConfig.baseUrl}home_data.php"),
+      );
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         if (mounted) {
@@ -246,23 +255,34 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
       ),
       title: 'ميزة $featureName',
-      desc: 'هذه الميزة قيد التطوير حالياً، وتعمل فرقنا على تجهيزها بأفضل شكل لتكون متاحة في التحديث القادم!',
+      desc:
+          'هذه الميزة قيد التطوير حالياً، وتعمل فرقنا على تجهيزها بأفضل شكل لتكون متاحة في التحديث القادم!',
       btnOkOnPress: () {},
       btnOkColor: primaryColor,
       btnOkText: 'فهمت ذلك',
       buttonsBorderRadius: BorderRadius.circular(15),
-      descTextStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, height: 1.5),
+      descTextStyle: const TextStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.bold,
+        height: 1.5,
+      ),
     ).show();
   }
 
   void _zoomIn() {
     final double currentZoom = _mapController.camera.zoom;
-    _mapController.move(_mapController.camera.center, (currentZoom + 1).clamp(1.0, 18.0));
+    _mapController.move(
+      _mapController.camera.center,
+      (currentZoom + 1).clamp(1.0, 18.0),
+    );
   }
 
   void _zoomOut() {
     final double currentZoom = _mapController.camera.zoom;
-    _mapController.move(_mapController.camera.center, (currentZoom - 1).clamp(1.0, 18.0));
+    _mapController.move(
+      _mapController.camera.center,
+      (currentZoom - 1).clamp(1.0, 18.0),
+    );
   }
 
   // ==========================================
@@ -276,8 +296,8 @@ class _HomeScreenState extends State<HomeScreen> {
       markers.add(
         Marker(
           point: LatLng(_userPos!.latitude, _userPos!.longitude),
-          width: 50, 
-          height: 50, 
+          width: 50,
+          height: 50,
           alignment: Alignment.center,
           child: Directionality(
             textDirection: TextDirection.ltr,
@@ -287,24 +307,30 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 // نقطة الارتكاز الملامسة للأرض
                 Container(
-                  width: 12, 
-                  height: 12, 
+                  width: 12,
+                  height: 12,
                   decoration: BoxDecoration(
                     color: Colors.blue.shade600,
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 2.5),
-                    boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 4)],
+                    boxShadow: const [
+                      BoxShadow(color: Colors.black45, blurRadius: 4),
+                    ],
                   ),
                 ),
                 // أيقونة الدبوس الأزرق المرفوع
                 const Positioned(
-                  bottom: 24, 
+                  bottom: 24,
                   child: Icon(
                     Icons.location_on,
                     color: Colors.blue,
-                    size: 38, 
+                    size: 38,
                     shadows: [
-                      Shadow(color: Colors.black38, blurRadius: 6, offset: Offset(0, 3)),
+                      Shadow(
+                        color: Colors.black38,
+                        blurRadius: 6,
+                        offset: Offset(0, 3),
+                      ),
                     ],
                   ),
                 ),
@@ -316,35 +342,35 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     // 2. دبابيس الصيدليات (التصميم الأخضر)
-    markers.addAll(_pharmacies.map((p) {
-      double lat = double.tryParse(p['Latitude']?.toString() ?? '0') ?? 0;
-      double lng = double.tryParse(p['Longitude']?.toString() ?? '0') ?? 0;
-      return Marker(
-        point: LatLng(lat, lng),
-        width: 45,
-        height: 45,
-        child: GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PharmacyProfileScreen(
-                  pharmacyData: p,
-                  userPos: _userPos,
+    markers.addAll(
+      _pharmacies.map((p) {
+        double lat = double.tryParse(p['Latitude']?.toString() ?? '0') ?? 0;
+        double lng = double.tryParse(p['Longitude']?.toString() ?? '0') ?? 0;
+        return Marker(
+          point: LatLng(lat, lng),
+          width: 45,
+          height: 45,
+          child: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      PharmacyProfileScreen(pharmacyData: p, userPos: _userPos),
                 ),
+              );
+            },
+            child: Center(
+              child: FaIcon(
+                FontAwesomeIcons.houseMedical,
+                color: primaryColor,
+                size: 26,
               ),
-            );
-          },
-          child: Center(
-            child: FaIcon(
-              FontAwesomeIcons.houseMedical,
-              color: primaryColor,
-              size: 26,
             ),
           ),
-        ),
-      );
-    }));
+        );
+      }),
+    );
 
     return markers;
   }
@@ -361,15 +387,20 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-            
             void fsZoomIn() {
               final double currentZoom = fsMapController.camera.zoom;
-              fsMapController.move(fsMapController.camera.center, (currentZoom + 1).clamp(1.0, 18.0));
+              fsMapController.move(
+                fsMapController.camera.center,
+                (currentZoom + 1).clamp(1.0, 18.0),
+              );
             }
 
             void fsZoomOut() {
               final double currentZoom = fsMapController.camera.zoom;
-              fsMapController.move(fsMapController.camera.center, (currentZoom - 1).clamp(1.0, 18.0));
+              fsMapController.move(
+                fsMapController.camera.center,
+                (currentZoom - 1).clamp(1.0, 18.0),
+              );
             }
 
             Future<void> fsGoToMyLocation() async {
@@ -393,14 +424,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   _showUserPin = true;
                   _showUserPinCache = true;
                 });
-                
+
                 setState(() {});
 
                 // زووم أوسع عند تحديد الموقع في الشاشة المكبرة (لتوضيح المحيط)
-                fsMapController.move(LatLng(position.latitude, position.longitude), 12.5);
+                fsMapController.move(
+                  LatLng(position.latitude, position.longitude),
+                  12.5,
+                );
               } catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('تعذر تحديد الموقع، تحقق من الإعدادات'), backgroundColor: Colors.redAccent),
+                  const SnackBar(
+                    content: Text('تعذر تحديد الموقع، تحقق من الإعدادات'),
+                    backgroundColor: Colors.redAccent,
+                  ),
                 );
               }
             }
@@ -413,18 +450,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     FlutterMap(
                       mapController: fsMapController,
                       options: MapOptions(
-                        initialCenter: _userPos != null ? LatLng(_userPos!.latitude, _userPos!.longitude) : _palestineCenter,
+                        initialCenter: _userPos != null
+                            ? LatLng(_userPos!.latitude, _userPos!.longitude)
+                            : _palestineCenter,
                         // زووم أقل (أوسع) ليرى الصيدليات المحيطة بشكل أوضح
                         initialZoom: _userPos != null ? 11.5 : 8.0,
                       ),
                       children: [
                         TileLayer(
-                          urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+                          urlTemplate:
+                              'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
                           userAgentPackageName: 'com.pharmasmart.app',
                         ),
-                        MarkerLayer(
-                          markers: _getMapMarkers(),
-                        ),
+                        MarkerLayer(markers: _getMapMarkers()),
                       ],
                     ),
 
@@ -437,7 +475,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         mini: true,
                         backgroundColor: Colors.white,
                         onPressed: () => Navigator.pop(context),
-                        child: const Icon(LucideIcons.x, color: Colors.black87, size: 24),
+                        child: const Icon(
+                          LucideIcons.x,
+                          color: Colors.black87,
+                          size: 24,
+                        ),
                       ),
                     ),
 
@@ -452,27 +494,58 @@ class _HomeScreenState extends State<HomeScreen> {
                             mini: true,
                             backgroundColor: Colors.white,
                             onPressed: fsGoToMyLocation,
-                            child: const Icon(LucideIcons.navigation, color: Colors.blue, size: 20),
+                            child: const Icon(
+                              LucideIcons.navigation,
+                              color: Colors.blue,
+                              size: 20,
+                            ),
                           ),
                           const SizedBox(height: 5),
                           Container(
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(16),
-                              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                             ),
                             child: Column(
                               children: [
                                 InkWell(
                                   onTap: fsZoomIn,
                                   borderRadius: BorderRadius.circular(16),
-                                  child: const SizedBox(width: 45, height: 45, child: Icon(LucideIcons.plus, color: Colors.black87, size: 20)),
+                                  child: const SizedBox(
+                                    width: 45,
+                                    height: 45,
+                                    child: Icon(
+                                      LucideIcons.plus,
+                                      color: Colors.black87,
+                                      size: 20,
+                                    ),
+                                  ),
                                 ),
-                                Divider(height: 1, color: Colors.grey.shade100, indent: 8, endIndent: 8),
+                                Divider(
+                                  height: 1,
+                                  color: Colors.grey.shade100,
+                                  indent: 8,
+                                  endIndent: 8,
+                                ),
                                 InkWell(
                                   onTap: fsZoomOut,
                                   borderRadius: BorderRadius.circular(16),
-                                  child: const SizedBox(width: 45, height: 45, child: Icon(LucideIcons.minus, color: Colors.black87, size: 20)),
+                                  child: const SizedBox(
+                                    width: 45,
+                                    height: 45,
+                                    child: Icon(
+                                      LucideIcons.minus,
+                                      color: Colors.black87,
+                                      size: 20,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -484,13 +557,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             );
-          }
+          },
         );
       },
     ).then((_) {
       setState(() {
         if (_userPos != null) {
-          _mapController.move(LatLng(_userPos!.latitude, _userPos!.longitude), _mapController.camera.zoom);
+          _mapController.move(
+            LatLng(_userPos!.latitude, _userPos!.longitude),
+            _mapController.camera.zoom,
+          );
         }
       });
     });
@@ -509,7 +585,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   controller: _scrollController,
                   physics: const BouncingScrollPhysics(),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -547,8 +626,22 @@ class _HomeScreenState extends State<HomeScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("مرحباً بك،", style: TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.bold)),
-                Text(widget.isGuest ? "زائرنا العزيز" : _currentUserName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.black87)),
+                const Text(
+                  "مرحباً بك،",
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  widget.isGuest ? "زائرنا العزيز" : _currentUserName,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black87,
+                  ),
+                ),
               ],
             ),
           ],
@@ -557,7 +650,13 @@ class _HomeScreenState extends State<HomeScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             shape: BoxShape.circle,
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Stack(
             children: [
@@ -569,7 +668,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: const Icon(LucideIcons.bell, color: Colors.black87),
               ),
               if (_hasNewNotifications)
-                Positioned(right: 12, top: 12, child: Container(width: 8, height: 8, decoration: const BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle))),
+                Positioned(
+                  right: 12,
+                  top: 12,
+                  child: Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: Colors.redAccent,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -585,39 +695,103 @@ class _HomeScreenState extends State<HomeScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: primaryColor.withOpacity(0.2)),
-        boxShadow: [BoxShadow(color: primaryColor.withOpacity(0.05), blurRadius: 15, offset: const Offset(0, 5))],
+        boxShadow: [
+          BoxShadow(
+            color: primaryColor.withOpacity(0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: primaryColor.withOpacity(0.1), shape: BoxShape.circle),
-            child: FaIcon(FontAwesomeIcons.userCheck, color: primaryColor, size: 22),
+            decoration: BoxDecoration(
+              color: primaryColor.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: FaIcon(
+              FontAwesomeIcons.userCheck,
+              color: primaryColor,
+              size: 22,
+            ),
           ),
           const SizedBox(width: 15),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("سجل لتتمكن من الطلب!", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.black87)),
+                const Text(
+                  "سجل لتتمكن من الطلب!",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black87,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                const Text("احفظ أدويتك وتتبع طلباتك بسهولة.", style: TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.bold)),
+                const Text(
+                  "احفظ أدويتك وتتبع طلباتك بسهولة.",
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 10),
                 Row(
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (c) => const LoginScreen())),
-                        style: ElevatedButton.styleFrom(backgroundColor: primaryColor, padding: const EdgeInsets.symmetric(vertical: 8), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), elevation: 0),
-                        child: const Text("دخول", style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (c) => const LoginScreen(),
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryColor,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          "دخول",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (c) => const SignupScreen())),
-                        style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 8), side: BorderSide(color: primaryColor), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-                        child: Text("حساب جديد", style: TextStyle(color: primaryColor, fontSize: 12, fontWeight: FontWeight.bold)),
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (c) => const SignupScreen(),
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          side: BorderSide(color: primaryColor),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: Text(
+                          "حساب جديد",
+                          style: TextStyle(
+                            color: primaryColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -634,44 +808,118 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("خدمات سريعة", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.black87)),
+        const Text(
+          "خدمات سريعة",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w900,
+            color: Colors.black87,
+          ),
+        ),
         const SizedBox(height: 15),
         Row(
           children: [
             Expanded(
-              child: _buildServiceCard("صرف وصفة", const FaIcon(FontAwesomeIcons.filePrescription, color: Colors.orange, size: 22), Colors.orange, () {
-                AwesomeDialog(
-                  context: context,
-                  dialogType: DialogType.info,
-                  title: 'كيف أصرف وصفتي؟',
-                  desc: 'ابحث عن الأدوية المكتوبة في الوصفة، أضفها للسلة، وسيقوم النظام تلقائياً بطلب صورة الوصفة الطبية منك لإتمام الطلب!',
-                  btnOkColor: primaryColor,
-                  btnOkText: 'البحث عن الأدوية',
-                  btnOkOnPress: () => Navigator.push(context, MaterialPageRoute(builder: (c) => SearchScreen(userPos: _userPos))),
-                ).show();
-              }),
+              child: _buildServiceCard(
+                "صرف وصفة",
+                const FaIcon(
+                  FontAwesomeIcons.filePrescription,
+                  color: Colors.orange,
+                  size: 22,
+                ),
+                Colors.orange,
+                () {
+                  AwesomeDialog(
+                    context: context,
+                    dialogType: DialogType.info,
+                    title: 'كيف أصرف وصفتي؟',
+                    desc:
+                        'ابحث عن الأدوية المكتوبة في الوصفة، أضفها للسلة، وسيقوم النظام تلقائياً بطلب صورة الوصفة الطبية منك لإتمام الطلب!',
+                    btnOkColor: primaryColor,
+                    btnOkText: 'البحث عن الأدوية',
+                    btnOkOnPress: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (c) => SearchScreen(userPos: _userPos),
+                      ),
+                    ),
+                  ).show();
+                },
+              ),
             ),
             const SizedBox(width: 10),
-            Expanded(child: _buildServiceCard("منبه الأدوية", const FaIcon(FontAwesomeIcons.clockRotateLeft, color: Colors.blue, size: 22), Colors.blue, () => _showComingSoonMsg("منبه الأدوية الذكي"))),
+            Expanded(
+              child: _buildServiceCard(
+                "منبه الأدوية",
+                const FaIcon(
+                  FontAwesomeIcons.clockRotateLeft,
+                  color: Colors.blue,
+                  size: 22,
+                ),
+                Colors.blue,
+                () => _showComingSoonMsg("منبه الأدوية الذكي"),
+              ),
+            ),
             const SizedBox(width: 10),
-            Expanded(child: _buildServiceCard("استشارة", FaIcon(FontAwesomeIcons.userDoctor, color: primaryColor, size: 22), primaryColor, () => _showComingSoonMsg("المحادثات المباشرة"))),
+            Expanded(
+              child: _buildServiceCard(
+                "استشارة",
+                FaIcon(
+                  FontAwesomeIcons.userDoctor,
+                  color: primaryColor,
+                  size: 22,
+                ),
+                primaryColor,
+                () => _showComingSoonMsg("المحادثات المباشرة"),
+              ),
+            ),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildServiceCard(String title, Widget iconWidget, Color color, VoidCallback onTap) {
+  Widget _buildServiceCard(
+    String title,
+    Widget iconWidget,
+    Color color,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 15),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade100), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))]),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.grey.shade100),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
         child: Column(
           children: [
-            Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle), child: iconWidget),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: iconWidget,
+            ),
             const SizedBox(height: 10),
-            Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87)),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
           ],
         ),
       ),
@@ -684,10 +932,28 @@ class _HomeScreenState extends State<HomeScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text("التصنيفات الطبية", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.black87)),
+            const Text(
+              "التصنيفات الطبية",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                color: Colors.black87,
+              ),
+            ),
             TextButton(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (c) => SearchScreen(userPos: _userPos))),
-              child: Text("عرض الكل", style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold)),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (c) => SearchScreen(userPos: _userPos),
+                ),
+              ),
+              child: Text(
+                "عرض الكل",
+                style: TextStyle(
+                  color: primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
         ),
@@ -707,7 +973,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (c) => SearchScreen(
-                        initialCategoryId: int.parse(_categories[i]['CategoryID'].toString()),
+                        initialCategoryId: int.parse(
+                          _categories[i]['CategoryID'].toString(),
+                        ),
                         categoryName: _categories[i]['NameAR'],
                         userPos: _userPos,
                       ),
@@ -719,14 +987,38 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   margin: const EdgeInsets.only(left: 10),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: isSelected ? primaryColor : Colors.white,
                     borderRadius: BorderRadius.circular(15),
-                    boxShadow: isSelected ? [BoxShadow(color: primaryColor.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4))] : [],
-                    border: Border.all(color: isSelected ? Colors.transparent : Colors.grey.shade200),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: primaryColor.withOpacity(0.3),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ]
+                        : [],
+                    border: Border.all(
+                      color: isSelected
+                          ? Colors.transparent
+                          : Colors.grey.shade200,
+                    ),
                   ),
-                  child: Center(child: Text(_categories[i]['NameAR'], style: TextStyle(color: isSelected ? Colors.white : Colors.black87, fontWeight: FontWeight.bold, fontSize: 14))),
+                  child: Center(
+                    child: Text(
+                      _categories[i]['NameAR'],
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : Colors.black87,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
                 ),
               );
             },
@@ -740,13 +1032,26 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("أقرب الصيدليات إليك", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.black87)),
+        const Text(
+          "أقرب الصيدليات إليك",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w900,
+            color: Colors.black87,
+          ),
+        ),
         const SizedBox(height: 15),
         Container(
           height: 250,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(24),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 15, offset: const Offset(0, 5))],
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
+              ),
+            ],
             border: Border.all(color: Colors.grey.shade200),
           ),
           child: ClipRRect(
@@ -756,20 +1061,22 @@ class _HomeScreenState extends State<HomeScreen> {
                 FlutterMap(
                   mapController: _mapController,
                   options: MapOptions(
-                    initialCenter: LatLng(_userPos?.latitude ?? _palestineCenter.latitude, _userPos?.longitude ?? _palestineCenter.longitude),
+                    initialCenter: LatLng(
+                      _userPos?.latitude ?? _palestineCenter.latitude,
+                      _userPos?.longitude ?? _palestineCenter.longitude,
+                    ),
                     initialZoom: _userPos != null ? 13 : 8,
                   ),
                   children: [
                     TileLayer(
-                      urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+                      urlTemplate:
+                          'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
                       userAgentPackageName: 'com.pharmasmart.app',
                     ),
-                    MarkerLayer(
-                      markers: _getMapMarkers(),
-                    ),
+                    MarkerLayer(markers: _getMapMarkers()),
                   ],
                 ),
-                
+
                 Positioned(
                   top: 10,
                   right: 10,
@@ -778,7 +1085,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     mini: true,
                     backgroundColor: Colors.white,
                     onPressed: _showFullScreenMap,
-                    child: const Icon(LucideIcons.maximize, color: Colors.black87, size: 20),
+                    child: const Icon(
+                      LucideIcons.maximize,
+                      color: Colors.black87,
+                      size: 20,
+                    ),
                   ),
                 ),
 
@@ -792,7 +1103,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         mini: true,
                         backgroundColor: Colors.white,
                         onPressed: _goToMyLocation,
-                        child: const Icon(LucideIcons.navigation, color: Colors.blue, size: 20),
+                        child: const Icon(
+                          LucideIcons.navigation,
+                          color: Colors.blue,
+                          size: 20,
+                        ),
                       ),
                       const SizedBox(height: 5),
                       FloatingActionButton(
@@ -800,7 +1115,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         mini: true,
                         backgroundColor: Colors.white,
                         onPressed: _zoomIn,
-                        child: const Icon(LucideIcons.plus, color: Colors.black87, size: 20),
+                        child: const Icon(
+                          LucideIcons.plus,
+                          color: Colors.black87,
+                          size: 20,
+                        ),
                       ),
                       const SizedBox(height: 5),
                       FloatingActionButton(
@@ -808,7 +1127,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         mini: true,
                         backgroundColor: Colors.white,
                         onPressed: _zoomOut,
-                        child: const Icon(LucideIcons.minus, color: Colors.black87, size: 20),
+                        child: const Icon(
+                          LucideIcons.minus,
+                          color: Colors.black87,
+                          size: 20,
+                        ),
                       ),
                     ],
                   ),
@@ -822,20 +1145,57 @@ class _HomeScreenState extends State<HomeScreen> {
           onPressed: () async {
             final selectedLocation = await Navigator.push(
               context,
-              MaterialPageRoute(builder: (c) => PharmacyListScreen(userPos: _userPos ?? Position(longitude: 34.4475, latitude: 31.5126, timestamp: DateTime.now(), accuracy: 0, altitude: 0, heading: 0, speed: 0, speedAccuracy: 0, altitudeAccuracy: 0, headingAccuracy: 0))),
+              MaterialPageRoute(
+                builder: (c) => PharmacyListScreen(
+                  userPos:
+                      _userPos ??
+                      Position(
+                        longitude: 34.4475,
+                        latitude: 31.5126,
+                        timestamp: DateTime.now(),
+                        accuracy: 0,
+                        altitude: 0,
+                        heading: 0,
+                        speed: 0,
+                        speedAccuracy: 0,
+                        altitudeAccuracy: 0,
+                        headingAccuracy: 0,
+                      ),
+                ),
+              ),
             );
             if (selectedLocation != null && selectedLocation is LatLng) {
-              _scrollController.animateTo(_scrollController.position.maxScrollExtent, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+              _scrollController.animateTo(
+                _scrollController.position.maxScrollExtent,
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeInOut,
+              );
               _mapController.move(selectedLocation, 16.0);
             }
           },
-          style: ElevatedButton.styleFrom(backgroundColor: primaryColor, foregroundColor: Colors.white, elevation: 5, shadowColor: primaryColor.withOpacity(0.4), minimumSize: const Size(double.infinity, 55), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: primaryColor,
+            foregroundColor: Colors.white,
+            elevation: 5,
+            shadowColor: primaryColor.withOpacity(0.4),
+            minimumSize: const Size(double.infinity, 55),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              FaIcon(FontAwesomeIcons.houseMedical, color: Colors.white, size: 18),
+              FaIcon(
+                FontAwesomeIcons.houseMedical,
+                color: Colors.white,
+                size: 18,
+              ),
               SizedBox(width: 10),
-              Text("استكشاف الصيدليات", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+              Text(
+                "استكشاف الصيدليات",
+                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+              ),
             ],
           ),
         ),

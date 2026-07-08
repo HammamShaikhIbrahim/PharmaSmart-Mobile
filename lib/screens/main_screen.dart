@@ -2,8 +2,7 @@
 // استيراد المكتبات الأساسية | Importing core libraries
 // ==========================================
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
-
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'home_screen.dart';
 import 'my_orders_screen.dart';
 import 'cart_screen.dart';
