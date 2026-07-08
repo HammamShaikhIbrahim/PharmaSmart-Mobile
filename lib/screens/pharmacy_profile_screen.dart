@@ -2,7 +2,7 @@
 // استيراد المكتبات الأساسية | Importing core libraries
 // ==========================================
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
 import '../config/api_config.dart';
