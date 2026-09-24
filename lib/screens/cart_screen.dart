@@ -3,8 +3,8 @@
 // ==========================================
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';//تعرض الايقونات
+import 'package:awesome_dialog/awesome_dialog.dart';//تعرض النوافذ المنبثقة
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
@@ -18,7 +18,7 @@ import 'map_picker_screen.dart';
 import 'main_screen.dart';
 import '../widgets/pharma_ui.dart';
 import 'pharmacy_store_screen.dart';
-
+ 
 // ==========================================
 // شاشة سلة المشتريات | Cart Screen
 // ==========================================
@@ -45,6 +45,9 @@ class _CartScreenState extends State<CartScreen> {
   List<Map<String, dynamic>> _customAddresses = [];
   String _primaryAddressText = 'جاري جلب العنوان...';
 
+  // طريقة الدفع المحددة (COD هي الافتراضية والوحيدة النشطة حالياً)
+  String _selectedPaymentMethod = 'cod';
+
   double? _deliveryLat;
   double? _deliveryLng;
 
@@ -55,7 +58,7 @@ class _CartScreenState extends State<CartScreen> {
   void initState() {
     super.initState();
     // ==========================================
-    // تهيئة الصفحة وجلب العناوين | Initialize page and fetch addresses
+    // (العنوان) تهيئة الصفحة وجلب العناوين | Initialize page and fetch addresses
     // ==========================================
     _loadCustomAddresses();
     _fetchPrimaryAddress();
@@ -72,9 +75,7 @@ class _CartScreenState extends State<CartScreen> {
     String? userId = prefs.getString('userId');
     if (userId != null) {
       try {
-        final res = await http.get(
-          Uri.parse("${ApiConfig.baseUrl}get_profile.php?user_id=$userId"),
-        );
+        final res = await http.get(Uri.parse("${ApiConfig.baseUrl}get_profile.php?user_id=$userId"));
         if (res.statusCode == 200) {
           final data = jsonDecode(res.body);
           if (data['status'] == 'success') {
@@ -99,12 +100,9 @@ class _CartScreenState extends State<CartScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('userId');
     if (userId != null) {
-      List<String> savedList =
-          prefs.getStringList('custom_addresses_$userId') ?? [];
+      List<String> savedList = prefs.getStringList('custom_addresses_$userId') ?? [];
       setState(() {
-        _customAddresses = savedList
-            .map((item) => jsonDecode(item) as Map<String, dynamic>)
-            .toList();
+        _customAddresses = savedList.map((item) => jsonDecode(item) as Map<String, dynamic>).toList();
       });
     }
   }
@@ -271,6 +269,8 @@ class _CartScreenState extends State<CartScreen> {
           const SizedBox(height: 20),
           _buildDeliverySection(),
           const SizedBox(height: 20),
+          _buildPaymentMethodsSection(), 
+          const SizedBox(height: 20),
           _buildPriceSummary(),
           const SizedBox(height: 100),
         ],
@@ -355,10 +355,7 @@ class _CartScreenState extends State<CartScreen> {
                     });
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
                       color: primaryColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -640,7 +637,7 @@ class _CartScreenState extends State<CartScreen> {
   // قسم إرفاق الوصفة الطبية (Rx) | Prescription attachment section
   // ==========================================
   Widget _buildRxUploadSection() {
-    bool isMandatory = _cart.hasControlledMedicine;
+    bool isMandatory = _cart.hasControlledMedicine; //الزامي
 
     Color boxColor = isMandatory ? Colors.red.shade50 : Colors.blue.shade50;
     Color borderColor = isMandatory
@@ -894,9 +891,7 @@ class _CartScreenState extends State<CartScreen> {
                   color: hasMapAddress ? Colors.green : primaryColor,
                 ),
                 label: Text(
-                  hasMapAddress
-                      ? 'تم تحديد الموقع'
-                      : 'افتح الخريطة لتحديد الموقع',
+                  hasMapAddress ? 'تم تحديد الموقع' : 'افتح الخريطة لتحديد الموقع',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
@@ -906,9 +901,7 @@ class _CartScreenState extends State<CartScreen> {
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   side: BorderSide(
-                    color: hasMapAddress
-                        ? Colors.green
-                        : primaryColor.withOpacity(0.5),
+                    color: hasMapAddress ? Colors.green : primaryColor.withOpacity(0.5),
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -935,9 +928,7 @@ class _CartScreenState extends State<CartScreen> {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected
-              ? primaryColor.withOpacity(0.05)
-              : Colors.transparent,
+          color: isSelected ? primaryColor.withOpacity(0.05) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? primaryColor : Colors.grey.shade200,
@@ -946,9 +937,7 @@ class _CartScreenState extends State<CartScreen> {
         child: Row(
           children: [
             Icon(
-              isSelected
-                  ? Icons.radio_button_checked
-                  : Icons.radio_button_unchecked,
+              isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
               color: isSelected ? primaryColor : Colors.grey,
               size: 20,
             ),
@@ -962,18 +951,18 @@ class _CartScreenState extends State<CartScreen> {
                   Text(
                     title,
                     style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                      color: Colors.black87,
+                      fontWeight: FontWeight.bold, 
+                      fontSize: 13, 
+                      color: Colors.black87
                     ),
                   ),
                   if (subtitle != null && subtitle.isNotEmpty)
                     Text(
                       subtitle,
                       style: const TextStyle(
-                        fontSize: 11,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 11, 
+                        color: Colors.grey, 
+                        fontWeight: FontWeight.bold
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -988,9 +977,196 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   // ==========================================
+  // قسم طرق الدفع | Payment Methods Section
+  // ==========================================
+  Widget _buildPaymentMethodsSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(LucideIcons.creditCard, color: primaryColor, size: 20),
+              const SizedBox(width: 10),
+              const Text(
+                'طرق الدفع المتاحة',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 15),
+
+          // خيار 1: COD (مفعل)
+          _buildPaymentOptionTile(
+            title: 'الدفع عند الاستلام (COD)',
+            subtitle: 'ادفع نقداً لمندوب التوصيل',
+            icon: LucideIcons.banknote,
+            iconColor: primaryColor,
+            isActive: true,
+            isSelected: _selectedPaymentMethod == 'cod',
+            onTap: () {
+              setState(() {
+                _selectedPaymentMethod = 'cod';
+              });
+            },
+          ),
+
+          // خيار 2: بطاقة ائتمان - معطل ومقيد
+          _buildPaymentOptionTile(
+            title: 'بطاقة ائتمان (Visa / MasterCard)',
+            subtitle: 'الدفع المباشر عبر بوابة الدفع الإلكتروني',
+            icon: LucideIcons.creditCard,
+            iconColor: Colors.orange.shade400,
+            isActive: false,
+            isSelected: _selectedPaymentMethod == 'card',
+            badgeText: 'غير متوفر حالياً',
+            onTap: () {
+              _showPaymentUnavailableMessage('الدفع ببطاقة الائتمان');
+            },
+          ),
+
+          
+          
+        ],
+      ),
+    );
+  }
+
+  //  التعديل هنا: توحيد تصميم خيارات الدفع مع خيارات العناوين
+  Widget _buildPaymentOptionTile({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color iconColor,
+    required bool isActive,
+    required bool isSelected,
+    String? badgeText,
+    required VoidCallback onTap,
+  }) {
+    return Opacity(
+      opacity: isActive ? 1.0 : 0.55, 
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isSelected && isActive ? primaryColor.withOpacity(0.05) : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected && isActive ? primaryColor : Colors.grey.shade200,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                isSelected && isActive ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                color: isSelected && isActive ? primaryColor : Colors.grey,
+                size: 20,
+              ),
+              const SizedBox(width: 10),
+              Icon(icon, color: Colors.grey, size: 18),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            title,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              color: Colors.black87,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (badgeText != null) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.shade50,
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: Colors.orange.shade100),
+                            ),
+                            child: Text(
+                              badgeText,
+                              style: TextStyle(
+                                color: Colors.orange.shade800,
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // رسالة منبثقة عند الضغط على خيار غير متاح
+  void _showPaymentUnavailableMessage(String methodTitle) {
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.info,
+      animType: AnimType.scale,
+      title: 'ميزة قادمة قريباً',
+      desc: 'عذراً، خدمة $methodTitle قيد التطوير وليست متاحة حالياً. يرجى اختيار الدفع عند الاستلام لتتمكن من الطلب.',
+      btnOkColor: primaryColor,
+      btnOkText: 'حسناً',
+    ).show();
+  }
+
+  // ==========================================
   // ملخص فاتورة الطلب | Order price summary
   // ==========================================
   Widget _buildPriceSummary() {
+    String paymentText = 'الدفع عند الاستلام (COD)';
+    if (_selectedPaymentMethod == 'card') {
+      paymentText = 'بطاقة ائتمان (غير متوفر)';
+    } else if (_selectedPaymentMethod == 'wallet') {
+      paymentText = 'محفظة إلكترونية (غير متوفر)';
+    }
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -1043,9 +1219,9 @@ class _CartScreenState extends State<CartScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const Text(
-                'الدفع عند الاستلام (COD)',
-                style: TextStyle(
+              Text(
+                paymentText,
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
@@ -1186,6 +1362,14 @@ class _CartScreenState extends State<CartScreen> {
       return;
     }
 
+    if (_selectedPaymentMethod != 'cod') {
+      _showAwesomeError(
+        'طريقة دفع غير مدعومة',
+        'يرجى اختيار الدفع عند الاستلام (COD) لإتمام هذا الطلب حالياً.',
+      );
+      return;
+    }
+
     String finalAddressDesc = "";
     bool useSavedLoc = false;
     double? finalLat;
@@ -1259,6 +1443,7 @@ class _CartScreenState extends State<CartScreen> {
           "delivery_lng": finalLng,
           "items": orderItems,
           "prescription_image": base64Image,
+          "payment_method": "cod" 
         }),
       );
 

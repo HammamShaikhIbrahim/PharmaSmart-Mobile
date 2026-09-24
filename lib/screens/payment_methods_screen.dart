@@ -9,10 +9,10 @@ import 'package:lucide_icons/lucide_icons.dart';
 // ==========================================
 class PaymentMethodsScreen extends StatelessWidget {
   const PaymentMethodsScreen({super.key});
-
+ 
   final Color primaryColor = const Color(0xFF0A7A48);
   final Color bgColor = const Color(0xFFF2FBF5);
-
+ 
   @override
   Widget build(BuildContext context) {
     // ==========================================

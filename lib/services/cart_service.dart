@@ -25,7 +25,7 @@ class CartItem {
     required this.isControlled,
     this.quantity = 1,
   });
-
+ 
   double get totalPrice => price * quantity;
 }
 

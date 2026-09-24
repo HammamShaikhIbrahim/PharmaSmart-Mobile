@@ -20,7 +20,7 @@ import 'login_screen.dart';
 import 'signup_screen.dart';
 import '../widgets/pharma_ui.dart';
 import 'notifications_sheet.dart';
-
+import 'chat_list_screen.dart';
 // ==========================================
 // الشاشة الرئيسية | Home Screen
 // ==========================================
@@ -639,17 +639,26 @@ class _HomeScreenState extends State<HomeScreen> {
         Row(
           children: [
             Expanded(
-              child: _buildServiceCard("صرف وصفة", const FaIcon(FontAwesomeIcons.filePrescription, color: Colors.orange, size: 22), Colors.orange, () {
-                AwesomeDialog(
-                  context: context,
-                  dialogType: DialogType.info,
-                  title: 'كيف أصرف وصفتي؟',
-                  desc: 'ابحث عن الأدوية المكتوبة في الوصفة، أضفها للسلة، وسيقوم النظام تلقائياً بطلب صورة الوصفة الطبية منك لإتمام الطلب!',
-                  btnOkColor: primaryColor,
-                  btnOkText: 'البحث عن الأدوية',
-                  btnOkOnPress: () => Navigator.push(context, MaterialPageRoute(builder: (c) => SearchScreen(userPos: _userPos))),
-                ).show();
-              }),
+              child: _buildServiceCard(
+                "استشارة", 
+                FaIcon(FontAwesomeIcons.userDoctor, color: primaryColor, size: 22), 
+                primaryColor, 
+                () {
+                  if (widget.isGuest) {
+                    AwesomeDialog(
+                      context: context,
+                      dialogType: DialogType.warning,
+                      title: 'تنبيه زائر',
+                      desc: 'يجب تسجيل الدخول أولاً لتتمكن من التحدث مع الصيادلة.',
+                      btnOkColor: primaryColor,
+                      btnOkOnPress: () {},
+                    ).show();
+                  } else {
+                    // فتح قائمة المحادثات النشطة للمريض
+                    Navigator.push(context, MaterialPageRoute(builder: (c) => const ChatListScreen()));
+                  }
+                }
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(child: _buildServiceCard("منبه الأدوية", const FaIcon(FontAwesomeIcons.clockRotateLeft, color: Colors.blue, size: 22), Colors.blue, () => _showComingSoonMsg("منبه الأدوية الذكي"))),
